@@ -34,7 +34,7 @@ class CliTests(unittest.TestCase):
 
     @patch('china_deals.cli.read_json', return_value=[{'marketplace': 'jd', 'sku': '123', 'title': 'Example', 'price': '¥20'}])
     def test_imported_ranking_provenance(self, unused):
-        code, result = invoke(['rank', 'test.json'])
+        code, result = invoke(['rank', 'test.json', '--currency', 'native'])
         self.assertEqual(code, 0)
         self.assertEqual(result['dataset_origin'], 'imported_json')
         self.assertIsNone(result['groups']['CNY'][0]['observed_at'])
@@ -61,7 +61,7 @@ class CliTests(unittest.TestCase):
         getter.return_value = {'marketplace': 'taobao', 'status': 'ok', 'warnings': [], 'error': None,
                                'items': [{'field': '商品名称', 'value': 'Example'}, {'field': '价格', 'value': '¥20'},
                                          {'field': 'ID', 'value': '123'}, {'field': '链接', 'value': 'https://item.taobao.com/item.htm?id=123'}]}
-        code, result = invoke(['detail', 'taobao', '123'])
+        code, result = invoke(['detail', 'taobao', '123', '--access', 'native', '--currency', 'native'])
         self.assertEqual(code, 0)
         self.assertEqual(len(result['items']), 1)
         self.assertIsNone(result['items'][0]['price']['amount'])
@@ -72,7 +72,7 @@ class CliTests(unittest.TestCase):
         getter.return_value = {'marketplace': 'jd', 'status': 'ok', 'warnings': [], 'error': None,
                                'items': [{'field': '商品名称', 'value': 'Example'}, {'field': '价格', 'value': '¥9.90'},
                                          {'field': 'SKU', 'value': '123'}, {'field': '链接', 'value': 'https://item.jd.com/123.html'}]}
-        code, result = invoke(['detail', 'jd', '123'])
+        code, result = invoke(['detail', 'jd', '123', '--access', 'native', '--currency', 'native'])
         self.assertEqual(code, 0)
         self.assertIsNone(result['items'][0]['price']['amount'])
         self.assertEqual(result['items'][0]['price']['raw'], '¥9.90')
@@ -82,7 +82,7 @@ class CliTests(unittest.TestCase):
     def test_one_source_failure_preserves_other_results(self, search):
         search.side_effect = [ValueError('failure'), {'marketplace': 'jd', 'status': 'ok', 'warnings': [], 'error': None,
                                                     'items': [{'title': 'Example', 'sku': '123', 'price': '¥20'}]}]
-        code, result = invoke(['search', 'Example', '--markets', 'taobao,jd'])
+        code, result = invoke(['search', '示例', '--markets', 'taobao,jd', '--access', 'native', '--currency', 'native'])
         self.assertEqual(code, 3)
         self.assertEqual(result['sources'][0]['status'], 'error')
         self.assertEqual(len(result['groups']['CNY']), 1)

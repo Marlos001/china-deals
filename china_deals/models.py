@@ -108,6 +108,7 @@ def normalize_offer(marketplace, row, observed_at=None):
     if not title:
         raise ValueError("Marketplace row has no title")
     currency = CURRENCIES[marketplace]
+    source_mode = _text(row, "source_mode") or "unspecified"
     original_price = row.get("price")
     structured_offer = row.get("offers")
     if isinstance(original_price, dict) and isinstance(original_price.get("structured_offer"), dict):
@@ -135,7 +136,14 @@ def normalize_offer(marketplace, row, observed_at=None):
     if currency_mismatch:
         amount = None
     price_basis = row.get("price_basis", "displayed")
+    if source_mode == "search_index":
+        price_basis = "search_index_unverified"
     if price_basis != "displayed":
+        amount = None
+    availability = row.get("availability", "unknown")
+    if availability not in {"unknown", "source_claimed_available", "delisted", "sold", "unavailable"}:
+        availability = "unknown"
+    if availability in {"delisted", "sold", "unavailable"}:
         amount = None
     id_fields = {"taobao": ("item_id", "itemId", "num_iid"),
                  "jd": ("item_id", "sku", "skuId"),
@@ -176,6 +184,10 @@ def normalize_offer(marketplace, row, observed_at=None):
         warnings.append(f"Explicit source currency {declared_currency} conflicts with expected {currency}; price is not ranked.")
     if price_basis != "displayed":
         warnings.append("Upstream price is a page minimum or other non-comparable amount; excluded from ranking.")
+    if source_mode == "search_index":
+        warnings.append("Search-index discovery only; current product price, stock and exact variant are not verified.")
+    if availability in {"delisted", "sold", "unavailable"}:
+        warnings.append(f"Source marks this listing {availability}; it is not a current purchase candidate.")
     if item_id and url_item_id and item_id != url_item_id:
         warnings.append("Source item ID and product URL ID conflict; price is not ranked.")
         amount = None
@@ -220,9 +232,18 @@ def normalize_offer(marketplace, row, observed_at=None):
                   "source_currency": str(declared_currency).upper() if declared_currency is not None else None,
                   "currency_basis": "explicit_source_field" if declared_currency else "marketplace_adapter_contract"},
         "seller": _text(row, "shop", "seller", "merchantName"),
+        "description": (_text(row, "description", "desc", "snippet") or "")[:8000],
+        "source_mode": source_mode,
+        "hardware": row.get("hardware") if isinstance(row.get("hardware"), dict) else None,
+        "candidate_id": _text(row, "candidate_id"),
+        "source_detail": row.get("detail", row.get("source_detail")) if isinstance(row.get("detail", row.get("source_detail")), dict) else None,
+        "index_source_url": _text(row, "index_source_url"),
+        "discovered_at": _text(row, "discovered_at"),
+        "location": _text(row, "location"),
+        "domestic_free_shipping": row.get("domestic_free_shipping") if type(row.get("domestic_free_shipping")) is bool else None,
         "variant": _text(row, "variant", "spec"),
         "condition": _text(row, "condition") or "unknown",
-        "availability": "unknown",
+        "availability": availability,
         "seller_trust": "unverified",
         "observed_at": observed_at,
         "signals": signals,

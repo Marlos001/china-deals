@@ -311,13 +311,15 @@ try {
 
 
 def search_marketplace(marketplace: str, query: str, limit: int = 10, timeout: float = 90,
-                       executable: str = "opencli", *, browser_fallback: bool = False) -> dict:
+                       executable: str = "opencli", *, browser_fallback: bool = False, filters=None) -> dict:
     """Search one page; Blibli browser reuse is explicitly opt-in.
 
     Limit is capped at the upstream adapter maximum and disclosed in warnings.
     No extracted rows means empty_unverified, including upstream EMPTY_RESULT.
     """
     marketplace, query = _marketplace(marketplace), _text(query, "query")
+    from .filters import native_plan
+    plan = native_plan(marketplace, query, filters)
     executable, timeout = _text(executable, "executable"), _timeout(timeout)
     if type(limit) is not int or not 1 <= limit <= 1000:
         raise ValueError("limit must be an integer from 1 to 1000")
@@ -343,9 +345,14 @@ def search_marketplace(marketplace: str, query: str, limit: int = 10, timeout: f
                     raise direct_error if fallback_error.status == "unavailable" else fallback_error
         else:
             _version(executable, _remaining(deadline))
-            argv = [executable, _SITE[marketplace], "search", "--limit", str(actual_limit), "--format", "json", "--", query]
+            argv = [executable, _SITE[marketplace], "search", "--limit", str(actual_limit), "--format", "json"] + plan["opencli_argv"] + ["--", query]
             rows = _china_rows(marketplace, _wire(argv, _remaining(deadline)))[:actual_limit]
-        return _result(marketplace, rows, warnings=warnings)
+        result = _result(marketplace, rows, warnings=warnings)
+        submitted = [x[2:].replace("-", "_") for x in plan["opencli_argv"][::2]]
+        plan["submitted_native_filters"] = submitted
+        plan["unverified_or_local_filters"] = sorted(set(plan["requested"]) - set(submitted))
+        result["filters"] = plan
+        return result
     except _Failure as exc:
         return _result(marketplace, failure=exc, warnings=warnings)
 

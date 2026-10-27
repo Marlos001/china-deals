@@ -2,7 +2,19 @@
 
 Checked 2026-10-27 in `/home/marlos/projects/china-deals`.
 
-## Completed checks
+## Version 0.2 guest-access update
+
+- **139 local tests pass** with `python -m unittest discover -s tests -q`; `uvx ruff check china_deals tests` passes. The update adds Chinese-query enforcement, guest HTTP/browser contracts, native/local filter disclosure, per-market policies, dated ECB BRL estimates, hardware conflicts and comparison provenance checks.
+- Optional Playwright/Chromium is tested with offline page fixtures and real fresh browser contexts. Live rendered searches encountered verification for all four marketplaces; no bypass or successful full guest catalog search is claimed.
+- A fresh JD guest HTTP detail for SKU `100214660452` succeeded with explicit hardware text but no numeric price.
+- A live Fansbuy 3kg / 45×35×15cm Electric+Brand scenario yielded four accepted routes, with freight reference conversions R$259.80–647.80. These are hypothetical package inputs, not measured laptop packaging or import acceptance.
+- Blibli cached/index leads remain separate from current offers. Freight is excluded for Blibli; no current global best-deal winner or laptop landed total was established.
+- Two new independent Terra review rounds found product-route admission, discarded contradictory observations, lost listing provenance, and dropped structured hardware evidence. Fixed with CLI and comparison regression coverage.
+- `uv build --out-dir .local/dist` built the 0.2.0 sdist and wheel; final GitHub CI is checked separately after publication.
+
+See the [G16 test notes](research/zephyrus-g16-test.md), [Blibli candidates](research/zephyrus-g16-blibli.md) and [guest browser contract](research/browser-guest.md).
+
+## Baseline 0.1 completed checks
 
 - `python3 -m unittest discover -s tests -q`: **65 passed**. Tests cover real bounded subprocesses, synthetic adapter boundaries, normalization/currency/identity, detail-table integration, exact-match ranking, captured-request binding, carrier filters, rounded cost arithmetic and current PRC threshold/deduction.
 - `uvx ruff check china_deals tests`: passed.
@@ -24,7 +36,7 @@ A subsequent **GPT 6.1 Terra** read-only review of integrated code found two rep
 
 ## Current access limits
 
-- `china-deals doctor --live`: daemon running, **extensionConnected=false**. No authenticated Taobao/JD/Goofish product search or end-to-end price/stock result was established here. The OpenCLI Browser Bridge and user-controlled login/verification are still needed.
+- `china-deals doctor --live`: daemon running, **extensionConnected=false**. No authenticated Taobao/JD/Goofish product search or end-to-end price/stock result was established here. OpenCLI native mode needs a bridge/session for the checked adapters. Version 0.2 defaults to guest engines and reports unavailable/blocked access without requesting a marketplace account.
 - Blibli public API returned **HTTP403**; the browser showed its human-verification page. No challenge was operated. Optional OpenCLI browser fallback is implemented and fixture-tested, but successful live product extraction remains unverified.
 - Blibli's prices are IDR and its goods originate in Indonesia. No Indonesia→China/Fansbuy or Indonesia→Brazil freight path was verified.
 - Freight quotes and current policy documents do not prove item import eligibility, seller authenticity, payable checkout price, final shipping cost, tax treatment or delivery. The restrictions command returns manual_review.

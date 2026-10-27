@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "china-deals"
-version = "0.1.0"
+version = "0.2.0"
 description = "Read-only marketplace research and Fansbuy-to-Brazil cost estimates for AI agents"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -13,6 +13,9 @@ authors = [{ name = "Marlos" }]
 keywords = ["cli", "agents", "taobao", "goofish", "jd", "blibli", "fansbuy", "brazil"]
 classifiers = ["Programming Language :: Python :: 3", "Environment :: Console", "Topic :: Internet"]
 dependencies = []
+
+[project.optional-dependencies]
+browser = ["playwright>=1.55,<2"]
 
 [project.scripts]
 china-deals = "china_deals.cli:main"
