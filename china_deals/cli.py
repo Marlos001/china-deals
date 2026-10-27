@@ -88,6 +88,13 @@ def positive_timeout(value):
     return result
 
 
+def positive_age(value):
+    result = float(value)
+    if not math.isfinite(result) or not 0 < result <= 8760:
+        raise argparse.ArgumentTypeError("must be positive and at most 8760 hours")
+    return result
+
+
 def build_parser():
     parser = argparse.ArgumentParser(description="Read-only marketplace research and Fansbuy-to-Brazil estimates.")
     parser.add_argument("--version", action="version", version=__version__)
@@ -103,14 +110,23 @@ def build_parser():
                          help="Trusted OpenCLI executable path (or CHINA_DEALS_OPENCLI)")
         sub.add_argument("--timeout", type=positive_timeout, default=90)
 
-    def guest_engine(sub):
+    def guest_engine(sub, custom_executable=True):
         sub.add_argument("--guest-engine", choices=("http", "browser"), default="http", help="Guest HTTP or fresh disposable Chromium; browser requires the optional extra")
-        sub.add_argument("--browser-executable", help="Chromium executable for the guest browser engine (default /usr/bin/chromium)")
+        if custom_executable:
+            sub.add_argument("--browser-executable", help="Chromium executable for the guest browser engine (default /usr/bin/chromium)")
 
     def preferences(sub):
         sub.add_argument("--config", help="Per-market preferences JSON; defaults to XDG config or built-in guest preferences")
 
+    def freshness(sub):
+        sub.add_argument("--fresh-only", action="store_true", help="Exclude prices without a recent primary-source observation; cached results never qualify")
+        sub.add_argument("--max-age-hours", type=positive_age, default=24, help="Maximum price observation age (default 24 hours)")
+        sub.add_argument("--as-of", help="Aware ISO timestamp for reproducible offline assessment; defaults to now")
+
     def presentation(sub):
+        freshness(sub)
+        sub.add_argument("--allow-unverified-coupons", action="store_true", help="Evaluate caller rules without the fresh-evidence gate; scenario only")
+        sub.add_argument("--coupon-max-age-hours", type=positive_age, default=1)
         preferences(sub)
         sub.add_argument("--coupons-from-json", help="Coupon rules and eligibility context; separate scenarios, never silently deducted from listing prices")
         sub.add_argument("--currency", choices=("BRL", "native"), help="Display estimates; defaults to config (BRL)")
@@ -164,6 +180,28 @@ def build_parser():
     preferences(catalog)
     catalog.add_argument("--currency", choices=("BRL", "native"))
     catalog.add_argument("--fx-from-json")
+    promos = command("promotions", "Read bounded first-party promotion text; no inferred coupons or redemption")
+    promos.add_argument("marketplace", type=marketplace_name)
+    promos.add_argument("url", help="Exact public primary promotion or product URL")
+    promos.add_argument("--timeout", type=positive_timeout, default=30)
+    promos.add_argument("--from-browser-json", help="Offline import of promotions.CAPTURE_JS output")
+    refresh_cmd = command("refresh", "Refresh exact native product links; retain access failures and optional SQLite history")
+    refresh_cmd.add_argument("input", help="Watchlist, offer array or search JSON file, or -")
+    refresh_cmd.add_argument("--timeout", type=positive_timeout, default=30)
+    refresh_cmd.add_argument("--store", help="Optional local SQLite observation history")
+    guest_engine(refresh_cmd, custom_executable=False)
+    presentation(refresh_cmd)
+    history_cmd = command("history", "Read retained refresh observations; no network")
+    history_cmd.add_argument("--store", required=True)
+    history_cmd.add_argument("--market", type=marketplace_name)
+    history_cmd.add_argument("--item-id")
+    history_cmd.add_argument("--limit", type=bounded_int, default=50)
+    brazil_cmd = command("brazil-compare", "Compare explicit all-in import scenarios with equivalent Brazil offers; offline")
+    brazil_cmd.add_argument("input", help="Comparison cases JSON or -; missing costs remain unknown")
+    preferences(brazil_cmd)
+    brazil_cmd.add_argument("--fx-from-json", help="Local FX snapshot; otherwise use payload FX, never fetch implicitly")
+    brazil_cmd.add_argument("--max-age-hours", type=positive_age, default=24)
+    brazil_cmd.add_argument("--as-of")
     rank = command("rank", "Rank an existing JSON search result or raw marketplace offer array")
     rank.add_argument("input", help="JSON file or - for stdin")
     rank.add_argument("--query", help="Product intent for relevance checks; defaults to the imported search query")
@@ -224,7 +262,9 @@ def build_parser():
 def schema():
     return {
         "schema_version": "1", "version": __version__, "marketplaces": list(MARKETPLACES),
-        "commands": ["search", "detail", "catalog", "rank", "compare", "coupons", "plan", "filters", "config", "fx", "shipping", "estimate", "restrictions", "doctor", "schema"],
+        "commands": ["search", "detail", "catalog", "refresh", "history", "promotions", "brazil-compare", "rank", "compare", "coupons", "plan", "filters", "config", "fx", "shipping", "estimate", "restrictions", "doctor", "schema"],
+        "freshness": {"fresh_only": "Optional; primary observations within max-age-hours only", "prices_max_age_hours": 24,
+                      "coupon_max_age_hours": 1, "cache": "Retrieval never renews source price age", "refresh": "Exact native links, challenge stops, optional local history"},
         "default_access": "guest",
         "query_planning": "Offline bounded suggestions; no AI API or automatic search",
         "relevance": "Title and selected variant checks for iPhone 17 Pro Max, AirPods Max and ROG Zephyrus; unverified facts remain unknown",
@@ -284,13 +324,18 @@ def input_offers(payload):
     return offers
 
 
-def decorate_brl(result, args, config, offers=None):
+def decorate_brl(result, args, config, offers=None, offline_fx=False):
     candidates = offers if offers is not None else [item for group in result.get("groups", {}).values() for item in group] + result.get("unranked", []) + result.get("items", []) + result.get("offers", [])
     if getattr(args, "coupons_from_json", None):
         from .coupons import annotate_offers
-        for item, annotated in zip(candidates, annotate_offers(candidates, read_json(args.coupons_from_json)), strict=True):
+        for item, annotated in zip(candidates, annotate_offers(candidates, read_json(args.coupons_from_json),
+                require_fresh=not getattr(args, "allow_unverified_coupons", False),
+                max_age_hours=getattr(args, "coupon_max_age_hours", 1), as_of=getattr(args, "as_of", None) or utc_now()), strict=True):
             item["coupon_estimates"] = annotated["coupon_estimates"]
     if (getattr(args, "currency", None) or config["display_currency"]) == "native":
+        return None
+    if offline_fx and not args.fx_from_json:
+        result.setdefault('warnings', []).append('Capture import stays offline: native prices retained. Supply --fx-from-json for BRL references.')
         return None
     from . import fx
     try:
@@ -382,6 +427,44 @@ def _run(args):
         from .fx import fetch_rates
         return fetch_rates(args.timeout), 0
     config = load_config(getattr(args, "config", None))
+    if args.command == "promotions":
+        from .promotions import parse_capture, read_promotions
+        if args.from_browser_json:
+            capture = read_json(args.from_browser_json)
+            if isinstance(capture, dict) and isinstance(capture.get("structuredContent"), dict):
+                capture = capture["structuredContent"].get("value")
+            elif isinstance(capture, dict) and isinstance(capture.get("value"), dict):
+                capture = capture["value"]
+            result = parse_capture(capture, args.marketplace, args.url)
+        else:
+            result = read_promotions(args.marketplace, args.url, args.timeout)
+        return result, 0 if result.get("status") == "ok" else 3
+    if args.command == "history":
+        from sqlite3 import Error as SQLiteError
+
+        from .refresh import history
+        try:
+            observations = history(args.store, marketplace=args.market, item_id=args.item_id, limit=args.limit)
+        except SQLiteError:
+            raise ValueError('History store could not be read; check that it is a compatible SQLite database.') from None
+        return {"schema_version": "1", "observations": observations}, 0
+    if args.command == "brazil-compare":
+        from .brazil import compare_brazil
+        return compare_brazil(read_json(args.input), fx_snapshot=read_json(args.fx_from_json) if args.fx_from_json else None,
+                              config=config, as_of=args.as_of, max_age_hours=args.max_age_hours), 0
+    if args.command == "refresh":
+        from .refresh import refresh_offers
+        imported = read_json(args.input)
+        result = refresh_offers(imported, backend=args.guest_engine, timeout=args.timeout,
+                                max_age_hours=args.max_age_hours, as_of=args.as_of, store_path=args.store)
+        # Refresh always attempts first-party acquisition; fresh-only affects presentation ranking.
+        rows = result.get("items", [])
+        from .freshness import annotate_price_freshness
+        for row in rows:
+            annotate_price_freshness(row, args.fresh_only, args.max_age_hours, args.as_of)
+        decorate_brl(result, args, config, rows)
+        result["status"] = "ok" if all(row.get("refresh", {}).get("status") == "refreshed" for row in rows) and result.get("storage", {}).get("status") != "error" else "partial"
+        return result, 0 if result.get("status") == "ok" else 3
     if args.command == "catalog":
         from .catalogs import get_catalog_item
         result = get_catalog_item(args.marketplace, args.item_id, args.timeout)
@@ -442,13 +525,12 @@ def _run(args):
                 except ValueError:
                     result.setdefault("warnings", []).append("Unusable detail row omitted; source fields remain unverified.")
                     result["status"] = "error"
+            from .freshness import annotate_price_freshness
+            for item in result["items"]:
+                annotate_price_freshness(item, args.fresh_only, args.max_age_hours, args.as_of)
             result["schema_version"] = "1"
             result["access_mode"] = access
-            if args.from_browser_json and not args.fx_from_json:
-                if (args.currency or config["display_currency"]) != "native":
-                    result["warnings"].append("Capture import stays offline: native prices retained. Supply --fx-from-json for BRL references.")
-            else:
-                decorate_brl(result, args, config)
+            decorate_brl(result, args, config, offline_fx=bool(args.from_browser_json))
             return result, 0 if result.get("status") == "ok" else 3
         args.query = args.query.strip()
         if (not args.query or len(args.query) > 500 or args.query.startswith("-")
@@ -497,7 +579,7 @@ def _run(args):
                     mode = result.get("source_mode")
                     if access == "native":
                         mode = "listing_content"
-                    item = normalize_offer(market, dict(row, source_mode=row.get("source_mode") or mode or "unspecified"), observed)
+                    item = normalize_offer(market, dict(row, source_mode=row.get("source_mode") or mode or "unspecified"), row.get("observed_at") or observed)
                     item["filter_evaluation"] = evaluate_offer(item, filters)
                     if item["filter_evaluation"]["status"] == "excluded" or args.strict_filters and item["filter_evaluation"]["status"] == "unknown":
                         excluded.append(item)
@@ -517,7 +599,8 @@ def _run(args):
             result["query"] = query
             result["filter_plan"] = result.get("filters") or native_plan(market, query, filters)
             sources.append(result)
-        result = rank_offers(offers, args.require_term, args.exclude_term, args.limit, descending=filters.get("sort") == "price-desc", query=args.query)
+        result = rank_offers(offers, args.require_term, args.exclude_term, args.limit, descending=filters.get("sort") == "price-desc", query=args.query,
+                             fresh_only=args.fresh_only, max_age_hours=args.max_age_hours, as_of=args.as_of)
         result.update(query=args.query, sources=sources,
                       coverage="observed_results_only", dataset_origin="live_adapters",
                       requested_filters=filters, filter_excluded_count=len(excluded))
@@ -530,13 +613,15 @@ def _run(args):
             from .ranking import apply_product_intent
             for item in offers:
                 apply_product_intent(item, args.query)
+                from .freshness import annotate_price_freshness
+                annotate_price_freshness(item, args.fresh_only, args.max_age_hours, args.as_of)
             result["offers"] = offers
         decorate_brl(result, args, config)
         return result, 0 if all(s.get("status") == "ok" for s in sources) else 3
     if args.command == "coupons":
         imported = read_json(args.input)
         query = imported_query(imported)
-        payload = rank_offers(input_offers(imported), limit=None, deduplicate=False, query=query)
+        payload = rank_offers(input_offers(imported), limit=None, deduplicate=False, query=query, fresh_only=args.fresh_only, max_age_hours=args.max_age_hours, as_of=args.as_of)
         offers = [item for group in payload["groups"].values() for item in group] + payload["unranked"]
         args.coupons_from_json = args.rules
         result = {"schema_version": "1", "dataset_origin": "caller_supplied_coupon_scenario", "offers": offers,
@@ -549,7 +634,8 @@ def _run(args):
         payload = read_json(args.input)
         offers = input_offers(payload)
         result = rank_offers(offers, args.require_term, args.exclude_term, args.limit,
-                             query=args.query or imported_query(payload))
+                             query=args.query or imported_query(payload),
+                             fresh_only=args.fresh_only, max_age_hours=args.max_age_hours, as_of=args.as_of)
         result["dataset_origin"] = "imported_json"
         result["warnings"].append("Imported records are caller-supplied; prices and observation timestamps are not independently verified.")
         decorate_brl(result, args, config)
@@ -557,7 +643,8 @@ def _run(args):
     if args.command == "compare":
         from .hardware import compare_laptops
         imported = read_json(args.input)
-        payload = rank_offers(input_offers(imported), limit=None, deduplicate=False, query=imported_query(imported))
+        payload = rank_offers(input_offers(imported), limit=None, deduplicate=False, query=imported_query(imported),
+                             fresh_only=args.fresh_only, max_age_hours=args.max_age_hours, as_of=args.as_of)
         offers = [item for group in payload["groups"].values() for item in group] + payload["unranked"]
         wrapper = {"warnings": []}
         rates = decorate_brl(wrapper, args, config, offers)
@@ -616,7 +703,35 @@ def _md_cell(value):
 
 def markdown(result):
     lines = []
-    if isinstance(result.get("groups"), list):
+    if "refresh_policy" in result:
+        lines.extend(["First-party refresh observations; checkout and stock remain unverified.\n",
+                      "| Marketplace | Price | Observed at | Refresh | Source |", "|---|---:|---|---|---|"])
+        for row in result["items"]:
+            amount = row["price"]["amount"]
+            value = str(amount) + " " + row["price"]["currency"] if amount is not None else "unknown"
+            lines.append("| " + " | ".join(_md_cell(x) for x in (row["marketplace"], value,
+                row.get("observed_at") or "unknown", row["refresh"]["status"], row["url"])) + " |")
+        lines.append("\nHistory: " + _md_cell(result["storage"]["status"]))
+    elif "snippets" in result:
+        lines.append("Public promotion evidence: " + _md_cell(result["status"]) + "; observed " + _md_cell(result.get("observed_at")))
+        for snippet in result["snippets"]:
+            lines.append("- " + _md_cell(snippet if isinstance(snippet, str) else json.dumps(snippet, ensure_ascii=False)))
+        lines.append("No coupon eligibility or savings inferred. Source: " + _md_cell(result.get("source_url")))
+    elif "cases" in result:
+        reviews = []
+        lines.extend(["Import versus Brazil: explicit cost scenarios; unresolved evidence holds the decision.\n",
+                      "| Case | Import total BRL | Brazil total BRL | Savings BRL | Outcome |",
+                      "|---|---:|---:|---:|---|"])
+        for row in result["cases"]:
+            lines.append("| " + " | ".join(_md_cell(value) for value in [row["id"],
+                row["imported"]["landed_total_brl"] or "unknown", row["brazil"]["complete_total_brl"] or "unknown",
+                row["savings_amount_brl"] or "unknown", row["financial_outcome"]]) + " |")
+            if row["reasons"]:
+                reviews.append("\nReview " + _md_cell(row["id"]) + ": " + _md_cell(", ".join(row["reasons"])))
+            if row["break_even_remaining_cost_budget_brl"] is not None:
+                reviews.append("\n" + _md_cell(row["id"]) + " remaining budget for ALL missing import components: R$" + _md_cell(row["break_even_remaining_cost_budget_brl"]) + ". Conditional arithmetic only.")
+        lines.extend(reviews)
+    elif isinstance(result.get("groups"), list):
         lines.append("Laptop comparison: complete configurations only; missing facts remain unresolved.\n")
         for group in result["groups"]:
             lines.append("Configuration: " + _md_cell(json.dumps(group["configuration"], ensure_ascii=False)))
@@ -629,11 +744,14 @@ def markdown(result):
     elif "groups" in result:
         lines.append("Observed displayed prices; model, variant and condition still need verification.\n")
         for currency, items in result["groups"].items():
-            lines.extend([f"**{currency}**\n", "| Price | BRL reference | Marketplace | Product | Condition / review signals | Source |", "|---:|---:|---|---|---|---|"])
+            lines.extend([f"**{currency}**\n", "| Price | BRL reference | Marketplace | Product / selection | Condition / review signals | Price observation | Source |", "|---:|---:|---|---|---|---|---|"])
             for row in items:
+                review = row["condition"] + "; " + ", ".join(row["signals"])
+                review += "; " + "; ".join(row.get("source_warnings", [])[:3]) if row.get("source_warnings") else ""
+                observation = row.get("price_freshness", {}).get("status", "unknown") + "; " + str(row.get("observed_at") or "unknown")
                 lines.append("| " + " | ".join(_md_cell(x) for x in
-                             [row["price"]["amount"], row.get("brl", {}).get("product_cost") or "unknown", row["marketplace"], row["title"],
-                              row["condition"] + "; " + ", ".join(row["signals"]), row["url"]]) + " |")
+                             [row["price"]["amount"], row.get("brl", {}).get("product_cost") or "unknown", row["marketplace"], row["title"] + ("; " + row["variant"] if row.get("variant") else ""),
+                              review, observation, row["url"]]) + " |")
             lines.append("")
         unranked = result.get("unranked", [])
         if unranked:

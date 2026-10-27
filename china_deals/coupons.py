@@ -1,13 +1,17 @@
 """Evaluate caller-supplied coupon assertions; never fetch or redeem a coupon.
 
 Public contract:
-    evaluate_coupons(offer, campaigns, context=None, as_of=None) -> dict
-    annotate_offers(offers, payload) -> list of copied offers with coupon_estimates
+    evaluate_coupons(offer, campaigns, context=None, as_of=None,
+                     require_fresh=False, max_age_hours=1) -> dict
+    annotate_offers(offers, payload, require_fresh=False, max_age_hours=1,
+                    as_of=None) -> list of copied offers with coupon_estimates
+    assess_coupon_freshness(campaign, as_of=None, max_age_hours=1) -> dict
 
 Campaign schema: id (optional), currency (CNY or IDR), discount containing exactly
 one of amount or percent (0..100); optional kind (instant, the default, or
 cashback), min_spend, cap, marketplace, product_ids, seller, starts_at, ends_at,
-requires, confirmed, eligibility, source_url, observed_at. Money accepts finite
+requires, confirmed, eligibility, source_url, observed_at, verified_at,
+source_mode. Money accepts finite
 nonnegative numbers or decimal strings, never booleans. Product IDs are strings
 or integers and require one marketplace, as do seller restrictions. Unknown
 campaign fields are rejected so misspelled constraints cannot grant eligibility.
@@ -22,6 +26,26 @@ date boundaries impose no restriction; confirmed asserts the declared scenario
 is active at as_of. Supplied boundaries and observation datetimes need offsets;
 date-only values mean UTC midnight (end dates include that full UTC day).
 as_of defaults to UTC now; pass it explicitly for reproducible results.
+
+Optional source evidence contract: source_mode is product_page,
+guest_product_page, retailer_product_page, coupon_page, guest_coupon_page,
+checkout_page, guest_checkout_page, or guest_api for freshness consideration.
+Other modes (including caches, indexes, user/anonymous observations and missing
+modes) never establish freshness. source_url must be HTTPS on the declared
+marketplace's first-party host or subdomain, without credentials or a non-443
+port. Both starts_at and ends_at must be explicit, with as_of and observed_at
+inside that inclusive window. observed_at must be a timezone-aware datetime,
+not a date or retrieval/index timestamp, within max_age_hours (positive, default
+1) and not in the future. Optional verified_at must also be timezone-aware,
+recent, and between observed_at and as_of; it never replaces observed_at.
+The helper checks evidence independently of discount or account eligibility and
+returns fresh (bool), status, reasons, age_hours and provenance. Missing/invalid
+evidence is unverified. Freshness is a caller assertion, never checkout proof.
+require_fresh adds an unknown freshness constraint for non-fresh evidence;
+otherwise eligible scenarios become potential, while failed constraints remain
+ineligible. It never fills missing account/payment/SKU/quantity/quota facts.
+annotate_offers' explicit as_of overrides payload.as_of. Raw source timestamps
+are assessed before legacy date normalization, preventing timestamp laundering.
 
 Return keys: as_of, currency, listing_amount, campaigns, best_eligible,
 best_potential, warnings, evidence_basis, independently_verified,
@@ -44,12 +68,15 @@ from datetime import date, datetime, time, timedelta, timezone
 from decimal import ROUND_HALF_UP, Decimal, InvalidOperation, localcontext
 from urllib.parse import urlsplit
 
-from .models import MARKETPLACES
+from .models import HOSTS, MARKETPLACES
 
 _SCALES = {"CNY": 2, "IDR": 0}
 _FIELDS = {"id", "currency", "discount", "kind", "min_spend", "cap", "marketplace",
            "product_ids", "seller", "starts_at", "ends_at", "requires", "confirmed",
-           "eligibility", "source_url", "observed_at"}
+           "eligibility", "source_url", "observed_at", "verified_at", "source_mode"}
+_FRESH_SOURCE_MODES = {"product_page", "guest_product_page", "retailer_product_page",
+                       "coupon_page", "guest_coupon_page", "checkout_page",
+                       "guest_checkout_page", "guest_api"}
 _WARNINGS = [
     "Caller-supplied assertions only; eligible/potential are scenarios, not live redemption verification.",
     "Stacking rules unverified; coupons are independent alternatives and are never summed.",
@@ -93,6 +120,94 @@ def _timestamp(value, name, *, end=False):
         return result.astimezone(timezone.utc)
     except (ValueError, OverflowError):
         raise ValueError(f"{name} must be an ISO date or timezone-aware datetime") from None
+
+
+def _source_timestamp(value, name):
+    # Legacy date-only observations remain accepted by the evaluator, but cannot
+    # establish source freshness by being converted into UTC midnight.
+    if not isinstance(value, (str, datetime)) or isinstance(value, str) and len(value) <= 10:
+        raise ValueError(f"{name} must be a timezone-aware datetime")
+    return _timestamp(value, name)
+
+
+def _freshness_limit(max_age_hours):
+    limit = _number(max_age_hours, "max_age_hours")
+    if limit <= 0:
+        raise ValueError("max_age_hours must be positive")
+    return limit
+
+
+def assess_coupon_freshness(campaign, as_of=None, max_age_hours=1):
+    """Assess source evidence only; never fetch, refresh or confirm eligibility."""
+    if not isinstance(campaign, dict):
+        raise ValueError("Campaign must be an object")
+    limit = _freshness_limit(max_age_hours)
+    now = datetime.now(timezone.utc) if as_of is None else _timestamp(as_of, "as_of")
+    result = {"fresh": False, "status": "unverified", "reasons": [],
+              "age_hours": None, "max_age_hours": str(limit), "as_of": now.isoformat(),
+              "source_url": campaign.get("source_url"), "source_mode": campaign.get("source_mode"),
+              "observed_at": None, "verified_at": None,
+              "evidence_basis": "caller_assertions", "independently_verified": False,
+              "used_cart_checkout": False}
+    reasons = result["reasons"]
+    mode = campaign.get("source_mode")
+    if not isinstance(mode, str) or mode not in _FRESH_SOURCE_MODES:
+        reasons.append("source_mode_unverified")
+    market = campaign.get("marketplace")
+    hosts = HOSTS.get(market, ()) if isinstance(market, str) else ()
+    try:
+        parsed = urlsplit(_text(campaign.get("source_url"), "source_url"))
+        host = parsed.hostname or ""
+        first_party = (parsed.scheme == "https" and not parsed.username and not parsed.password
+                       and parsed.port in (None, 443)
+                       and any(host == domain or host.endswith("." + domain) for domain in hosts))
+    except ValueError:
+        first_party = False
+    if not first_party:
+        reasons.append("source_url_not_first_party_https")
+    stamps = {}
+    for field in ("observed_at", "verified_at", "starts_at", "ends_at"):
+        if field == "verified_at" and field not in campaign:
+            continue
+        try:
+            stamps[field] = (_source_timestamp(campaign.get(field), field)
+                             if field in ("observed_at", "verified_at")
+                             else _timestamp(campaign.get(field), field, end=field == "ends_at"))
+        except ValueError:
+            reasons.append(f"{field}_missing_or_invalid")
+    for field in ("observed_at", "verified_at"):
+        if field in stamps:
+            result[field] = stamps[field].isoformat()
+    if reasons:
+        return result
+    observed, start, end = (stamps[key] for key in ("observed_at", "starts_at", "ends_at"))
+    age = Decimal(str((now - observed).total_seconds())) / Decimal(3600)
+    result["age_hours"] = str(age)
+    if start > end:
+        reasons.append("invalid_validity_window")
+    elif now < start:
+        result["status"] = "not_started"
+        reasons.append("campaign_not_started")
+    elif now > end:
+        result["status"] = "expired"
+        reasons.append("campaign_expired")
+    elif observed > now:
+        result["status"] = "future_timestamp"
+        reasons.append("observed_at_in_future")
+    elif not start <= observed <= end:
+        reasons.append("observed_at_outside_validity_window")
+    elif age > limit:
+        result["status"] = "stale"
+        reasons.append("observed_at_older_than_limit")
+    if "verified_at" in stamps:
+        verified = stamps["verified_at"]
+        if not observed <= verified <= now:
+            reasons.append("verified_at_outside_observation_interval")
+        elif Decimal(str((now - verified).total_seconds())) / Decimal(3600) > limit:
+            reasons.append("verified_at_older_than_limit")
+    if not reasons:
+        result.update(fresh=True, status="fresh")
+    return result
 
 
 def _text(value, name):
@@ -155,6 +270,10 @@ def _campaigns(campaigns):
         for field in ("starts_at", "ends_at", "observed_at"):
             if field in row:
                 row[field] = _timestamp(row[field], field, end=field == "ends_at")
+        if "verified_at" in row:
+            row["verified_at"] = _source_timestamp(row["verified_at"], "verified_at")
+        if "source_mode" in row:
+            _text(row["source_mode"], "source_mode")
         if "starts_at" in row and "ends_at" in row and row["starts_at"] > row["ends_at"]:
             raise ValueError("starts_at must not be after ends_at")
         if "confirmed" in row and type(row["confirmed"]) is not bool:
@@ -189,7 +308,7 @@ def _same(actual, expected):
     return isinstance(actual, bool) == isinstance(expected, bool) and actual == expected
 
 
-def _evaluate(offer, campaigns, context, now):
+def _evaluate(offer, campaigns, context, now, freshness, require_fresh):
     if not isinstance(offer, dict) or not isinstance(offer.get("price"), dict):
         raise ValueError("offer needs a normalized price object")
     price = offer["price"]
@@ -201,7 +320,7 @@ def _evaluate(offer, campaigns, context, now):
     if market not in MARKETPLACES:
         raise ValueError("Offer needs a supported marketplace")
     results = []
-    for row in campaigns:
+    for row, source_freshness in zip(campaigns, freshness):
         checks = []
 
         def check(name, actual, expected, *, predicate=None):
@@ -246,6 +365,8 @@ def _evaluate(offer, campaigns, context, now):
         check("observed_at", row.get("observed_at"), None, predicate=lambda _: True)
         if row.get("observed_at") is not None and row["observed_at"] > now:
             checks.append({"name": "observed_at_not_future", "status": "unknown"})
+        if require_fresh:
+            check("freshness", True if source_freshness["fresh"] else None, True)
         failed = [c["name"] for c in checks if c["status"] == "fail"]
         missing = [c["name"] for c in checks if c["status"] == "unknown"]
         status = "ineligible" if failed else "potential" if missing else "eligible"
@@ -268,6 +389,8 @@ def _evaluate(offer, campaigns, context, now):
             "discount_amount": _money(discount, currency), "amount_due": _money(due, currency),
             "cashback": _money(cashback, currency), "source_url": row.get("source_url"),
             "observed_at": row["observed_at"].isoformat() if row.get("observed_at") else None,
+            "verified_at": row["verified_at"].isoformat() if row.get("verified_at") else None,
+            "source_mode": row.get("source_mode"), "freshness": deepcopy(source_freshness),
             "independently_verified": False, "used_cart_checkout": False,
         })
 
@@ -299,23 +422,32 @@ def _context(context):
     return context
 
 
-def evaluate_coupons(offer, campaigns, context=None, as_of=None):
+def evaluate_coupons(offer, campaigns, context=None, as_of=None, require_fresh=False, max_age_hours=1):
     """Return independent coupon scenarios without changing the normalized offer."""
     now = datetime.now(timezone.utc) if as_of is None else _timestamp(as_of, "as_of")
-    return _evaluate(offer, _campaigns(campaigns), _context(context), now)
+    validated = _campaigns(campaigns)
+    if type(require_fresh) is not bool:
+        raise ValueError("require_fresh must be a boolean")
+    limit = _freshness_limit(max_age_hours)
+    freshness = [assess_coupon_freshness(row, now, limit) for row in campaigns]
+    return _evaluate(offer, validated, _context(context), now, freshness, require_fresh)
 
 
-def annotate_offers(offers, payload):
+def annotate_offers(offers, payload, require_fresh=False, max_age_hours=1, as_of=None):
     """Copy offers, adding only coupon_estimates; payload uses campaigns/context/as_of."""
     if not isinstance(payload, dict) or set(payload) - {"campaigns", "context", "as_of"}:
         raise ValueError("Coupon payload must contain campaigns, optional context and as_of")
     campaigns = _campaigns(payload.get("campaigns"))
     context = _context(payload.get("context"))
-    as_of = payload.get("as_of")
+    as_of = payload.get("as_of") if as_of is None else as_of
     now = datetime.now(timezone.utc) if as_of is None else _timestamp(as_of, "as_of")
+    if type(require_fresh) is not bool:
+        raise ValueError("require_fresh must be a boolean")
+    limit = _freshness_limit(max_age_hours)
+    freshness = [assess_coupon_freshness(row, now, limit) for row in payload["campaigns"]]
     result = []
     for offer in offers:
-        estimate = _evaluate(offer, campaigns, context, now)
+        estimate = _evaluate(offer, campaigns, context, now, freshness, require_fresh)
         annotated = deepcopy(offer)
         annotated["coupon_estimates"] = estimate
         result.append(annotated)

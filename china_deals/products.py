@@ -4,6 +4,7 @@ Descriptions and catalog summaries cannot establish the product being sold.
 Missing model, revision and configuration evidence remains uncertain.
 """
 
+import json
 import re
 import unicodedata
 
@@ -142,6 +143,19 @@ def _constraints(text, family):
     return fields
 
 
+def transaction_scope_warnings(offer):
+    """Transaction scope applies even without a supported product intent."""
+    values = [offer.get(key) for key in ('title', 'variant', 'variant_evidence', 'payment',
+              'payment_method', 'payment_terms', 'price_scope', 'transaction_evidence')]
+    price = offer.get('price')
+    if isinstance(price, dict):
+        values.extend(price.get(key) for key in ('scope', 'type'))
+    text = json.dumps(values, ensure_ascii=False, default=str).replace('_', ' ')
+    if _has(_PRICE_RISK, text) or _has(r'\b(?:installments?|cicilan)\b|\b\d+\s*x\b', text):
+        return ['possible_deposit_or_installment_price']
+    return []
+
+
 def assess_product(offer, query):
     """Keep the public relevance contract; a match is a literal claim, not verification."""
     family = intent_family(query)
@@ -149,8 +163,7 @@ def assess_product(offer, query):
               "match_basis": "title_and_selected_variant", "price_scope_warnings": []}
     title, variant = (str(offer.get(key) or "") for key in ("title", "variant"))
     fields = [("title", title), ("selected_variant", variant)]
-    if any(_has(_PRICE_RISK, value) for _, value in fields):
-        result["price_scope_warnings"].append("possible_deposit_or_installment_price")
+    result["price_scope_warnings"] = transaction_scope_warnings(offer)
     if family is None:
         result["reasons"].append("unsupported_product_intent")
         return result

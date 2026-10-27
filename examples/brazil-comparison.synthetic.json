@@ -1,0 +1,329 @@
+{
+  "as_of": "2026-10-27T12:00:00Z",
+  "fx": {
+    "base": "BRL",
+    "rate_date": "2026-10-27",
+    "source": "synthetic.example.invalid",
+    "brl_per_unit": {
+      "CNY": "0.75",
+      "IDR": "0.0003",
+      "USD": "5.00"
+    }
+  },
+  "cases": [
+    {
+      "id": "synthetic-import-cheaper",
+      "imported": {
+        "offer": {
+          "marketplace": "jd",
+          "sku": "123",
+          "title": "SYNTHETIC Model A",
+          "price": "¥100",
+          "currency": "CNY",
+          "condition": "new",
+          "source_mode": "guest_product_page",
+          "observed_at": "2026-10-27T12:00:00Z",
+          "payment_method": "synthetic wire transfer"
+        },
+        "identity": {
+          "model": "SYNTHETIC Model A",
+          "condition": "new",
+          "variant": {
+            "gpu": "SYNTHETIC GPU",
+            "ram_gb": 16,
+            "storage_gb": 512
+          }
+        },
+        "costs": {
+          "domestic_freight": {
+            "amount": "0",
+            "currency": "BRL",
+            "basis": "scenario"
+          },
+          "international_freight": {
+            "amount": "0",
+            "currency": "BRL",
+            "basis": "scenario"
+          },
+          "insurance": {
+            "amount": "0",
+            "currency": "BRL",
+            "basis": "scenario"
+          },
+          "taxes": {
+            "amount": "0",
+            "currency": "BRL",
+            "basis": "scenario"
+          },
+          "agent_fees": {
+            "amount": "0",
+            "currency": "BRL",
+            "basis": "scenario"
+          },
+          "payment_fees": {
+            "amount": "0",
+            "currency": "BRL",
+            "basis": "scenario"
+          },
+          "other_fees": {
+            "amount": "0",
+            "currency": "BRL",
+            "basis": "scenario"
+          }
+        }
+      },
+      "brazil": {
+        "offer": {
+          "title": "SYNTHETIC Model A",
+          "url": "https://retailer.example.invalid/fake-product",
+          "price": {
+            "amount": "150",
+            "currency": "BRL",
+            "basis": "displayed"
+          },
+          "source_mode": "retailer_product_page",
+          "observed_at": "2026-10-27T12:00:00Z",
+          "availability": "source_claimed_available",
+          "condition": "new",
+          "payment_method": "Pix"
+        },
+        "identity": {
+          "model": "SYNTHETIC Model A",
+          "condition": "new",
+          "variant": {
+            "gpu": "SYNTHETIC GPU",
+            "ram_gb": 16,
+            "storage_gb": 512
+          }
+        },
+        "costs": {
+          "delivery": {
+            "amount": "10",
+            "currency": "BRL",
+            "basis": "scenario"
+          },
+          "fees": {
+            "amount": "0",
+            "currency": "BRL",
+            "basis": "scenario"
+          }
+        }
+      },
+      "equivalence": {
+        "status": "confirmed",
+        "note": "Synthetic exact identities supplied for testing only."
+      },
+      "import_eligibility": {
+        "status": "confirmed",
+        "note": "Synthetic assertion, no legal clearance."
+      }
+    },
+    {
+      "id": "synthetic-brazil-cheaper",
+      "imported": {
+        "offer": {
+          "marketplace": "jd",
+          "sku": "123",
+          "title": "SYNTHETIC Model A",
+          "price": "¥100",
+          "currency": "CNY",
+          "condition": "new",
+          "source_mode": "guest_product_page",
+          "observed_at": "2026-10-27T12:00:00Z",
+          "payment_method": "synthetic wire transfer"
+        },
+        "identity": {
+          "model": "SYNTHETIC Model A",
+          "condition": "new",
+          "variant": {
+            "gpu": "SYNTHETIC GPU",
+            "ram_gb": 16,
+            "storage_gb": 512
+          }
+        },
+        "costs": {
+          "domestic_freight": {
+            "amount": "0",
+            "currency": "BRL",
+            "basis": "scenario"
+          },
+          "international_freight": {
+            "amount": "0",
+            "currency": "BRL",
+            "basis": "scenario"
+          },
+          "insurance": {
+            "amount": "0",
+            "currency": "BRL",
+            "basis": "scenario"
+          },
+          "taxes": {
+            "amount": "100",
+            "currency": "BRL",
+            "basis": "scenario"
+          },
+          "agent_fees": {
+            "amount": "0",
+            "currency": "BRL",
+            "basis": "scenario"
+          },
+          "payment_fees": {
+            "amount": "0",
+            "currency": "BRL",
+            "basis": "scenario"
+          },
+          "other_fees": {
+            "amount": "0",
+            "currency": "BRL",
+            "basis": "scenario"
+          }
+        }
+      },
+      "brazil": {
+        "offer": {
+          "title": "SYNTHETIC Model A",
+          "url": "https://retailer.example.invalid/fake-product",
+          "price": {
+            "amount": "150",
+            "currency": "BRL",
+            "basis": "displayed"
+          },
+          "source_mode": "retailer_product_page",
+          "observed_at": "2026-10-27T12:00:00Z",
+          "availability": "source_claimed_available",
+          "condition": "new",
+          "payment_method": "Pix"
+        },
+        "identity": {
+          "model": "SYNTHETIC Model A",
+          "condition": "new",
+          "variant": {
+            "gpu": "SYNTHETIC GPU",
+            "ram_gb": 16,
+            "storage_gb": 512
+          }
+        },
+        "costs": {
+          "delivery": {
+            "amount": "10",
+            "currency": "BRL",
+            "basis": "scenario"
+          },
+          "fees": {
+            "amount": "0",
+            "currency": "BRL",
+            "basis": "scenario"
+          }
+        }
+      },
+      "equivalence": {
+        "status": "confirmed",
+        "note": "Synthetic exact identities supplied for testing only."
+      },
+      "import_eligibility": {
+        "status": "confirmed",
+        "note": "Synthetic assertion, no legal clearance."
+      }
+    },
+    {
+      "id": "synthetic-missing-freight-tax-eligibility",
+      "imported": {
+        "offer": {
+          "marketplace": "jd",
+          "sku": "123",
+          "title": "SYNTHETIC Model A",
+          "price": "¥100",
+          "currency": "CNY",
+          "condition": "new",
+          "source_mode": "guest_product_page",
+          "observed_at": "2026-10-27T12:00:00Z",
+          "payment_method": "synthetic wire transfer"
+        },
+        "identity": {
+          "model": "SYNTHETIC Model A",
+          "condition": "new",
+          "variant": {
+            "gpu": "SYNTHETIC GPU",
+            "ram_gb": 16,
+            "storage_gb": 512
+          }
+        },
+        "costs": {
+          "domestic_freight": {
+            "amount": "0",
+            "currency": "BRL",
+            "basis": "scenario"
+          },
+          "international_freight": null,
+          "insurance": {
+            "amount": "0",
+            "currency": "BRL",
+            "basis": "scenario"
+          },
+          "taxes": null,
+          "agent_fees": {
+            "amount": "0",
+            "currency": "BRL",
+            "basis": "scenario"
+          },
+          "payment_fees": {
+            "amount": "0",
+            "currency": "BRL",
+            "basis": "scenario"
+          },
+          "other_fees": {
+            "amount": "0",
+            "currency": "BRL",
+            "basis": "scenario"
+          }
+        }
+      },
+      "brazil": {
+        "offer": {
+          "title": "SYNTHETIC Model A",
+          "url": "https://retailer.example.invalid/fake-product",
+          "price": {
+            "amount": "150",
+            "currency": "BRL",
+            "basis": "displayed"
+          },
+          "source_mode": "retailer_product_page",
+          "observed_at": "2026-10-27T12:00:00Z",
+          "availability": "source_claimed_available",
+          "condition": "new",
+          "payment_method": "Pix"
+        },
+        "identity": {
+          "model": "SYNTHETIC Model A",
+          "condition": "new",
+          "variant": {
+            "gpu": "SYNTHETIC GPU",
+            "ram_gb": 16,
+            "storage_gb": 512
+          }
+        },
+        "costs": {
+          "delivery": {
+            "amount": "10",
+            "currency": "BRL",
+            "basis": "scenario"
+          },
+          "fees": {
+            "amount": "0",
+            "currency": "BRL",
+            "basis": "scenario"
+          }
+        }
+      },
+      "equivalence": {
+        "status": "confirmed",
+        "note": "Synthetic exact identities supplied for testing only."
+      },
+      "import_eligibility": {
+        "status": "unknown",
+        "note": "No eligibility evidence in this fake example."
+      }
+    }
+  ],
+  "synthetic_notice": "ENTIRELY FAKE TEST DATA. No real offers, rates, availability or legal clearance. Deterministic scenario dated 2026-10-27."
+}

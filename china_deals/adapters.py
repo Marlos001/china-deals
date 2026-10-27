@@ -231,6 +231,12 @@ def _blibli_product_url(value):
     parsed = urllib.parse.urlsplit(value)
     slug = urllib.parse.unquote(parsed.path.split("/")[2]) if parsed.path.startswith("/p/") else ""
     if parsed.scheme == "https" and parsed.netloc == "www.blibli.com" and slug not in {"", ".", ".."} and not any(c in slug for c in "/\\") and re.fullmatch(r"/p/[A-Za-z0-9%._~-]+/(?:ps|is)--[A-Za-z0-9-]+/?", parsed.path):
+        query = urllib.parse.parse_qs(parsed.query, keep_blank_values=True)
+        pickup = query.get("pickupPointCode")
+        if pickup is not None:
+            if len(pickup) != 1 or not re.fullmatch(r"PP-[A-Z0-9-]+", pickup[0]):
+                raise _Failure("unavailable", "detail_url_required", "Blibli pickupPointCode must identify one explicit pickup point.")
+            return _BLIBLI + parsed.path + "?" + urllib.parse.urlencode({"pickupPointCode": pickup[0]})
         return _BLIBLI + parsed.path
     raise _Failure("unavailable", "detail_url_required", "Blibli detail needs the full native https://www.blibli.com/p/.../ps--... (or is--) product URL from search; no SKU-to-URL route is guessed.")
 

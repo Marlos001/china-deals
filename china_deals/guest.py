@@ -154,7 +154,8 @@ def _fetch(url, hosts, deadline):
         raise _Failure("blocked", "url_denied", "Guest URL is outside the allowed HTTPS host.")
     # A new opener has no cookie jar, auth handlers, or dependency on global/browser state.
     opener = urllib.request.build_opener(_Redirects(hosts, deadline))
-    request = urllib.request.Request(url, headers={"User-Agent": "china-deals/0.1", "Accept": "text/html,application/json"})
+    request = urllib.request.Request(url, headers={"User-Agent": "china-deals/0.6", "Accept": "text/html,application/json",
+                                                   "Cache-Control": "no-cache", "Pragma": "no-cache"})
     try:
         with opener.open(request, timeout=adapters._remaining(deadline)) as response:
             if not _valid_url(response.geturl(), hosts):
@@ -231,6 +232,7 @@ class _HTML(HTMLParser):
 
 def _html(body):
     parser = _HTML()
+    parser.source_body = body
     parser.feed(body)
     text = " ".join(parser.visible).lower()
     if (re.search(r"anomaly\.js|anomaly-modal|challenge-form|cf-chl-|(?:id|class)\s*=\s*['\"][^'\"]*(?:captcha|recaptcha)", body, re.I)
@@ -476,7 +478,15 @@ def _stock_claims(product, offer):
     return availability, condition, warnings
 
 
-def _blibli_detail(parser, url):
+def _blibli_detail(parser, url, observed_at=None):
+    observed_at = observed_at or utc_now()
+    source_body = getattr(parser, 'source_body', '')
+    if "__PRODUCT_DETAIL_INITIAL_STATE__" in source_body:
+        from .blibli_public import parse_product_state
+        try:
+            return [parse_product_state(source_body, url, observed_at)]
+        except ValueError:
+            raise _Failure("unavailable", "item_state_unverified", "Primary Blibli state could not establish a unique selected product price.") from None
     matches = []
     for kind, script in parser.scripts:
         if kind.lower() != "application/ld+json":
@@ -505,14 +515,14 @@ def _blibli_detail(parser, url):
                             "title": product["name"], "description": product.get("description", ""),
                             "item_id": _item_id("blibli", url), "url": url, "nativeURL": url,
                             "currency": "IDR", "price": price, "source_mode": "guest_product_page",
-                            "observed_at": utc_now(), "detail": {"product": {k: product[k] for k in ("name", "description", "sku", "url", "availability", "itemCondition") if k in product}, "offer": offer}})
+                            "observed_at": observed_at, "detail": {"product": {k: product[k] for k in ("name", "description", "sku", "url", "availability", "itemCondition") if k in product}, "offer": offer}})
     if len(matches) != 1:
         raise _Failure("unavailable", "item_schema_unverified", "No unique URL-bound Blibli Product and Offer JSON-LD was validated.")
     return matches
 
 
 def get_guest_item(marketplace, item_id, timeout=30) -> dict:
-    """Read only validated public JD JSON / Blibli Product+Offer JSON-LD."""
+    """Read validated public JD JSON / Blibli selected product state or JSON-LD."""
     marketplace = marketplace_name(marketplace)
     item_id = adapters._text(item_id, "item_id")
     deadline = time.monotonic() + adapters._timeout(timeout)

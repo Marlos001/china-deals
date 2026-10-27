@@ -1,0 +1,120 @@
+{
+  "as_of": "2026-10-27T17:08:36Z",
+  "fx": {
+    "source": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml",
+    "rate_date": "2026-10-27",
+    "base": "BRL",
+    "brl_per_unit": {
+      "CNY": "0.802012294365",
+      "IDR": "0.000294810166",
+      "USD": "5.347443946188"
+    },
+    "warnings": [
+      "ECB reference rates are estimates, not Fansbuy payment rates, card rates or customs PTAX.",
+      "Rates exclude conversion spread, payment fees and any IOF; compare provider charges separately."
+    ],
+    "retrieved_at": "2026-10-27T16:33:29.916065+00:00"
+  },
+  "dataset_origin": "retained_source_observations_with_unresolved_equivalence",
+  "cases": [
+    {
+      "id": "airpods-max2-cached-blibli-vs-fresh-apple-brazil",
+      "imported": {
+        "offer": {
+          "marketplace": "blibli",
+          "item_id": "APF-70017-00964",
+          "url": "https://www.blibli.com/p/airpods-max-2/ps--APF-70017-00964",
+          "title": "Airpods Max 2",
+          "description": "chip: H2",
+          "seller": "Blibli - Apple Authorized Reseller Flagship Store",
+          "variant": null,
+          "price": "10499000",
+          "currency": "IDR",
+          "source_mode": "indexed_product_block",
+          "condition": "unknown",
+          "availability": "unknown",
+          "observed_at": null,
+          "source_detail": {
+            "price_observation": {
+              "amount": "10499000",
+              "currency": "IDR",
+              "source_url": "https://www.blibli.com/p/airpods-max-2/ps--APF-70017-00964",
+              "crawl_age": "2 weeks ago",
+              "crawled_at": null,
+              "current_stock_verified": false,
+              "checkout_verified": false,
+              "quantity_claim": 2,
+              "condition": "unknown",
+              "native_access": "not_attempted",
+              "variant": null,
+              "comparison_amount": null,
+              "coupon_eligibility": "unknown",
+              "retrieved_at": null,
+              "research_date": "2026-10-27",
+              "exact_retrieval_time_unknown": true
+            },
+            "research_report": "docs/validation/blibli-deeper.md"
+          },
+          "source_warnings": [
+            "Cached source claim only. Selected color, present stock, condition and checkout remain unverified. Blibli freight excluded."
+          ]
+        },
+        "identity": {
+          "model": "AirPods Max 2 (A3454 unconfirmed)",
+          "condition": "unknown",
+          "variant": {
+            "color": "unknown"
+          }
+        },
+        "costs": {
+          "domestic_freight": null,
+          "international_freight": null,
+          "insurance": null,
+          "taxes": null,
+          "agent_fees": null,
+          "payment_fees": null,
+          "other_fees": null
+        }
+      },
+      "brazil": {
+        "offer": {
+          "title": "AirPods Max 2 A3454 USB-C orange",
+          "url": "https://www.apple.com/br/shop/buy-airpods/airpods-max-2/laranja",
+          "price": {
+            "amount": "5931",
+            "currency": "BRL",
+            "basis": "displayed"
+          },
+          "source_mode": "retailer_product_page",
+          "observed_at": "2026-10-27T17:00:48.310Z",
+          "availability": "source_claimed_available",
+          "condition": "new",
+          "payment_method": "a vista; rail not specified"
+        },
+        "identity": {
+          "model": "AirPods Max 2 A3454",
+          "condition": "new",
+          "variant": {
+            "color": "orange",
+            "connector": "USB-C"
+          }
+        },
+        "costs": {
+          "delivery": null,
+          "fees": null
+        }
+      },
+      "equivalence": {
+        "status": "unknown",
+        "note": "Foreign cached listing has no confirmed A3454 binding, color or condition."
+      },
+      "import_eligibility": {
+        "status": "unknown",
+        "note": "No case-specific import eligibility confirmation."
+      }
+    }
+  ],
+  "warnings": [
+    "Real retained observations, not complete or equivalent purchase quotes. No winner. Source details in docs/validation/brazil-price-references.md. No assumed zero costs."
+  ]
+}

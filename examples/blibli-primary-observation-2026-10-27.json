@@ -1,0 +1,153 @@
+{
+  "schema_version": "1",
+  "dataset_origin": "retained_first_party_HTTP_response_extraction",
+  "offers": [
+    {
+      "marketplace": "blibli",
+      "item_id": "HEO-70120-00970",
+      "title": "Airpods Max 2024",
+      "url": "https://www.blibli.com/p/airpods-max-2024/ps--HEO-70120-00970",
+      "url_basis": "source_url",
+      "identity_evidence": [
+        {
+          "field": "item_id",
+          "kind": "id",
+          "value": "HEO-70120-00970"
+        },
+        {
+          "field": "url",
+          "kind": "url",
+          "value": "https://www.blibli.com/p/airpods-max-2024/ps--HEO-70120-00970"
+        }
+      ],
+      "offers": null,
+      "price": {
+        "amount": "8799000",
+        "currency": "IDR",
+        "raw": 8799000,
+        "basis": "displayed",
+        "source_currency": null,
+        "currency_basis": "marketplace_adapter_contract"
+      },
+      "seller": "Hello Flagship Store",
+      "description": "Warna: Midnight",
+      "source_mode": "guest_product_page",
+      "model": null,
+      "variant_evidence": {
+        "productSku": "HEO-70120-00970",
+        "itemSku": "HEO-70120-00970-00001",
+        "attributes": {
+          "Warna": "Midnight"
+        },
+        "selected": true,
+        "available": true
+      },
+      "transaction_evidence": {},
+      "ranking_exclusions": [],
+      "price_freshness_policy": {
+        "required": true,
+        "max_age_hours": "24"
+      },
+      "hardware": null,
+      "candidate_id": null,
+      "source_detail": {
+        "parser": "blibli_primary_product_state",
+        "productSku": "HEO-70120-00970",
+        "itemSku": "HEO-70120-00970-00001",
+        "native_url": "https://www.blibli.com/p/airpods-max-2024/is--HEO-70120-00970-00001?pickupPointCode=PP-3460337",
+        "requested_url": "https://www.blibli.com/p/airpods-max-2024/ps--HEO-70120-00970",
+        "selected_option": {
+          "id": "is--HEO-70120-00970-00001_PP-3460337",
+          "selected": true,
+          "available": true,
+          "attributes": [
+            {
+              "name": "Warna",
+              "value": "Midnight",
+              "label": "Warna"
+            }
+          ],
+          "pickupPointCode": "PP-3460337",
+          "tags": []
+        },
+        "price_claims": {
+          "listed": 8999000,
+          "listDiscount": 2,
+          "offered": 8799000,
+          "totalDiscount": 2
+        },
+        "stock_claim": 1,
+        "merchant_claims": {
+          "name": "Hello Flagship Store",
+          "code": "HEO-70120",
+          "official": true,
+          "international": false,
+          "location": "HELLO - UPTOWN MALL BSB CITY - Kota Semarang",
+          "url": "/merchant/hello-flagship-store/HEO-70120",
+          "status": "ACTIVE",
+          "rating": {
+            "value": 98,
+            "review": 4.8,
+            "badgeUrl": "https://www.static-src.com/siva/asset/06_2025/seller-diamond.png",
+            "badge": "DIAMOND",
+            "positiveReview": 99,
+            "onTimeFulfillment": 100,
+            "activeResponse": 95,
+            "successfulTransaction": 100,
+            "reviewCount": 1658,
+            "new": true
+          }
+        },
+        "fulfillment_claims": {
+          "delivery": "UNAVAILABLE",
+          "pickup": "AVAILABLE",
+          "selected": "PICKUP",
+          "otherPickupPoints": 1
+        },
+        "currency_basis": "marketplace_adapter_contract",
+        "server_date_claim": "Tue, 27 Oct 2026 17:16:19 GMT"
+      },
+      "index_source_url": null,
+      "discovered_at": null,
+      "location": null,
+      "domestic_free_shipping": null,
+      "variant": "Warna: Midnight; SKU HEO-70120-00970-00001; pickup PP-3460337",
+      "condition": "unknown",
+      "availability": "source_claimed_available",
+      "seller_trust": "unverified",
+      "observed_at": "2026-10-27T17:16:20.102769+00:00",
+      "signals": [],
+      "warnings": [
+        "Displayed price; stock, exact variant, seller claims and checkout total are unverified.",
+        "Blibli is in Indonesia. China-origin Fansbuy freight is not a verified route for this item."
+      ],
+      "source_warnings": [
+        "Listed price and discount percentages are source claims, not historical savings.",
+        "Source marks delivery unavailable; pickup and procurement require confirmation."
+      ],
+      "price_freshness": {
+        "status": "recent_observation",
+        "recent_observation": true,
+        "age_hours": "0.00",
+        "max_age_hours": "24",
+        "as_of": "2026-10-27T17:16:20.102769+00:00",
+        "source_mode": "guest_product_page",
+        "source_price_observed_at": "2026-10-27T17:16:20.102769+00:00",
+        "cache_age_label": null,
+        "basis": "adapter_or_caller_timestamp_assertion; not independent freshness or checkout proof",
+        "reason": "Source observation time is within the limit; current stock and checkout remain unverified."
+      }
+    }
+  ],
+  "provenance": {
+    "response_sha256": "1a2defd15c7a301920caf43f1097acefb277ad1360db9fae9ca2cdd7107c464e",
+    "response_bytes": 235341,
+    "observed_at": "2026-10-27T17:16:20.102769+00:00",
+    "timestamp_basis": "filesystem_write_after_successful_public_HTTP_read",
+    "server_date_claim": "Tue, 27 Oct 2026 17:16:19 GMT"
+  },
+  "warnings": [
+    "Actual public HTTP response read before browser verification; parsed offline. No fresh CLI HTTP acquisition after integration is claimed.",
+    "Source stock and sale discount are claims. Delivery marked unavailable, pickup selected. Condition, authenticity, checkout and procurement remain unverified."
+  ]
+}

@@ -1,0 +1,140 @@
+{
+  "_fixture": {
+    "source": ".local/freshness-release/blibli-product-body.html",
+    "sha256": "1a2defd15c7a301920caf43f1097acefb277ad1360db9fae9ca2cdd7107c464e",
+    "note": "Public primary-state projection; unrelated SEO, shipping address, analytics, images and recommendations omitted. No live accessibility assertion."
+  },
+  "productDetail.product/summary": {
+    "url": "https://www.blibli.com/p/airpods-max-2024/is--HEO-70120-00970-00001?pickupPointCode=PP-3460337",
+    "itemSku": "HEO-70120-00970-00001",
+    "name": "Airpods Max 2024",
+    "productSku": "HEO-70120-00970",
+    "pickupPointCode": "PP-3460337",
+    "stock": 1,
+    "uniqueSellingPoint": "",
+    "price": {
+      "listed": 8999000,
+      "listDiscount": 2,
+      "offered": 8799000,
+      "totalDiscount": 2
+    },
+    "attributes": [
+      {
+        "name": "Warna",
+        "type": "IMAGE",
+        "values": [
+          {
+            "image": "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/thumbnail/catalog-image/MTA-180378993/apple_airpods_max_2024_full01_qymoj2mb.jpg",
+            "value": "Midnight"
+          },
+          {
+            "image": "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/thumbnail/catalog-image/MTA-180378993/apple_airpods_max_2024_full01_bcc6pk7q.jpg",
+            "value": "Blue"
+          },
+          {
+            "image": "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/thumbnail/catalog-image/MTA-180378993/apple_airpods_max_2024_full01_kznnegfa.jpg",
+            "value": "Orange"
+          },
+          {
+            "image": "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/thumbnail/catalog-image/MTA-180378993/apple_airpods_max_2024_full02_h08ulohc.jpg",
+            "value": "Purple"
+          },
+          {
+            "image": "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/thumbnail/catalog-image/MTA-180378993/apple_airpods_max_2024_full01_q1xab24b.jpg",
+            "value": "Starlight"
+          }
+        ]
+      }
+    ],
+    "options": [
+      {
+        "id": "is--HEO-70120-00970-00002_PP-3460337",
+        "selected": false,
+        "available": false,
+        "attributes": [
+          {
+            "name": "Warna",
+            "value": "Starlight",
+            "label": "Warna"
+          }
+        ],
+        "pickupPointCode": "PP-3460337",
+        "tags": []
+      },
+      {
+        "id": "is--HEO-70120-00970-00001_PP-3460337",
+        "selected": true,
+        "available": true,
+        "attributes": [
+          {
+            "name": "Warna",
+            "value": "Midnight",
+            "label": "Warna"
+          }
+        ],
+        "pickupPointCode": "PP-3460337",
+        "tags": []
+      },
+      {
+        "id": "is--HEO-70120-00970-00004_PP-3460337",
+        "selected": false,
+        "available": false,
+        "attributes": [
+          {
+            "name": "Warna",
+            "value": "Orange",
+            "label": "Warna"
+          }
+        ],
+        "pickupPointCode": "PP-3460337",
+        "tags": []
+      },
+      {
+        "id": "is--HEO-70120-00970-00003_PP-3460337",
+        "selected": false,
+        "available": false,
+        "attributes": [
+          {
+            "name": "Warna",
+            "value": "Blue",
+            "label": "Warna"
+          }
+        ],
+        "pickupPointCode": "PP-3460337",
+        "tags": []
+      },
+      {
+        "id": "is--HEO-70120-00970-00005_PP-3460337",
+        "selected": false,
+        "available": false,
+        "attributes": [
+          {
+            "name": "Warna",
+            "value": "Purple",
+            "label": "Warna"
+          }
+        ],
+        "pickupPointCode": "PP-3460337",
+        "tags": []
+      }
+    ],
+    "merchant": {
+      "name": "Hello Flagship Store",
+      "code": "HEO-70120",
+      "official": true,
+      "international": false,
+      "location": "HELLO - UPTOWN MALL BSB CITY - Kota Semarang",
+      "url": "/merchant/hello-flagship-store/HEO-70120",
+      "status": "ACTIVE"
+    },
+    "fulfillmentTypes": {
+      "delivery": "UNAVAILABLE",
+      "pickup": "AVAILABLE",
+      "selected": "PICKUP",
+      "otherPickupPoints": 1
+    },
+    "seo": {
+      "canonicalUrl": "https://www.blibli.com/p/airpods-max-2024/ps--HEO-70120-00970"
+    }
+  }
+}

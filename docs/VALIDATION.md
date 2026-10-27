@@ -2,6 +2,15 @@
 
 Checked 2026-10-27 in `/home/marlos/projects/china-deals`.
 
+## Version 0.6 fresh acquisition and Brazil comparison
+
+- **400 local tests pass**, with Ruff, compilation and package build checks. Primary-state parser and guest/refresh integration cover exact Blibli selected SKU and pickup binding; query and payment/variant evidence survive repeated exports. Fresh-price policies preserve the strictest required age. Observed freight expiry and seven-day FX reference limits hold financial decisions.
+- Actual fresh reads: Goofish silver 1 TB iPhone at ¥7,499 through T3 main-item DOM and capture import; Blibli selected Midnight AirPods Max at Rp8,799,000 through retained primary HTTP state, parsed offline. Blibli source marks delivery unavailable/pickup selected. A later rendered open reached verification and stopped. No post-integration live Blibli fetch is claimed. [Detailed receipts and limits](validation/fresh-data-2026-10-27.md).
+- Actual HTTP refresh persisted two JD/Blibli receipts and returned partial/unpriced with the previous JSON-LD-only reader; actual history readback worked. A real Blibli promotion read returned no readable snippets, not proof of no coupons. The new state reader addresses the identified price-extraction gap without retrying the challenged surface.
+- Independent Astra reviews exposed and drove fixes for exclusion/transaction/structured-variant loss, strict age-policy weakening, stale FX/freight, out-of-stock aliases and source-context/pickup checks. Brazil/ranking follow-up independently cleared its exact remaining reproductions with 47 focused tests and CLI controls. Final acquisition/Blibli follow-up cleared its five exact objections with 128 repository tests and five independent offline controls; no residual P1/P2 was found within that scope.
+- Fresh coupon evidence is required by the CLI by default; account/payment/product/seller/quantity/quota constraints remain independent. Promotion snippets never auto-create an eligible coupon. Offline capture imports still evaluate requested rules while keeping FX network disabled unless a local snapshot is supplied.
+- Brazil comparison keeps missing costs and identity/condition mismatches unresolved. Real cases remain needs-review; synthetic examples establish arithmetic only. No AI API, scheduler, account, login, cart, coupon redemption, purchase, contact, payment, shipment or customs declaration was created.
+
 ## Version 0.5 deeper validation
 
 - **266 local tests pass**. A fresh T3 Goofish capture and actual offline CLI ingestion retained a consistent 1 TB price, timestamp, used condition and pickup-only conflict. Four retained pages replay as ¥7,999/¥7,499 and two unpriced ambiguous controls. New browser integration is fixture-tested; live CLI Playwright transport remains unverified.

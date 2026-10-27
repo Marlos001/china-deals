@@ -1,10 +1,16 @@
 # china-deals
 
-A read-only **0.5 CLI** for researching products on **Taobao, JD.com, Goofish/Xianyu and Blibli**, comparing observed configurations and prices, and estimating **Fansbuy → Brazil** freight and landed costs.
+A read-only **0.6 CLI** for researching products on **Taobao, JD.com, Goofish/Xianyu and Blibli**, comparing observed configurations and prices, and estimating **Fansbuy → Brazil** freight and landed costs.
 
 **Guest access is the default. No marketplace account or AI API credentials are required.** Your subscription-backed Codex, Claude Code, Gemini/AGY or other terminal-capable agent supplies translation, analysis and presentation. The CLI makes no LLM calls. Existing OpenCLI sessions are an explicit, optional native mode.
 
 Guest mode does not guarantee accessible search or visible prices. In the [retained live research](docs/research/zephyrus-g16-test.md), JD detail showed a masked price, Blibli returned HTTP 403 / a verification page, and Goofish native guest search produced no verified target results; a readable Goofish item was delisted. These observations do not establish global restrictions or absence of inventory. Search-index leads are discovery evidence, never current purchasable offers.
+
+## Fresh prices and import versus Brazil (0.6)
+
+Use `refresh` to re-read exact native product URLs, optionally retain SQLite observation history with `--store`, and use `--fresh-only --max-age-hours 1` to exclude stale prices. Cached sources never become fresh from today's retrieval time; blocked/masked refreshes retain no current numeric price. `promotions` reads fresh public promotional evidence for your agent to interpret. Coupon evaluation now requires recent primary evidence and a current explicit campaign window by default, plus the real purchasing account's conditions.
+
+`brazil-compare` compares equivalent product/condition/configuration scenarios with all applicable freight, taxes and fees. Unknown costs remain unknown; incomplete scenarios show a conditional remaining-cost budget instead of verified savings. Blibli international freight follows its configurable exclusion policy. [Full fresh-data workflow, commands and limits](docs/FRESH_DATA.md).
 
 ## Install and start
 

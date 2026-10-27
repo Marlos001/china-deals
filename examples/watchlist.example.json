@@ -1,0 +1,20 @@
+{
+  "schema_version": "1",
+  "intent_query": "ROG Zephyrus G16",
+  "offers": [
+    {
+      "marketplace": "jd",
+      "item_id": "000000000001",
+      "url": "https://item.jd.com/000000000001.html",
+      "title": "SYNTHETIC WATCHLIST PLACEHOLDER - replace with an exact observed native item URL",
+      "ranking_exclusions": ["synthetic_example_not_a_real_offer"]
+    },
+    {
+      "marketplace": "goofish",
+      "item_id": "000000000002",
+      "url": "https://www.goofish.com/item?id=000000000002",
+      "title": "SYNTHETIC WATCHLIST PLACEHOLDER - browser backend required for public Goofish detail",
+      "ranking_exclusions": ["synthetic_example_not_a_real_offer"]
+    }
+  ]
+}

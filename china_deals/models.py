@@ -235,6 +235,8 @@ def normalize_offer(marketplace, row, observed_at=None):
     if price_basis != "displayed":
         amount = None
     availability = row.get("availability", "unknown")
+    if isinstance(availability, str) and availability.casefold() in {"out_of_stock", "outofstock", "https://schema.org/outofstock"}:
+        availability = "unavailable"
     if availability not in {"unknown", "source_claimed_available", "delisted", "sold", "unavailable"}:
         availability = "unknown"
     if availability in {"delisted", "sold", "unavailable"}:
@@ -306,6 +308,13 @@ def normalize_offer(marketplace, row, observed_at=None):
             warnings.append("Invalid observation timestamp discarded.")
     if observed_at is None:
         warnings.append("Observation time unknown.")
+    transaction_evidence = dict(row.get("transaction_evidence") or {}) if isinstance(row.get("transaction_evidence"), dict) else {}
+    for key in ("payment_method", "payment_terms", "payment", "price_scope"):
+        if isinstance(row.get(key), str):
+            transaction_evidence[key] = row[key][:1000]
+    for key in ("scope", "type"):
+        if isinstance(price_envelope.get(key), str):
+            transaction_evidence["price_" + key] = price_envelope[key][:1000]
     return {
         "marketplace": marketplace,
         "item_id": item_id,
@@ -320,6 +329,11 @@ def normalize_offer(marketplace, row, observed_at=None):
         "seller": _text(row, "shop", "seller", "merchantName"),
         "description": (_text(row, "description", "desc", "snippet") or "")[:8000],
         "source_mode": source_mode,
+        "model": _text(row, "model"),
+        "variant_evidence": row.get("variant") if isinstance(row.get("variant"), dict) else row.get("variant_evidence") if isinstance(row.get("variant_evidence"), dict) else None,
+        "transaction_evidence": transaction_evidence,
+        "ranking_exclusions": [value[:500] for value in row.get("ranking_exclusions", [])[:20] if isinstance(value, str)] if isinstance(row.get("ranking_exclusions"), list) else [],
+        "price_freshness_policy": row.get("price_freshness_policy") if isinstance(row.get("price_freshness_policy"), dict) else None,
         "hardware": row.get("hardware") if isinstance(row.get("hardware"), dict) else None,
         "candidate_id": _text(row, "candidate_id"),
         "source_detail": row.get("detail", row.get("source_detail")) if isinstance(row.get("detail", row.get("source_detail")), dict) else None,
