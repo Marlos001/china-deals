@@ -1,0 +1,6 @@
+[
+  {"marketplace":"jd","sku":"000000000001","title":"SYNTHETIC EXAMPLE keyboard model A","price":"¥300","variant":"red switches","condition":"new"},
+  {"marketplace":"taobao","item_id":"000000000002","title":"SYNTHETIC EXAMPLE keyboard model A","price":"¥280","variant":"red switches","condition":"new"},
+  {"marketplace":"goofish","item_id":"000000000003","title":"SYNTHETIC EXAMPLE keyboard model A used","price":"¥150","condition":"used"},
+  {"marketplace":"blibli","title":"SYNTHETIC EXAMPLE keyboard model A","price":"Rp900.000","url":"https://www.blibli.com/p/synthetic-example/ps--EXAMPLE-00001"}
+]

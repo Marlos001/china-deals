@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "sources": [
+    {
+      "source_url": "https://www.gov.br/receitafederal/pt-br/assuntos/aduana-e-comercio-exterior/manuais/remessas-postal-e-expressa/topicos/tributacao",
+      "accessed_on": "2026-10-27",
+      "retained_utf8_sha256": "1e1097016492a09ca83fadc19145cfe59770181a90aed24ba104ad68732bca6a",
+      "excerpts": [
+        "Alíquota de 60% incidente sobre o valor aduaneiro",
+        "aplicável em DIR registrada a partir de 12/05/2026",
+        "desconto do equivalente a US$ 30",
+        "de até US$ 3.000"
+      ],
+      "scope": "Policy document evidence; not shipment eligibility"
+    },
+    {
+      "source_url": "https://www.gov.br/receitafederal/pt-br/assuntos/aduana-e-comercio-exterior/manuais/remessas-postal-e-expressa/topicos/restricoes-proibicoes",
+      "accessed_on": "2026-10-27",
+      "retained_utf8_sha256": "9c4c25df00c89f1a37ba5ba724610c25d7ad1a37bbb94c54fb0b69645804a2e2",
+      "excerpts": [
+        "bens usados ou recondicionados, exceto para uso e consumo pessoal"
+      ],
+      "scope": "Policy document evidence; not shipment eligibility"
+    },
+    {
+      "source_url": "https://www.confaz.fazenda.gov.br/legislacao/convenios/2023/CV081_23",
+      "accessed_on": "2026-10-27",
+      "retained_utf8_sha256": "f88e2f1b1488a87cb478ce42d4b68fe0a5a985b1ab19d8f98d1710fb98c4dc40",
+      "excerpts": [
+        "17% (dezessete por cento) ou a 20% (vinte por cento)"
+      ],
+      "scope": "Policy document evidence; not shipment eligibility"
+    }
+  ]
+}
