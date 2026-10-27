@@ -2,6 +2,10 @@
 
 Three GPT-6 Astra validation agents independently exercised **iPhone 17 Pro Max**, **AirPods Max**, and **ASUS ROG Zephyrus across model families**. They used guest CLI searches, bounded source discovery, and T3 browser inspection where an exact link was available. Reports distinguish the published 0.3.0 baseline, evolving code, synthetic reproductions, and live evidence.
 
+## Follow-up: diverse searches and exact-page prices
+
+The [diverse-search iteration](diverse-results.md) expands coverage to six further families, fixes real single-option Blibli parsing and records three exact-page prices plus fresh Brazil retail references. Its dated source observations supersede older cache-only evidence for those exact products; incomplete equivalence/costs still prevent a verified winner.
+
 ## Follow-up: stronger results
 
 The subsequent [deeper verification pass](deeper-results.md) recovered two freshly readable, consistent Goofish 1 TB phone listings, four cached Blibli product candidates and an account-free public Taobao proxy-catalog quote. Version 0.5 adds bounded Goofish primary capture parsing/import, a Jadeship catalog command and visible-but-unranked cached observations. This supersedes the initial pass's zero-candidate outcome; it does not turn source claims into checkout verification. The original reports below retain their historical scope.
@@ -26,7 +30,7 @@ The subsequent [deeper verification pass](deeper-results.md) recovered two fresh
 
 ## Verification of the revised code
 
-Current local suite: **233 tests pass**. Ruff and whitespace checks pass. New synthetic regressions cover classifier, selected variants, identity round-trips, host-level request counts/reset, browser late challenges, stock claims, hydration, opaque routes, and coupon intent. These tests make no marketplace or account requests.
+At the close of the original 0.4 pass, **233 tests passed**. Current checks are recorded in [release validation](../VALIDATION.md). Ruff and whitespace checks pass. New synthetic regressions cover classifier, selected variants, identity round-trips, host-level request counts/reset, browser late challenges, stock claims, hydration, opaque routes, and coupon intent. These tests make no marketplace or account requests.
 
 Seven retained AirPods classifier regressions pass against current code. Four retained Zephyrus examples were rerun through the actual current CLI with `--currency native`: accessory → zero groups; mixed families → four separate groups plus incomplete Duo; negated TGP → incomplete; AMD aliases → one shared group. The original frozen baseline evidence was preserved. Private current-code receipts are under `.local/search-validation/integrated-v04/`.
 

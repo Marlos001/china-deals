@@ -527,7 +527,8 @@ def refresh_offers(payload, backend="http", timeout=30, max_age_hours=24, as_of=
                 status = "unpriced"
             retained = [reason for reason in original.get("ranking_exclusions", [])
                         if not reason.startswith(("product_relevance_", "price_freshness_"))
-                        and reason not in {"refresh_price_unavailable", "possible_deposit_or_installment_price"}]
+                        and reason not in {"refresh_price_unavailable", "possible_deposit_or_installment_price",
+                                           "possible_rental_price", "possible_starting_price"}]
             exclusions = list(dict.fromkeys(retained + current.get("ranking_exclusions", [])))
             if current["price"]["amount"] is None:
                 exclusions.append("refresh_price_unavailable")

@@ -14,8 +14,9 @@ def apply_product_intent(offer, query):
     offer["intent_query"] = query
     assessment = offer["relevance"] = assess_product(offer, query)
     offer["ranking_exclusions"] = [reason for reason in offer.get("ranking_exclusions", [])
-                                   if not reason.startswith("product_relevance_") and reason != "possible_deposit_or_installment_price"]
-    if assessment["family"]:
+                                   if not reason.startswith("product_relevance_") and reason not in {
+                                       "possible_deposit_or_installment_price", "possible_rental_price", "possible_starting_price"}]
+    if assessment["status"] != "match" or assessment["family"]:
         if assessment["status"] != "match":
             offer["ranking_exclusions"].append("product_relevance_" + assessment["status"])
         offer["ranking_exclusions"].extend(assessment["price_scope_warnings"])

@@ -27,7 +27,8 @@ def intent_family(query):
         return "airpods-max"
     if "zephyrus" in compact or re.search(r"幻(?:14|15|16)|冰刃", query):
         return "rog-zephyrus"
-    return None
+    from .product_profiles import identify_family
+    return identify_family(query)
 
 
 def query_plan(query):
@@ -49,13 +50,16 @@ def query_plan(query):
         models = ("G14", "G15", "G16", "M16", "Duo", "S17")
         chinese = ["华硕 ROG Zephyrus 笔记本"] + [f"华硕 ROG Zephyrus {m} 笔记本" for m in models]
         blibli = ["ASUS ROG Zephyrus"] + [f"ASUS ROG Zephyrus {m}" for m in models]
+    elif family and family not in {'iphone-17-pro-max', 'airpods-max', 'rog-zephyrus'}:
+        from .product_profiles import profile_queries
+        chinese, blibli = profile_queries(query)
     elif family:
         # Preserve every refinement, including unfamiliar ones. Adding a neutral
         # brand term must not turn a case/charger query into a whole-device query.
         chinese = [("华硕 " if family == "rog-zephyrus" else "苹果 ") + query]
         blibli = [query]
     else:
-        chinese, blibli = [], [query]
+        chinese, blibli = [query] if re.search(r'[\u3400-\u9fff]', query) else [], [query]
     return {"query": query, "family": family, "marketplace_queries": {
         "taobao": list(chinese), "jd": list(chinese), "goofish": list(chinese), "blibli": blibli},
         "requires_agent_translation": family is None,
@@ -66,6 +70,7 @@ def query_plan(query):
 
 _BUNDLE = r"\b(?:with|includes?|including|bonus|free|gratis)\b|赠送|附赠|含赠品|包含|含|附带|配有"
 _PRICE_RISK = (r"定金|订金|首付|月供|月付|每月|\bdeposit\b|uang\s+muka|"
+               r"尾款|非全款|\bremaining\s+balance\b|\bdown\s*payment\b|bukan\s+harga\s+penuh|\bdp\s*(?:rp|idr|\d)|"
                r"\binstall?ments?\b|\bmonthly\b|\bcicilan\b|per\s+(?:month|bulan)|/\s*(?:month|bulan|月)")
 _NON_PRODUCT = (r"维修|修理|模型机|展示模型|高仿|精仿|山寨|复刻|"
                 r"\b(?:repair|replica|counterfeit|dummy)\b|display\s+dummy")
@@ -81,7 +86,7 @@ _ACCESSORIES = {
         "cushions": r"耳垫|耳罩(?!式耳机)|ear\s*(?:pads?|cushions?)|earmuffs?|\bbantalan\b",
         "headband": r"头梁|replacement\s*headband|headband\s*(?:only|replacement)",
         "parts": r"充电线|charging\s*cable|headphone\s*stand|replacement\s*ear\s*cups?",
-        "packaging": r"空盒|empty\s+box",
+        "packaging": r"空盒|dus\s+kosong|empty\s+box",
     },
     "rog-zephyrus": {
         "case": r"保护套|电脑包|laptop\s*(?:sleeve|bag)|\b(?:sleeve|case)\b",
@@ -106,7 +111,7 @@ def _accessories(text, family):
     core = re.split(_BUNDLE, text, maxsplit=1, flags=re.I)[0]
     # A standalone selection takes priority even when the title advertises a bundle.
     # An explicit "only" in a bundle tail also cannot be erased by trimming.
-    if _has(r"\bonly\b|单卖|单售|仅售", text):
+    if _has(r"\bonly\b|单卖|单售|仅售|\bcompatible\s+with\b|\bkompatibel\s+dengan\b", text):
         core = text
     return {kind for kind, pattern in _ACCESSORIES[family].items() if _has(pattern, core)}
 
@@ -115,18 +120,18 @@ def _models(text, family, allow_shorthand=False):
     compact = _compact(text)
     raw = re.sub(r"[‐‑‒–—−]", "-", unicodedata.normalize("NFKC", text).casefold())
     if family == "iphone-17-pro-max":
-        matches = re.findall(r"(?:iphone|苹果|apple)[ -]*(\d{1,2})(?!\d)(?:[ -]*(pro[ -]*max|pro|plus|air|e))?", raw)
+        matches = re.findall(r"(?:iphone|苹果|apple)[ -]*(\d{1,2})(?!\d)(?:[ -]*(pro[ -]*max|pro|plus|air|e))?(?![a-z0-9])", raw)
         if allow_shorthand:
             # A selected iPhone model commonly omits the repeated brand name.
             # Require an explicit suffix so 16GB/17-inch cannot become a phone.
             matches += re.findall(r"(?<![a-z0-9])(\d{1,2})(?!\d)[ -]*(pro[ -]*max|pro|plus|air)(?![a-z])", raw)
         return {number + _compact(suffix) for number, suffix in matches}
     if family == "airpods-max":
-        return set(re.findall(r"airpods(max[12]?|pro[123]?|[1234])(?!\d)", compact))
+        return {_compact(value) for value in re.findall(r"airpods[ -]*(max[ -]*[12]?|pro[ -]*[123]?|[1234])(?![a-z0-9])", raw)}
     # Keep token separators: G16 32GB and G14 2024 are separate facts.
     raw = re.sub(r"zephyrus(?=[gmsd])", "zephyrus ", raw)
     models = {_compact(model) for model in re.findall(
-        r"(?<![a-z0-9])(g14|g15|g16|m15|m16|s15|s17|duo(?:[ -]*(?:15|16))?)(?!\d)", raw)}
+        r"(?<![a-z0-9])(g14|g15|g16|m15|m16|s15|s17|duo(?:[ -]*(?:15|16))?)(?![a-z0-9])", raw)}
     for alias, model in (("幻14", "g14"), ("幻15", "g15"), ("幻16", "幻16")):
         if alias in compact:
             models.add(model)
@@ -136,24 +141,97 @@ def _models(text, family, allow_shorthand=False):
 def _constraints(text, family):
     """Only literal capacities/connectors/model identifiers; no hardware guesses."""
     compact = _compact(text)
-    fields = {"capacity": set(re.findall(r"\d+(?:gb|tb)", compact)),
+    raw = unicodedata.normalize('NFKC', text).casefold()
+    fields = {"capacity": {_compact(value + unit) for value, unit in re.findall(r'(?<![a-z0-9.])(\d+(?:\.\d+)?)\s*(gb|tb)(?![a-z])', raw)},
               "connector": {v for v in ("usbc", "lightning") if v in compact}}
     if family == "airpods-max":
         fields["model_identifier"] = set(re.findall(r"a(?:2096|3184|3454)(?!\d)", compact))
+    if family == 'rog-zephyrus':
+        fields['gpu'] = {_compact(value) for value in re.findall(r'(?<![a-z0-9])((?:rtx|gtx)\s*\d{3,4}(?:\s*(?:ti|super))?)(?![a-z0-9])', raw)}
+        fields['year'] = set(re.findall(r'(?<![0-9])(20[0-9]{2})(?![0-9])', raw))
+        for key, label in (('ram_capacity', r'ram|memory|内存'), ('ssd_capacity', r'ssd|固态(?:硬盘)?')):
+            before = re.findall(r'(?:' + label + r')\s*[:：-]?\s*(\d+(?:\.\d+)?)\s*(gb|tb)(?![a-z])', raw)
+            after = re.findall(r'(?<![a-z0-9.])(\d+(?:\.\d+)?)\s*(gb|tb)\s*(?:' + label + r')(?![a-z])', raw)
+            fields[key] = {_compact(value + unit) for value, unit in before + after}
     return fields
+
+
+_PAYMENT_MULTIPLE = (r'\b\d+\s*x\s*(?:de\s*)?(?:'
+                     r'(?:r\$|rp\.?|idr|brl|cny|usd|¥|￥|\$)\s*\d|'
+                     r'\d[\d.,]*\s*(?:cny|idr|brl|usd|r\$|rp\.?)(?![a-z]))')
 
 
 def transaction_scope_warnings(offer):
     """Transaction scope applies even without a supported product intent."""
-    values = [offer.get(key) for key in ('title', 'variant', 'variant_evidence', 'payment',
-              'payment_method', 'payment_terms', 'price_scope', 'transaction_evidence')]
+    values = [offer.get(key) for key in ('title', 'payment', 'payment_method',
+              'payment_terms', 'price_scope', 'transaction_evidence')]
+    values.extend(selected_variant_texts(offer))
+    # Follow only the bounded raw-price chain, not arbitrary descriptions or
+    # nested installment alternatives beside a separately offered full price.
     price = offer.get('price')
-    if isinstance(price, dict):
+    for _ in range(6):
+        if not isinstance(price, dict):
+            break
         values.extend(price.get(key) for key in ('scope', 'type'))
+        price = price.get('raw')
     text = json.dumps(values, ensure_ascii=False, default=str).replace('_', ' ')
-    if _has(_PRICE_RISK, text) or _has(r'\b(?:installments?|cicilan)\b|\b\d+\s*x\b', text):
+    if _has(_PRICE_RISK, text) or _has(_PAYMENT_MULTIPLE, text):
         return ['possible_deposit_or_installment_price']
+    if _has(r'租赁|出租|每天租金|日租|\b(?:rent|rental|sewa)\b', text):
+        return ['possible_rental_price']
+    if _has(r'低至\s*\d|\d+(?:\.\d+)?\s*(?:元)?起(?!飞)|\b(?:harga\s+)?mulai\s+dari\b|\bstarting\s+(?:at|from)\b', text):
+        return ['possible_starting_price']
     return []
+
+
+def selected_variant_texts(offer):
+    """Retain independent selected observations through normalized dictionary variants."""
+    values = []
+    for key in ('variant', 'selected_variant', 'variant_evidence', 'variant_observations'):
+        value = offer.get(key)
+        observations = value if key == 'variant_observations' and isinstance(value, list) else [value]
+        for observation in observations[:20]:
+            structured = observation if isinstance(observation, dict) else None
+            if isinstance(observation, str):
+                try:
+                    candidate = json.loads(observation)
+                    structured = candidate if isinstance(candidate, dict) else None
+                except (ValueError, TypeError):
+                    pass
+            if isinstance(observation, (dict, list)):
+                observation = json.dumps(observation, ensure_ascii=False, default=str)
+            if structured:
+                # A number is meaningful only when the source field itself
+                # states its unit. Do not infer units from arbitrary attributes.
+                labels = {'ram_gb': ('RAM', 'GB'), 'ram_tb': ('RAM', 'TB'),
+                          'storage_gb': ('SSD', 'GB'), 'storage_tb': ('SSD', 'TB'),
+                          'ssd_gb': ('SSD', 'GB'), 'ssd_tb': ('SSD', 'TB'),
+                          'vram_gb': ('VRAM', 'GB'), 'capacity_gb': ('capacity', 'GB'),
+                          'capacity_tb': ('capacity', 'TB')}
+                facts = []
+                for key, (label, unit) in labels.items():
+                    value = structured.get(key)
+                    if not isinstance(value, bool) and re.fullmatch(r'[0-9]+(?:\.[0-9]+)?', str(value)):
+                        facts.append(f'{label} {value}{unit}')
+                if facts:
+                    observation += '\n' + ' '.join(facts)
+            if isinstance(observation, str) and observation.strip() and observation not in values:
+                values.append(observation)
+            if structured:
+                # Sibling values are independent selections. A bundle delimiter
+                # in one value must never hide an accessory in another value.
+                pending = list(structured.values())
+                for _ in range(100):
+                    if not pending:
+                        break
+                    leaf = pending.pop(0)
+                    if isinstance(leaf, dict):
+                        pending.extend(leaf.values())
+                    elif isinstance(leaf, list):
+                        pending.extend(leaf)
+                    elif isinstance(leaf, str) and leaf.strip() and leaf not in values:
+                        values.append(leaf)
+    return values
 
 
 def assess_product(offer, query):
@@ -161,12 +239,19 @@ def assess_product(offer, query):
     family = intent_family(query)
     result = {"family": family, "status": "uncertain", "listing_kind": "unknown", "reasons": [],
               "match_basis": "title_and_selected_variant", "price_scope_warnings": []}
-    title, variant = (str(offer.get(key) or "") for key in ("title", "variant"))
-    fields = [("title", title), ("selected_variant", variant)]
+    title = str(offer.get('title') or '')
+    selected = selected_variant_texts(offer)
+    variant = '\n'.join(selected)
+    fields = [("title", title)] + [("selected_variant", value) for value in selected]
     result["price_scope_warnings"] = transaction_scope_warnings(offer)
     if family is None:
         result["reasons"].append("unsupported_product_intent")
         return result
+    if family not in _ACCESSORIES:
+        from .product_profiles import assess_profile
+        assessment = assess_profile(offer, query, selected_observations=selected)
+        assessment['price_scope_warnings'] = result['price_scope_warnings']
+        return assessment
 
     def mismatch(kind, reason):
         result.update(status="mismatch", listing_kind=kind)
@@ -180,6 +265,18 @@ def assess_product(offer, query):
         accessories = _accessories(value, family)
         if accessories and (not requested_accessories or accessories.isdisjoint(requested_accessories)):
             return mismatch("accessory_or_non_product", f"{source}: accessory_parts_or_non_product_title")
+
+    from .product_profiles import explicit_identity_families
+    allowed_families = {
+        'iphone-17-pro-max': {'apple-iphone'},
+        'airpods-max': {'apple-airpods'},
+        'rog-zephyrus': {'rog-zephyrus', 'amd-ryzen-cpu', 'nvidia-rtx-gpu',
+                         'amd-radeon-gpu', 'intel-cpu', 'intel-arc-gpu'},
+    }[family]
+    for value in selected:
+        explicit = explicit_identity_families(value)
+        if explicit - allowed_families:
+            return mismatch('other_product', 'selected_variant: different_explicit_product_family')
 
     requested = _models(query, family)
     if family == "rog-zephyrus":
@@ -225,11 +322,13 @@ def assess_product(offer, query):
     for key, wanted in _constraints(query, family).items():
         if not wanted:
             continue
-        selected = _constraints(variant, family)[key]
+        selected_facts = _constraints(variant, family)[key]
         advertised = _constraints(title, family)[key]
-        actual = selected or advertised
-        if actual and actual.isdisjoint(wanted):
-            return mismatch("other_product", f"different_explicit_{key}")
+        for _, value in fields:
+            facts = _constraints(value, family)[key]
+            if facts and facts.isdisjoint(wanted):
+                return mismatch("other_product", f"different_explicit_{key}")
+        actual = selected_facts or advertised
         if actual != wanted:
             result["reasons"].append(f"requested_{key}_not_established_for_selected_variant")
             return result

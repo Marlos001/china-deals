@@ -253,8 +253,12 @@ def parse_product_state(body, requested_url, observed_at):
                 or selected_query.get('pickupPointCode', [pickup]) != [pickup]):
             raise ValueError("Selected option URL conflicts with summary or pickup point")
     attributes = selected.get("attributes")
-    if not isinstance(attributes, list) or not 1 <= len(attributes) <= 20:
+    if not isinstance(attributes, list) or len(attributes) > 20:
         raise ValueError("Missing selected variant attributes")
+    # No title-derived dimensions: an explicitly dimensionless SKU must be the
+    # sole option and agree with an explicitly empty product attribute catalog.
+    if not attributes and (len(options) != 1 or summary.get("attributes") != []):
+        raise ValueError("Dimensionless selection requires one option and an empty attribute catalog")
     variant = {}
     for attribute in attributes:
         if not isinstance(attribute, dict):
@@ -296,18 +300,21 @@ def parse_product_state(body, requested_url, observed_at):
     description = "\n".join(dict.fromkeys(descriptions))
     if len(description) > 8000:
         raise ValueError("Product description exceeds evidence bound")
-    price = summary.get("price")
+    price_present = "price" in summary
+    price = summary.get("price", {})
     if not isinstance(price, dict):
-        raise ValueError("Missing source price object")
+        raise ValueError("Invalid source price object")
     currencies = [obj[key] for obj in (summary, price, selected)
                   for key in ("currency", "priceCurrency") if key in obj]
     if any(not isinstance(value, str) or value.upper() != "IDR" for value in currencies):
         raise ValueError("Explicit currency conflicts with IDR adapter contract")
-    if "price" in selected and selected["price"] != price:
+    if "price" in selected and (not price_present or selected["price"] != price):
         raise ValueError("Selected variant price conflicts with summary")
     amount = _amount(price.get("offered"))
     listed = _amount(price.get("listed"))
     warnings = ["Listed price and discount percentages are source claims, not historical savings."]
+    if not price_present:
+        warnings.append("Primary price field absent; price unknown and excluded from ranking.")
     # Unknown additional price fields may represent ranges, installments or other variants.
     known_price = {"offered", "listed", "listDiscount", "totalDiscount", "currency", "priceCurrency"}
     if (set(price) - known_price or ("listed" in price and listed is None)
@@ -324,13 +331,27 @@ def parse_product_state(body, requested_url, observed_at):
     if not isinstance(merchant, dict):
         raise ValueError("Invalid merchant claims")
     merchant_claims = {key: merchant[key] for key in
-                       ("name", "code", "official", "international", "location", "url", "status", "rating")
+                       ("name", "code", "official", "international", "location", "url", "status", "rating",
+                        "businessOperational")
                        if key in merchant}
     detail = {"parser": "blibli_primary_product_state", "productSku": product, "itemSku": item,
               "native_url": summary["url"], "requested_url": requested_url,
-              "selected_option": selected, "price_claims": price, "stock_claim": stock,
+              "selected_option": selected, "price_claims": price if price_present else None,
+              "price_field_present": price_present, "stock_claim": stock,
               "merchant_claims": merchant_claims, "fulfillment_claims": summary.get("fulfillmentTypes"),
+              # These are bounded raw source claims, not payment terms, extra
+              # discounts, verified inventory or an operational-state verdict.
+              "summary_claims": {key: summary[key] for key in
+                                 ("campaignInfo", "installment", "preOrder", "tags", "type") if key in summary},
               "currency_basis": "explicit_source_field" if currencies else "marketplace_adapter_contract"}
+    location = None
+    if isinstance(merchant.get("location"), str):
+        try:
+            location = _text(merchant["location"], 1000) or None
+        except ValueError:
+            pass  # Optional malformed location stays a raw merchant claim only.
+    if location:
+        detail["location_basis"] = "merchant_location_claim"
     server_time = state.get("productDetail.product/serverTime")
     if isinstance(server_time, dict) and isinstance(server_time.get("headers"), dict):
         server_date = server_time["headers"].get("date")
@@ -346,8 +367,11 @@ def parse_product_state(body, requested_url, observed_at):
                                 "selected": True, "available": selected["available"]}}
     if currencies:
         row["currency"] = "IDR"
+    if location:
+        row["location"] = location
+        row["location_basis"] = "merchant_location_claim"
     variant_text = "; ".join(f"{key}: {value}" for key, value in variant.items())
-    row["variant"] = f"{variant_text}; SKU {item}; pickup {pickup}"
+    row["variant"] = (f"{variant_text}; " if variant_text else "") + f"SKU {item}; pickup {pickup}"
     row["selected_variant"] = row["variant"]
     row["original_price"] = listed
     row["discount_percent"] = price.get("totalDiscount")

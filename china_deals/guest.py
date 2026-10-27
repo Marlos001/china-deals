@@ -6,6 +6,7 @@ No browser, OpenCLI, login, retry, or challenge-solving path is used here.
 
 from __future__ import annotations
 
+import hashlib
 import http.client
 import json
 import re
@@ -272,6 +273,10 @@ def _failure(result, exc):
         attempts[-1].update(status=exc.status, error_code=exc.code)
         _record_gate(attempts[-1], exc)
     result.update(status=exc.status, items=[], error={"code": exc.code, "message": exc.message})
+    for key in ('parser_reason', 'response_text_sha256'):
+        value = getattr(exc, key, None)
+        if isinstance(value, str):
+            result['error'][key] = value
     return result
 
 
@@ -484,9 +489,19 @@ def _blibli_detail(parser, url, observed_at=None):
     if "__PRODUCT_DETAIL_INITIAL_STATE__" in source_body:
         from .blibli_public import parse_product_state
         try:
-            return [parse_product_state(source_body, url, observed_at)]
-        except ValueError:
-            raise _Failure("unavailable", "item_state_unverified", "Primary Blibli state could not establish a unique selected product price.") from None
+            row = parse_product_state(source_body, url, observed_at)
+            row['source_detail']['response_text_sha256'] = hashlib.sha256(source_body.encode('utf-8')).hexdigest()
+            return [row]
+        except ValueError as exc:
+            text = str(exc).casefold()
+            reason = ('currency_conflict' if 'currency' in text else
+                      'selected_option_or_attributes_invalid' if 'attribute' in text or 'option' in text or 'dimensionless' in text else
+                      'identity_binding_invalid' if 'sku' in text or 'pickup' in text or 'url' in text else
+                      'price_object_invalid' if 'price' in text else 'primary_state_invalid')
+            failure = _Failure("unavailable", "item_state_unverified", "Primary Blibli state could not establish a unique selected product price.")
+            failure.parser_reason = reason
+            failure.response_text_sha256 = hashlib.sha256(source_body.encode('utf-8')).hexdigest()
+            raise failure from None
     matches = []
     for kind, script in parser.scripts:
         if kind.lower() != "application/ld+json":

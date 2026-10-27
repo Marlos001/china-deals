@@ -1,0 +1,61 @@
+{
+  "note": "Sanitized product excerpts with reconstructed selectors; hashes bind PRIVATE ORIGINAL envelopes, not these synthetic DOMs.",
+  "cases": [
+    {
+      "retained_file": "capture1.json",
+      "retained_sha256": "c8ad66b517fde9cd1163df0f744bfd1aab1a3b2fa12ccd04253c4671d4c6767f",
+      "title": "大疆Mini4pro套装版_闲鱼",
+      "description": "大疆Mini4pro套装版【品牌】：大疆\n该宝贝已验货并寄存于验货仓\n坚持一机一检，机器实拍图参考如下！\n功能正常无暗病，详见右上角《验货报告》\n【关于型号】大疆Mini4pro套装版\n【激活时间】2023-2026\n【关于颜色】灰色\n【电池健康】良好\n严格检验每台机器，享高质量产品\n【快递】下单将在24小时内发出！",
+      "attributes": {
+        "品牌": "DJI/大疆",
+        "型号": "Mini 4 Pro（普通遥控器版）",
+        "成色": "轻微使用痕迹"
+      },
+      "price_text": "2399 - 3650",
+      "status": "已下架",
+      "captured_at": "2026-10-27T17:37:48.918Z"
+    },
+    {
+      "retained_file": "capture2.json",
+      "retained_sha256": "e2609699c8f7ad19a3be9e95f5f9d6b3a68efde4a9430bf639a00ed5ae5d9c67",
+      "title": "【Steam deck OLED 1TB 极致优化双系统】拷_闲鱼",
+      "description": "【Steam deck OLED 1TB 极致优化双系统】拷贝好了游戏。后续也会提供游戏资源，以及售后。价格低价， steamdeckOLED 512改1T 2T ，原装1T， steamdeckLCD   64改1T 2T，每台机器具体私我，会给你介绍。标价为预售64裸机，有需要就来聊聊吧。",
+      "attributes": {
+        "品牌": "steam",
+        "型号": "Steam deck 掌机",
+        "成色": "几乎全新",
+        "游戏机版本": "其他地区版本",
+        "内存容量": "64GB",
+        "包装": "有原包装盒"
+      },
+      "price_text": "1240",
+      "status": "立即购买",
+      "captured_at": "2026-10-27T17:37:59.091Z"
+    },
+    {
+      "retained_file": "capture3.json",
+      "retained_sha256": "27bb5ff01b41fd98fa209d818eb5df97c1302c0a7b452c445f953518d934720f",
+      "title": "AMD锐龙R7 3700X 3800X R9 3900X散片_闲鱼",
+      "description": "转卖 AMD锐龙R7 3700X 3800X R9 3900X散片微星B450M  X570主板CPU套装 主板芯片组: B450、套餐类型: 套餐三、内存容量: 无内存 只卖cpu",
+      "attributes": {},
+      "price_text": "468",
+      "status": "卖掉了",
+      "captured_at": "2026-10-27T17:38:08.623Z"
+    },
+    {
+      "retained_file": "capture4.json",
+      "retained_sha256": "3c30927cb9890c509283b5360eb01d5ff0bf8759b80e1372fe8e7b289c35606f",
+      "title": "英伟达定制RTX4090 48G 单涡轮 双宽_闲鱼",
+      "description": "英伟达定制RTX4090 48G 单涡轮 双宽 英伟达定制RTX4090 24G 单涡轮 双宽 英伟达定制RTX4080 16G单涡轮 双槽 英伟达定制RTX4080S 16G涡轮 全新正品 不退不换拍前确认库存 价格仅供参考，以实时报价为准！ 需要点想要！",
+      "attributes": {
+        "品牌": "GEFORCE/英伟达",
+        "显存容量": "8GB(不含)-16GB(含)",
+        "成色": "全新",
+        "功能状态": "功能完好无维修"
+      },
+      "price_text": "19999",
+      "status": "已下架",
+      "captured_at": "2026-10-27T17:38:20.149Z"
+    }
+  ]
+}

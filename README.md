@@ -1,6 +1,6 @@
 # china-deals
 
-A read-only **0.6 CLI** for researching products on **Taobao, JD.com, Goofish/Xianyu and Blibli**, comparing observed configurations and prices, and estimating **Fansbuy → Brazil** freight and landed costs.
+A read-only **0.7 CLI** for researching products on **Taobao, JD.com, Goofish/Xianyu and Blibli**, comparing observed configurations and prices, and estimating **Fansbuy → Brazil** freight and landed costs.
 
 **Guest access is the default. No marketplace account or AI API credentials are required.** Your subscription-backed Codex, Claude Code, Gemini/AGY or other terminal-capable agent supplies translation, analysis and presentation. The CLI makes no LLM calls. Existing OpenCLI sessions are an explicit, optional native mode.
 
@@ -50,7 +50,7 @@ china-deals detail jd 100214660452
 
 `--hydrate N` attempts guest detail for up to N discovered links per source. Its `hydration` receipts retain target URLs, access attempts and failures; successful reads preserve the original discovery under `source_detail.discovery`. A failed detail read leaves the indexed lead unverified, and a challenge stops remaining detail attempts for that source. The JD ID above is a research example with a previously masked price, not a recommended offer. `xianyu` aliases `goofish`. Blibli is **Indonesia**, distinct from Bilibili.
 
-JSON is the default. `--format markdown` gives a compact report; use JSON to inspect full provenance, FX, filter plans and unknown fields. `--include-offers` retains the full fetched offer population for later offline filtering and comparison. Without it, ranked groups may be limited. Calls run serially.
+JSON is the default. `--format markdown` gives a compact report; use JSON to inspect full provenance, FX, filter plans and unknown fields. `--include-offers` retains assessed `offers` plus a separate `filter_excluded_offers` population, with exclusion reasons, for later offline filtering and comparison. Without it, ranked groups may be limited. Calls run serially.
 
 Results retain source links, raw displayed prices, native currencies, observation times, access attempts and warnings. Read every source status: `discovery_only`, `blocked`, `auth_required`, `unavailable`, `empty_unverified` and `error` describe evidence or access limits. An empty response does not prove no inventory. Recommendations are not verified keyword matches.
 
@@ -62,18 +62,21 @@ Results retain source links, raw displayed prices, native currencies, observatio
 china-deals plan 'iPhone 17 Pro Max'
 china-deals plan 'AirPods Max USB-C'
 china-deals plan 'ASUS ROG Zephyrus'
+china-deals plan 'Steam Deck OLED 1TB'
+china-deals plan 'Sony WH-1000XM6'
+china-deals plan 'RTX 5070 Ti 16GB desktop graphics card'
 china-deals search 'iPhone 17 Pro Max' --zh-query '苹果 iPhone 17 Pro Max 手机' \
   --limit 5 --include-offers > iphone.json
 china-deals rank iphone.json --query 'iPhone 17 Pro Max'
 ```
 
-`plan` is offline. It suggests bounded Chinese-market and Blibli queries for iPhone 17 Pro Max, AirPods Max and Zephyrus G14/G15/G16/M16/Duo/S17 families. Refined queries retain model, storage and connector terms; your subscription agent can improve the translations and execute selected queries. Plans do not run searches or claim exhaustive coverage.
+`plan` is offline. It suggests bounded Chinese-market and Blibli queries for nine families: iPhone 17 Pro Max, AirPods Max, Zephyrus G14/G15/G16/M16/Duo/S17, Steam Deck, Sony WH headphones, AMD Ryzen CPUs, NVIDIA RTX graphics cards, DJI Mini drones and Nintendo Switch. Refined queries retain model, storage, connector, package and controller terms; your subscription agent can improve the translations and execute selected queries. Plans do not run searches or claim exhaustive coverage.
 
-For these recognized families, ranking checks title and selected variant independently. Accessories, repair/replica/dummy listings, explicit different products and uncertain model matches stay unranked; deposit and monthly-payment amounts stay unknown. This is conservative relevance checking, not authenticity or performance verification. `intent_query` survives imported rank/coupon/compare workflows. Use `rank --query` to attach intent to a plain imported array. Read all unranked reasons instead of assuming a low displayed amount is the whole device price.
+For these recognized families, ranking checks title and every retained selected observation independently before resolving consistent variant facts. Accessories, repair/replica/dummy listings, explicit different products and uncertain model matches stay unranked. An explicit unsupported intent also remains visible but unranked; queryless ranking is still available for generic caller-supplied data. Deposit, monthly-payment, rental, remaining-balance and starting-price quotes cannot become full purchase prices. This is conservative relevance checking, not authenticity or performance verification. `intent_query` survives imported rank/coupon/compare workflows. Use `rank --query` to attach intent to a plain imported array. Read all unranked reasons instead of assuming a low displayed amount is the whole device price.
 
 Verification/login/HTTP 401/403/429 responses gate further requests to the same host during one command. `access.attempts` names the actual index or marketplace host and records `skipped_after_challenge`, `network_attempted: false` and the origin. Independent hosts can still be read; a new invocation has a fresh scope. A blocked index does not prove the marketplace itself requires login. Opaque JD product URLs remain unpriced discovery with an unresolved numeric SKU.
 
-The [three-product validation summary](docs/validation/README.md) links real CLI/browser checks and the resulting regressions. Guest access was blocked in these bounded searches; no current best-deal winner was verified.
+The [diverse-search iteration](docs/validation/diverse-results.md) includes five exact Blibli page reads, three source-listed prices, Brazil retail references and the resulting parser/relevance regressions. The [initial three-product summary](docs/validation/README.md) preserves earlier blocked searches. No complete landed-cost winner or live coupon redemption was verified.
 
 ## Useful observations when a native page is blocked
 
@@ -88,6 +91,8 @@ china-deals rank examples/deeper-candidates-2026-10-27.json \
 Cached exact-product claims can also remain useful: unranked Markdown shows their source amount, separate BRL reference and crawl age when retained. Proxy, cached-product, indexed-product-block and category-card modes cannot become current-price rankings by re-importing. The [deeper validation results](docs/validation/deeper-results.md) contain two freshly rendered Goofish phone candidates, four cached Blibli candidates and external laptop price context, with condition/repair/pickup limits and dated FX. No additional coupon or checkout eligibility was established.
 
 For Goofish, `detail --from-browser-json` can import a retained primary-DOM browser capture without another network request. The requested/final item ID and bounded main-item selectors must agree; recommendations cannot supply prices. Capture authenticity and observation time remain caller-supplied. See the agent guide for the capture contract and current browser-reader limits.
+
+`--require-term` and `--exclude-term` remain literal title substring filters. They do not validate model equivalence, understand bundles or inspect selected variants; use product relevance and exact source evidence for those decisions. No unverified native filter mapping is invented.
 
 ## Optional filters: native submission versus local checks
 

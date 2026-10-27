@@ -1,0 +1,717 @@
+{
+  "schema_version": "1",
+  "dataset_origin": "retained_first_party_HTTP_observations",
+  "offers": [
+    {
+      "marketplace": "blibli",
+      "item_id": "PSP-60021-07252",
+      "title": "Steam Deck OLED Limited Edition White Color 1TB",
+      "url": "https://www.blibli.com/p/steam-deck-oled-limited-edition-white-color-1tb/ps--PSP-60021-07252",
+      "url_basis": "source_url",
+      "identity_evidence": [
+        {
+          "field": "item_id",
+          "kind": "id",
+          "value": "PSP-60021-07252"
+        },
+        {
+          "field": "url",
+          "kind": "url",
+          "value": "https://www.blibli.com/p/steam-deck-oled-limited-edition-white-color-1tb/ps--PSP-60021-07252"
+        }
+      ],
+      "offers": null,
+      "price": {
+        "amount": null,
+        "currency": "IDR",
+        "raw": null,
+        "basis": "displayed",
+        "source_currency": null,
+        "currency_basis": "marketplace_adapter_contract"
+      },
+      "seller": "PSEGAMESHOP Flagship Store",
+      "description": "•",
+      "source_mode": "guest_product_page",
+      "model": null,
+      "variant_evidence": {
+        "productSku": "PSP-60021-07252",
+        "itemSku": "PSP-60021-07252-00001",
+        "attributes": {},
+        "selected": true,
+        "available": false
+      },
+      "transaction_evidence": {},
+      "ranking_exclusions": [],
+      "price_freshness_policy": null,
+      "hardware": null,
+      "candidate_id": null,
+      "source_detail": {
+        "parser": "blibli_primary_product_state",
+        "productSku": "PSP-60021-07252",
+        "itemSku": "PSP-60021-07252-00001",
+        "native_url": "https://www.blibli.com/p/steam-deck-oled-limited-edition-white-color-1tb/is--PSP-60021-07252-00001?pickupPointCode=PP-3035029",
+        "requested_url": "https://www.blibli.com/p/steam-deck-oled-limited-edition-white-color-1tb/ps--PSP-60021-07252",
+        "selected_option": {
+          "id": "is--PSP-60021-07252-00001_PP-3035029",
+          "selected": true,
+          "available": false,
+          "attributes": [],
+          "pickupPointCode": "PP-3035029",
+          "tags": []
+        },
+        "price_claims": null,
+        "price_field_present": false,
+        "stock_claim": 33,
+        "merchant_claims": {
+          "name": "PSEGAMESHOP Flagship Store",
+          "code": "PSP-60021",
+          "official": true,
+          "international": false,
+          "location": "PSEGAMESHOP - Kota Jakarta Utara",
+          "url": "/merchant/psegameshop-flagship-store/PSP-60021",
+          "status": "ACTIVE",
+          "rating": {
+            "value": 96,
+            "review": 4.8,
+            "badgeUrl": "https://www.static-src.com/siva/asset/06_2025/seller-diamond.png",
+            "badge": "DIAMOND",
+            "positiveReview": 99,
+            "onTimeFulfillment": 100,
+            "activeResponse": 97,
+            "successfulTransaction": 91,
+            "reviewCount": 15455,
+            "new": true
+          },
+          "businessOperational": {
+            "day": "WEDNESDAY",
+            "status": "CLOSE",
+            "nextOperationalDay": "WEDNESDAY"
+          }
+        },
+        "fulfillment_claims": {
+          "delivery": "AVAILABLE",
+          "pickup": "UNAVAILABLE",
+          "selected": "DELIVERY",
+          "otherPickupPoints": 0
+        },
+        "summary_claims": {
+          "preOrder": {
+            "isPreOrder": false
+          },
+          "tags": [
+            "RETURNABLE",
+            "COMING_SOON",
+            "CONTEXTUAL_LAYOUT_GADGET_AND_ELECTRONICS"
+          ],
+          "type": "REGULAR"
+        },
+        "currency_basis": "marketplace_adapter_contract",
+        "location_basis": "merchant_location_claim",
+        "server_date_claim": "Tue, 27 Oct 2026 17:37:50 GMT",
+        "response_text_sha256": "03e563fb1a71b26014fbfafb26f919f28219883500a6f0c3ca29596c7ec7b8a3",
+        "retained_response_sha256": "03e563fb1a71b26014fbfafb26f919f28219883500a6f0c3ca29596c7ec7b8a3"
+      },
+      "index_source_url": null,
+      "discovered_at": null,
+      "location": "PSEGAMESHOP - Kota Jakarta Utara",
+      "domestic_free_shipping": null,
+      "variant": "SKU PSP-60021-07252-00001; pickup PP-3035029",
+      "condition": "unknown",
+      "availability": "unavailable",
+      "seller_trust": "unverified",
+      "observed_at": "2026-10-27T17:37:51.886103+00:00",
+      "signals": [],
+      "warnings": [
+        "Displayed price; stock, exact variant, seller claims and checkout total are unverified.",
+        "Source marks this listing unavailable; it is not a current purchase candidate.",
+        "No unambiguous positive single price; excluded from price ranking.",
+        "Blibli is in Indonesia. China-origin Fansbuy freight is not a verified route for this item."
+      ],
+      "source_warnings": [
+        "Listed price and discount percentages are source claims, not historical savings.",
+        "Primary price field absent; price unknown and excluded from ranking."
+      ],
+      "intent_query": "Steam Deck OLED 1TB"
+    },
+    {
+      "marketplace": "blibli",
+      "item_id": "SOA-60059-00376-00003",
+      "title": "SONY WH-1000XM6 Noise Cancelling Headphones/ 1000XM6",
+      "url": "https://www.blibli.com/p/sony-wh-1000xm6-noise-cancelling-headphones-1000xm6/is--SOA-60059-00376-00003",
+      "url_basis": "source_url",
+      "identity_evidence": [
+        {
+          "field": "item_id",
+          "kind": "id",
+          "value": "SOA-60059-00376-00003"
+        },
+        {
+          "field": "url",
+          "kind": "url",
+          "value": "https://www.blibli.com/p/sony-wh-1000xm6-noise-cancelling-headphones-1000xm6/is--SOA-60059-00376-00003"
+        }
+      ],
+      "offers": null,
+      "price": {
+        "amount": "6179000",
+        "currency": "IDR",
+        "raw": 6179000,
+        "basis": "displayed",
+        "source_currency": null,
+        "currency_basis": "marketplace_adapter_contract"
+      },
+      "seller": "Sony Electronics Flagship Store",
+      "description": "Warna: Platinum Silver",
+      "source_mode": "guest_product_page",
+      "model": null,
+      "variant_evidence": {
+        "productSku": "SOA-60059-00376",
+        "itemSku": "SOA-60059-00376-00003",
+        "attributes": {
+          "Warna": "Platinum Silver"
+        },
+        "selected": true,
+        "available": true
+      },
+      "transaction_evidence": {},
+      "ranking_exclusions": [],
+      "price_freshness_policy": null,
+      "hardware": null,
+      "candidate_id": null,
+      "source_detail": {
+        "parser": "blibli_primary_product_state",
+        "productSku": "SOA-60059-00376",
+        "itemSku": "SOA-60059-00376-00003",
+        "native_url": "https://www.blibli.com/p/sony-wh-1000xm6-noise-cancelling-headphones-1000xm6/is--SOA-60059-00376-00003?pickupPointCode=PP-3205922",
+        "requested_url": "https://www.blibli.com/p/sony-wh-1000xm6-noise-cancelling-headphones-1000xm6/is--SOA-60059-00376-00003",
+        "selected_option": {
+          "id": "is--SOA-60059-00376-00003_PP-3205922",
+          "selected": true,
+          "available": true,
+          "attributes": [
+            {
+              "name": "Warna",
+              "value": "Platinum Silver",
+              "label": "Warna"
+            }
+          ],
+          "pickupPointCode": "PP-3205922",
+          "tags": []
+        },
+        "price_claims": {
+          "listed": 7499000,
+          "listDiscount": 18,
+          "offered": 6179000,
+          "totalDiscount": 18
+        },
+        "price_field_present": true,
+        "stock_claim": 1173,
+        "merchant_claims": {
+          "name": "Sony Electronics Flagship Store",
+          "code": "SOA-60059",
+          "official": true,
+          "international": false,
+          "location": "SONY WAREHOUSE - Kota Jakarta Pusat",
+          "url": "/merchant/sony-electronics-flagship-store/SOA-60059",
+          "status": "ACTIVE",
+          "rating": {
+            "value": 98,
+            "review": 4.8,
+            "badgeUrl": "https://www.static-src.com/siva/asset/06_2025/seller-diamond.png",
+            "badge": "DIAMOND",
+            "positiveReview": 99,
+            "onTimeFulfillment": 100,
+            "activeResponse": 100,
+            "successfulTransaction": 96,
+            "reviewCount": 2442,
+            "new": true
+          },
+          "businessOperational": {
+            "day": "WEDNESDAY",
+            "status": "CLOSE",
+            "nextOperationalDay": "WEDNESDAY"
+          }
+        },
+        "fulfillment_claims": {
+          "delivery": "AVAILABLE",
+          "pickup": "AVAILABLE",
+          "selected": "DELIVERY",
+          "otherPickupPoints": 0
+        },
+        "summary_claims": {
+          "campaignInfo": {
+            "id": "CAMP-03340",
+            "promoEndTime": 1793465940000,
+            "remainingTime": 343267258,
+            "tagLabel": "https://www.static-src.com/fs/asset/10_2026/tag-label-ade87835f691.png",
+            "name": "ELECTRODEALS OKT 2026",
+            "type": "REGULAR",
+            "backgroundImage": "https://www.static-src.com/fs/asset/10_2026/pdp-bea5609194d1.png",
+            "subscribed": false,
+            "color": {
+              "text": "#FFFFFF"
+            }
+          },
+          "installment": {
+            "interest": 0,
+            "startFrom": 257458,
+            "freeInstallmentLabel": "Cicilan 0%"
+          },
+          "preOrder": {
+            "isPreOrder": false
+          },
+          "tags": [
+            "RETURNABLE",
+            "AVAILABLE",
+            "CNC",
+            "CONTEXTUAL_LAYOUT_GADGET_AND_ELECTRONICS",
+            "INSTALLMENT_NON_CC",
+            "INSTALLMENT",
+            "HIGHLIGHTED_INSTALLMENT"
+          ],
+          "type": "REGULAR"
+        },
+        "currency_basis": "marketplace_adapter_contract",
+        "location_basis": "merchant_location_claim",
+        "server_date_claim": "Tue, 27 Oct 2026 17:37:52 GMT",
+        "response_text_sha256": "ac2b26340c09ee759517c1e018515dd878870c357d3708be39d9ebe2f12a6efc",
+        "retained_response_sha256": "ac2b26340c09ee759517c1e018515dd878870c357d3708be39d9ebe2f12a6efc"
+      },
+      "index_source_url": null,
+      "discovered_at": null,
+      "location": "SONY WAREHOUSE - Kota Jakarta Pusat",
+      "domestic_free_shipping": null,
+      "variant": "Warna: Platinum Silver; SKU SOA-60059-00376-00003; pickup PP-3205922",
+      "condition": "unknown",
+      "availability": "source_claimed_available",
+      "seller_trust": "unverified",
+      "observed_at": "2026-10-27T17:37:53.609726+00:00",
+      "signals": [],
+      "warnings": [
+        "Displayed price; stock, exact variant, seller claims and checkout total are unverified.",
+        "Blibli is in Indonesia. China-origin Fansbuy freight is not a verified route for this item."
+      ],
+      "source_warnings": [
+        "Listed price and discount percentages are source claims, not historical savings."
+      ],
+      "intent_query": "Sony WH-1000XM6"
+    },
+    {
+      "marketplace": "blibli",
+      "item_id": "FOC-70056-02589",
+      "title": "AMD Ryzen 7 9800x3D Box Processor 8 Core 16 Thread Up to 4.7 GHz Garansi Resmi",
+      "url": "https://www.blibli.com/p/amd-ryzen-7-9800x3d-box-processor-8-core-16-thread-up-to-4-7-ghz-garansi-resmi/ps--FOC-70056-02589",
+      "url_basis": "source_url",
+      "identity_evidence": [
+        {
+          "field": "item_id",
+          "kind": "id",
+          "value": "FOC-70056-02589"
+        },
+        {
+          "field": "url",
+          "kind": "url",
+          "value": "https://www.blibli.com/p/amd-ryzen-7-9800x3d-box-processor-8-core-16-thread-up-to-4-7-ghz-garansi-resmi/ps--FOC-70056-02589"
+        }
+      ],
+      "offers": null,
+      "price": {
+        "amount": "8905000",
+        "currency": "IDR",
+        "raw": 8905000,
+        "basis": "displayed",
+        "source_currency": null,
+        "currency_basis": "marketplace_adapter_contract"
+      },
+      "seller": "Foursquare Computer Flagship Store",
+      "description": "",
+      "source_mode": "guest_product_page",
+      "model": null,
+      "variant_evidence": {
+        "productSku": "FOC-70056-02589",
+        "itemSku": "FOC-70056-02589-00004",
+        "attributes": {},
+        "selected": true,
+        "available": true
+      },
+      "transaction_evidence": {},
+      "ranking_exclusions": [],
+      "price_freshness_policy": null,
+      "hardware": null,
+      "candidate_id": null,
+      "source_detail": {
+        "parser": "blibli_primary_product_state",
+        "productSku": "FOC-70056-02589",
+        "itemSku": "FOC-70056-02589-00004",
+        "native_url": "https://www.blibli.com/p/amd-ryzen-7-9800x3d-box-processor-8-core-16-thread-up-to-4-7-ghz-garansi-resmi/is--FOC-70056-02589-00004?pickupPointCode=PP-3508358",
+        "requested_url": "https://www.blibli.com/p/amd-ryzen-7-9800x3d-box-processor-8-core-16-thread-up-to-4-7-ghz-garansi-resmi/ps--FOC-70056-02589",
+        "selected_option": {
+          "id": "is--FOC-70056-02589-00004_PP-3508358",
+          "selected": true,
+          "available": true,
+          "attributes": [],
+          "pickupPointCode": "PP-3508358",
+          "tags": []
+        },
+        "price_claims": {
+          "listed": 8905000,
+          "listDiscount": 0,
+          "offered": 8905000,
+          "totalDiscount": 0
+        },
+        "price_field_present": true,
+        "stock_claim": 25,
+        "merchant_claims": {
+          "name": "Foursquare Computer Flagship Store",
+          "code": "FOC-70056",
+          "official": true,
+          "international": false,
+          "location": "Babakan Surabaya, Kota Bandung",
+          "url": "/merchant/foursquare-computer-flagship-store/FOC-70056",
+          "status": "ACTIVE",
+          "rating": {
+            "value": 90,
+            "review": 4.9,
+            "badgeUrl": "https://www.static-src.com/siva/asset/06_2025/seller-gold.png",
+            "badge": "GOLD",
+            "positiveReview": 98,
+            "onTimeFulfillment": 96,
+            "activeResponse": 99,
+            "successfulTransaction": 73,
+            "reviewCount": 184,
+            "new": true
+          },
+          "businessOperational": {
+            "day": "WEDNESDAY",
+            "status": "CLOSE",
+            "nextOperationalDay": "WEDNESDAY"
+          }
+        },
+        "fulfillment_claims": {
+          "delivery": "AVAILABLE",
+          "pickup": "UNAVAILABLE",
+          "selected": "DELIVERY",
+          "otherPickupPoints": 0
+        },
+        "summary_claims": {
+          "installment": {
+            "interest": 0,
+            "startFrom": 371042,
+            "freeInstallmentLabel": "Cicilan 0%"
+          },
+          "preOrder": {
+            "isPreOrder": false
+          },
+          "tags": [
+            "RETURNABLE",
+            "AVAILABLE",
+            "CONTEXTUAL_LAYOUT_GADGET_AND_ELECTRONICS",
+            "INSTALLMENT_NON_CC",
+            "INSTALLMENT",
+            "HIGHLIGHTED_INSTALLMENT"
+          ],
+          "type": "REGULAR"
+        },
+        "currency_basis": "marketplace_adapter_contract",
+        "location_basis": "merchant_location_claim",
+        "server_date_claim": "Tue, 27 Oct 2026 17:37:54 GMT",
+        "response_text_sha256": "0ee65759a1043913485da4f29f360e01a32a540db4832b4459b7c3ec27a7a956",
+        "retained_response_sha256": "0ee65759a1043913485da4f29f360e01a32a540db4832b4459b7c3ec27a7a956"
+      },
+      "index_source_url": null,
+      "discovered_at": null,
+      "location": "Babakan Surabaya, Kota Bandung",
+      "domestic_free_shipping": null,
+      "variant": "SKU FOC-70056-02589-00004; pickup PP-3508358",
+      "condition": "unknown",
+      "availability": "source_claimed_available",
+      "seller_trust": "unverified",
+      "observed_at": "2026-10-27T17:37:55.178472+00:00",
+      "signals": [],
+      "warnings": [
+        "Displayed price; stock, exact variant, seller claims and checkout total are unverified.",
+        "Blibli is in Indonesia. China-origin Fansbuy freight is not a verified route for this item."
+      ],
+      "source_warnings": [
+        "Listed price and discount percentages are source claims, not historical savings."
+      ],
+      "intent_query": "AMD Ryzen 7 9800X3D"
+    },
+    {
+      "marketplace": "blibli",
+      "item_id": "ITS-29724-04198",
+      "title": "Gigabyte GeForce RTX 5070 Ti GAMING OC 16G",
+      "url": "https://www.blibli.com/p/gigabyte-geforce-rtx-5070-ti-gaming-oc-16g/ps--ITS-29724-04198",
+      "url_basis": "source_url",
+      "identity_evidence": [
+        {
+          "field": "item_id",
+          "kind": "id",
+          "value": "ITS-29724-04198"
+        },
+        {
+          "field": "url",
+          "kind": "url",
+          "value": "https://www.blibli.com/p/gigabyte-geforce-rtx-5070-ti-gaming-oc-16g/ps--ITS-29724-04198"
+        }
+      ],
+      "offers": null,
+      "price": {
+        "amount": null,
+        "currency": "IDR",
+        "raw": null,
+        "basis": "displayed",
+        "source_currency": null,
+        "currency_basis": "marketplace_adapter_contract"
+      },
+      "seller": "IT Shop Flagship Store",
+      "description": "• - Powered by the NVIDIA Blackwell architecture and DLSS 4 • - Powered by GeForce RTX 5070 Ti • - Integrated with 16GB GDDR7 256bit memory interface • - WINDFORCE cooling system",
+      "source_mode": "guest_product_page",
+      "model": null,
+      "variant_evidence": {
+        "productSku": "ITS-29724-04198",
+        "itemSku": "ITS-29724-04198-00001",
+        "attributes": {},
+        "selected": true,
+        "available": false
+      },
+      "transaction_evidence": {},
+      "ranking_exclusions": [],
+      "price_freshness_policy": null,
+      "hardware": null,
+      "candidate_id": null,
+      "source_detail": {
+        "parser": "blibli_primary_product_state",
+        "productSku": "ITS-29724-04198",
+        "itemSku": "ITS-29724-04198-00001",
+        "native_url": "https://www.blibli.com/p/gigabyte-geforce-rtx-5070-ti-gaming-oc-16g/is--ITS-29724-04198-00001?pickupPointCode=PP-3005896",
+        "requested_url": "https://www.blibli.com/p/gigabyte-geforce-rtx-5070-ti-gaming-oc-16g/ps--ITS-29724-04198",
+        "selected_option": {
+          "id": "is--ITS-29724-04198-00001_PP-3005896",
+          "selected": true,
+          "available": false,
+          "attributes": [],
+          "pickupPointCode": "PP-3005896",
+          "tags": []
+        },
+        "price_claims": null,
+        "price_field_present": false,
+        "stock_claim": 0,
+        "merchant_claims": {
+          "name": "IT Shop Flagship Store",
+          "code": "ITS-29724",
+          "official": true,
+          "international": false,
+          "location": "Mojo, Kota Surabaya",
+          "url": "/merchant/it-shop-flagship-store/ITS-29724",
+          "status": "ACTIVE",
+          "rating": {
+            "value": 98,
+            "review": 4.8,
+            "badgeUrl": "https://www.static-src.com/siva/asset/06_2025/seller-diamond.png",
+            "badge": "DIAMOND",
+            "positiveReview": 99,
+            "onTimeFulfillment": 96,
+            "activeResponse": 100,
+            "successfulTransaction": 100,
+            "reviewCount": 2789,
+            "new": true
+          },
+          "businessOperational": {
+            "day": "WEDNESDAY",
+            "status": "CLOSE",
+            "nextOperationalDay": "WEDNESDAY"
+          }
+        },
+        "fulfillment_claims": {
+          "delivery": "AVAILABLE",
+          "pickup": "UNAVAILABLE",
+          "selected": "DELIVERY",
+          "otherPickupPoints": 0
+        },
+        "summary_claims": {
+          "preOrder": {
+            "isPreOrder": false
+          },
+          "tags": [
+            "RETURNABLE",
+            "COMING_SOON",
+            "CONTEXTUAL_LAYOUT_GADGET_AND_ELECTRONICS"
+          ],
+          "type": "REGULAR"
+        },
+        "currency_basis": "marketplace_adapter_contract",
+        "location_basis": "merchant_location_claim",
+        "server_date_claim": "Tue, 27 Oct 2026 17:37:55 GMT",
+        "response_text_sha256": "90268d7bf91f98bc1c1eb29e3f081678d7ce1f2094fe08f629f8cceb8f605564",
+        "retained_response_sha256": "90268d7bf91f98bc1c1eb29e3f081678d7ce1f2094fe08f629f8cceb8f605564"
+      },
+      "index_source_url": null,
+      "discovered_at": null,
+      "location": "Mojo, Kota Surabaya",
+      "domestic_free_shipping": null,
+      "variant": "SKU ITS-29724-04198-00001; pickup PP-3005896",
+      "condition": "unknown",
+      "availability": "unavailable",
+      "seller_trust": "unverified",
+      "observed_at": "2026-10-27T17:37:56.470724+00:00",
+      "signals": [],
+      "warnings": [
+        "Displayed price; stock, exact variant, seller claims and checkout total are unverified.",
+        "Source marks this listing unavailable; it is not a current purchase candidate.",
+        "No unambiguous positive single price; excluded from price ranking.",
+        "Blibli is in Indonesia. China-origin Fansbuy freight is not a verified route for this item."
+      ],
+      "source_warnings": [
+        "Listed price and discount percentages are source claims, not historical savings.",
+        "Primary price field absent; price unknown and excluded from ranking."
+      ],
+      "intent_query": "RTX 5070 Ti 16GB"
+    },
+    {
+      "marketplace": "blibli",
+      "item_id": "FUS-60039-01703",
+      "title": "DJI Mini 4 Pro DJI RC 2 Drone Garansi Resmi",
+      "url": "https://www.blibli.com/p/dji-mini-4-pro-dji-rc-2-drone-garansi-resmi/ps--FUS-60039-01703",
+      "url_basis": "source_url",
+      "identity_evidence": [
+        {
+          "field": "item_id",
+          "kind": "id",
+          "value": "FUS-60039-01703"
+        },
+        {
+          "field": "url",
+          "kind": "url",
+          "value": "https://www.blibli.com/p/dji-mini-4-pro-dji-rc-2-drone-garansi-resmi/ps--FUS-60039-01703"
+        }
+      ],
+      "offers": null,
+      "price": {
+        "amount": "12266000",
+        "currency": "IDR",
+        "raw": 12266000,
+        "basis": "displayed",
+        "source_currency": null,
+        "currency_basis": "marketplace_adapter_contract"
+      },
+      "seller": "FUJISHOPid Sedayu Flagship Store",
+      "description": "• Quadcopter with 4K camera • 3-axis motorized gimbal • APAS 4.0 (Advanced Pilot Assistant Systems) • 1/1.3\" CMOS sensor • FOV (field of view): 82.1° • maximum speed: 35.7 mph • DJI RC 2 smart remote controller • Up to 4K100 Video & 48MP Raw Stills • Omnidirectional Obstacle Avoidance • Regulation-Friendly 8.8 oz Weight",
+      "source_mode": "guest_product_page",
+      "model": null,
+      "variant_evidence": {
+        "productSku": "FUS-60039-01703",
+        "itemSku": "FUS-60039-01703-00001",
+        "attributes": {},
+        "selected": true,
+        "available": true
+      },
+      "transaction_evidence": {},
+      "ranking_exclusions": [],
+      "price_freshness_policy": null,
+      "hardware": null,
+      "candidate_id": null,
+      "source_detail": {
+        "parser": "blibli_primary_product_state",
+        "productSku": "FUS-60039-01703",
+        "itemSku": "FUS-60039-01703-00001",
+        "native_url": "https://www.blibli.com/p/dji-mini-4-pro-dji-rc-2-drone-garansi-resmi/is--FUS-60039-01703-00001?pickupPointCode=PP-3414881",
+        "requested_url": "https://www.blibli.com/p/dji-mini-4-pro-dji-rc-2-drone-garansi-resmi/ps--FUS-60039-01703",
+        "selected_option": {
+          "id": "is--FUS-60039-01703-00001_PP-3414881",
+          "selected": true,
+          "available": true,
+          "attributes": [],
+          "pickupPointCode": "PP-3414881",
+          "tags": []
+        },
+        "price_claims": {
+          "listed": 14430000,
+          "listDiscount": 15,
+          "offered": 12266000,
+          "totalDiscount": 15
+        },
+        "price_field_present": true,
+        "stock_claim": 1,
+        "merchant_claims": {
+          "name": "FUJISHOPid Sedayu Flagship Store",
+          "code": "FUS-60039",
+          "official": true,
+          "international": false,
+          "location": "Fujishopid Sedayu Square - Kota Jakarta Barat",
+          "url": "/merchant/fujishopid-sedayu-flagship-store/FUS-60039",
+          "status": "ACTIVE",
+          "rating": {
+            "value": 92,
+            "review": 4.8,
+            "badgeUrl": "https://www.static-src.com/siva/asset/06_2025/seller-silver.png",
+            "badge": "SILVER",
+            "positiveReview": 100,
+            "onTimeFulfillment": 100,
+            "activeResponse": 84,
+            "successfulTransaction": 83,
+            "reviewCount": 243,
+            "new": true
+          },
+          "businessOperational": {
+            "day": "WEDNESDAY",
+            "status": "CLOSE",
+            "nextOperationalDay": "WEDNESDAY"
+          }
+        },
+        "fulfillment_claims": {
+          "delivery": "AVAILABLE",
+          "pickup": "UNAVAILABLE",
+          "selected": "DELIVERY",
+          "otherPickupPoints": 0
+        },
+        "summary_claims": {
+          "installment": {
+            "interest": 0,
+            "startFrom": 511083,
+            "freeInstallmentLabel": "Cicilan 0%"
+          },
+          "preOrder": {
+            "isPreOrder": false
+          },
+          "tags": [
+            "LIMITED",
+            "RETURNABLE",
+            "AVAILABLE",
+            "CONTEXTUAL_LAYOUT_GADGET_AND_ELECTRONICS",
+            "INSTALLMENT_NON_CC",
+            "INSTALLMENT",
+            "HIGHLIGHTED_INSTALLMENT"
+          ],
+          "type": "REGULAR"
+        },
+        "currency_basis": "marketplace_adapter_contract",
+        "location_basis": "merchant_location_claim",
+        "server_date_claim": "Tue, 27 Oct 2026 17:37:57 GMT",
+        "response_text_sha256": "1c192f34330326fe2ac8305dd034e53bef2c55cce57093c46e189530157f0c24",
+        "retained_response_sha256": "1c192f34330326fe2ac8305dd034e53bef2c55cce57093c46e189530157f0c24"
+      },
+      "index_source_url": null,
+      "discovered_at": null,
+      "location": "Fujishopid Sedayu Square - Kota Jakarta Barat",
+      "domestic_free_shipping": null,
+      "variant": "SKU FUS-60039-01703-00001; pickup PP-3414881",
+      "condition": "unknown",
+      "availability": "source_claimed_available",
+      "seller_trust": "unverified",
+      "observed_at": "2026-10-27T17:37:57.883567+00:00",
+      "signals": [],
+      "warnings": [
+        "Displayed price; stock, exact variant, seller claims and checkout total are unverified.",
+        "Blibli is in Indonesia. China-origin Fansbuy freight is not a verified route for this item."
+      ],
+      "source_warnings": [
+        "Listed price and discount percentages are source claims, not historical savings."
+      ],
+      "intent_query": "DJI Mini 4 Pro RC 2"
+    }
+  ],
+  "warnings": [
+    "Historical direct HTTP bodies parsed offline after code changes. Source stock/sale/fulfillment are unverified claims, not checkout proof. No new request made after source challenge."
+  ]
+}

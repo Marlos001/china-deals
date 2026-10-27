@@ -156,7 +156,7 @@ def build_parser():
     search.add_argument("--limit", type=bounded_int, default=10, help="Per-marketplace fetch and per-currency result limit")
     search.add_argument("--require-term", action="append", default=[])
     search.add_argument("--exclude-term", action="append", default=[])
-    search.add_argument("--include-offers", action="store_true", help="Include the full fetched offer array for later offline filtering; larger output")
+    search.add_argument("--include-offers", action="store_true", help="Include assessed offers and separate filter-excluded observations for offline filtering; larger output")
     backend(search)
     guest_engine(search)
     presentation(search)
@@ -267,7 +267,7 @@ def schema():
                       "coupon_max_age_hours": 1, "cache": "Retrieval never renews source price age", "refresh": "Exact native links, challenge stops, optional local history"},
         "default_access": "guest",
         "query_planning": "Offline bounded suggestions; no AI API or automatic search",
-        "relevance": "Title and selected variant checks for iPhone 17 Pro Max, AirPods Max and ROG Zephyrus; unverified facts remain unknown",
+        "relevance": "Independent title/selected-evidence checks for nine bounded families; unsupported explicit intents stay unranked; unverified facts remain unknown",
         "access_gate_scope": "Per invocation and actual host; skipped_after_challenge is not a network attempt",
         "hydration": "Per-target status/error/access receipts; successful rows retain source_detail.discovery",
         "intent_query": "Preserved through search/rank/coupons; use rank --query for imported arrays",
@@ -283,7 +283,7 @@ def schema():
             "Estimate BRL landed cost with explicit current FX, ICMS and all known fees. Present source links and unresolved costs.",
         ],
         "offer_fields": ["marketplace", "item_id", "title", "url", "price", "seller", "variant", "condition",
-                         "availability", "seller_trust", "observed_at", "signals", "warnings", "source_warnings", "source_mode", "source_detail", "identity_evidence", "relevance", "ranking_exclusions", "brl"],
+                         "variant_evidence", "selected_variant", "variant_observations", "availability", "seller_trust", "observed_at", "signals", "warnings", "source_warnings", "source_mode", "source_detail", "identity_evidence", "relevance", "ranking_exclusions", "brl"],
         "price": {"amount": "positive decimal string or null", "currency": "CNY or IDR",
                   "raw": "original displayed value", "basis": "displayed"},
         "source_statuses": ["ok", "catalog_only", "discovery_only", "empty_unverified", "blocked", "auth_required", "unavailable", "error"],
@@ -610,12 +610,17 @@ def _run(args):
         if filters.get("sort") in {"sales", "newest"}:
             result["warnings"].append("Requested sales/newest sort is only effective if a source confirms native submission; price ranking does not establish that ordering.")
         if args.include_offers:
-            from .ranking import apply_product_intent
-            for item in offers:
+            from .ranking import apply_product_intent, apply_transaction_scope
+            for item in offers + excluded:
                 apply_product_intent(item, args.query)
+                apply_transaction_scope(item)
                 from .freshness import annotate_price_freshness
                 annotate_price_freshness(item, args.fresh_only, args.max_age_hours, args.as_of)
             result["offers"] = offers
+            for item in excluded:
+                reason = 'requested_filter_mismatch' if item['filter_evaluation']['status'] == 'excluded' else 'requested_filter_unknown'
+                item.setdefault('ranking_exclusions', []).append(reason)
+            result['filter_excluded_offers'] = excluded
         decorate_brl(result, args, config)
         return result, 0 if all(s.get("status") == "ok" for s in sources) else 3
     if args.command == "coupons":

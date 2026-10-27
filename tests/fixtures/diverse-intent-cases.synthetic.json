@@ -1,0 +1,1288 @@
+{
+  "synthetic_offline_only": true,
+  "baseline_commit": "b134840ec0dc10ca48fa617e1d7ecaab2ea838ee",
+  "notice": "Synthetic software regression cases only. No live offers, stock or authenticity claims.",
+  "cases": [
+    {
+      "id": "deck-0",
+      "query": "Steam Deck OLED 1TB",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900000",
+        "title": "Valve Steam Deck OLED 1TB handheld console",
+        "price": "10"
+      },
+      "expected_ranked": true,
+      "lang": "en"
+    },
+    {
+      "id": "deck-1",
+      "query": "Steam Deck OLED 1TB",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900001",
+        "title": "Valve Steam Deck OLED 1TB 掌机",
+        "price": "10"
+      },
+      "expected_ranked": true,
+      "lang": "zh"
+    },
+    {
+      "id": "deck-2",
+      "query": "Steam Deck OLED 1TB",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900002",
+        "title": "Steam Deck OLED 1TB konsol handheld",
+        "price": "10"
+      },
+      "expected_ranked": true,
+      "lang": "id"
+    },
+    {
+      "id": "deck-3",
+      "query": "Steam Deck OLED 1TB",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900003",
+        "title": "Docking station for Steam Deck OLED 1TB",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "deck-4",
+      "query": "Steam Deck OLED 1TB",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900004",
+        "title": "Steam Deck OLED 1TB 掌机扩展坞",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "zh"
+    },
+    {
+      "id": "deck-5",
+      "query": "Steam Deck OLED 1TB",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900005",
+        "title": "Sarung pelindung Steam Deck OLED 1TB",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "id"
+    },
+    {
+      "id": "deck-6",
+      "query": "Steam Deck OLED 1TB",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900006",
+        "title": "Valve Steam Deck LCD 512GB handheld console",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "deck-7",
+      "query": "Steam Deck OLED 1TB",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900007",
+        "title": "Steam Deck OLED 512GB / 1TB 掌机 多规格可选",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "zh"
+    },
+    {
+      "id": "deck-wrong-selection",
+      "query": "Steam Deck OLED 1TB",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900008",
+        "title": "Valve Steam Deck OLED 1TB handheld console",
+        "price": "10",
+        "variant": "Steam Deck OLED 512GB / 1TB 掌机 多规格可选"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "deck-unrelated",
+      "query": "Steam Deck OLED 1TB",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900009",
+        "title": "USB cable 1m",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "deck-deposit-control",
+      "query": "Steam Deck OLED 1TB",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900010",
+        "title": "Valve Steam Deck OLED 1TB handheld console deposit",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "deck-source-index-control",
+      "query": "Steam Deck OLED 1TB",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900011",
+        "title": "Valve Steam Deck OLED 1TB handheld console",
+        "price": "10",
+        "source_mode": "search_index"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "sony-0",
+      "query": "Sony WH-1000XM6",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900012",
+        "title": "Sony WH-1000XM6 wireless headphones",
+        "price": "10"
+      },
+      "expected_ranked": true,
+      "lang": "en"
+    },
+    {
+      "id": "sony-1",
+      "query": "Sony WH-1000XM6",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900013",
+        "title": "索尼 WH-1000XM6 头戴式降噪耳机",
+        "price": "10"
+      },
+      "expected_ranked": true,
+      "lang": "zh"
+    },
+    {
+      "id": "sony-2",
+      "query": "Sony WH-1000XM6",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900014",
+        "title": "Sony WH-1000XM6 headphone nirkabel",
+        "price": "10"
+      },
+      "expected_ranked": true,
+      "lang": "id"
+    },
+    {
+      "id": "sony-3",
+      "query": "Sony WH-1000XM6",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900015",
+        "title": "Replacement ear pads for Sony WH-1000XM6",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "sony-4",
+      "query": "Sony WH-1000XM6",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900016",
+        "title": "索尼 WH-1000XM6 替换耳垫",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "zh"
+    },
+    {
+      "id": "sony-5",
+      "query": "Sony WH-1000XM6",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900017",
+        "title": "Bantalan telinga Sony WH-1000XM6",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "id"
+    },
+    {
+      "id": "sony-6",
+      "query": "Sony WH-1000XM6",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900018",
+        "title": "Sony WH-1000XM5 wireless headphones",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "sony-7",
+      "query": "Sony WH-1000XM6",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900019",
+        "title": "Sony WH-1000XM5 / WH-1000XM6 headphones pilih varian",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "id"
+    },
+    {
+      "id": "sony-wrong-selection",
+      "query": "Sony WH-1000XM6",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900020",
+        "title": "Sony WH-1000XM6 wireless headphones",
+        "price": "10",
+        "variant": "Sony WH-1000XM5 / WH-1000XM6 headphones pilih varian"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "sony-unrelated",
+      "query": "Sony WH-1000XM6",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900021",
+        "title": "USB cable 1m",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "sony-deposit-control",
+      "query": "Sony WH-1000XM6",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900022",
+        "title": "Sony WH-1000XM6 wireless headphones deposit",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "sony-source-index-control",
+      "query": "Sony WH-1000XM6",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900023",
+        "title": "Sony WH-1000XM6 wireless headphones",
+        "price": "10",
+        "source_mode": "search_index"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "ryzen-0",
+      "query": "AMD Ryzen 7 9800X3D",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900024",
+        "title": "AMD Ryzen 7 9800X3D desktop processor",
+        "price": "10"
+      },
+      "expected_ranked": true,
+      "lang": "en"
+    },
+    {
+      "id": "ryzen-1",
+      "query": "AMD Ryzen 7 9800X3D",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900025",
+        "title": "AMD 锐龙7 9800X3D 台式机处理器",
+        "price": "10"
+      },
+      "expected_ranked": true,
+      "lang": "zh"
+    },
+    {
+      "id": "ryzen-2",
+      "query": "AMD Ryzen 7 9800X3D",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900026",
+        "title": "AMD Ryzen 7 9800X3D prosesor desktop",
+        "price": "10"
+      },
+      "expected_ranked": true,
+      "lang": "id"
+    },
+    {
+      "id": "ryzen-3",
+      "query": "AMD Ryzen 7 9800X3D",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900027",
+        "title": "CPU cooler for AMD Ryzen 7 9800X3D",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "ryzen-4",
+      "query": "AMD Ryzen 7 9800X3D",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900028",
+        "title": "AMD 锐龙7 9800X3D 散热器",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "zh"
+    },
+    {
+      "id": "ryzen-5",
+      "query": "AMD Ryzen 7 9800X3D",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900029",
+        "title": "Dus kosong AMD Ryzen 7 9800X3D",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "id"
+    },
+    {
+      "id": "ryzen-6",
+      "query": "AMD Ryzen 7 9800X3D",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900030",
+        "title": "AMD Ryzen 7 7800X3D desktop processor",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "ryzen-7",
+      "query": "AMD Ryzen 7 9800X3D",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900031",
+        "title": "AMD Ryzen 7 7800X3D / 9800X3D CPU",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "ryzen-wrong-selection",
+      "query": "AMD Ryzen 7 9800X3D",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900032",
+        "title": "AMD Ryzen 7 9800X3D desktop processor",
+        "price": "10",
+        "variant": "AMD Ryzen 7 7800X3D / 9800X3D CPU"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "ryzen-unrelated",
+      "query": "AMD Ryzen 7 9800X3D",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900033",
+        "title": "USB cable 1m",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "ryzen-deposit-control",
+      "query": "AMD Ryzen 7 9800X3D",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900034",
+        "title": "AMD Ryzen 7 9800X3D desktop processor deposit",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "ryzen-source-index-control",
+      "query": "AMD Ryzen 7 9800X3D",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900035",
+        "title": "AMD Ryzen 7 9800X3D desktop processor",
+        "price": "10",
+        "source_mode": "search_index"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "rtx-0",
+      "query": "NVIDIA RTX 5070 Ti 16GB desktop graphics card",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900036",
+        "title": "NVIDIA GeForce RTX 5070 Ti 16GB desktop graphics card",
+        "price": "10"
+      },
+      "expected_ranked": true,
+      "lang": "en"
+    },
+    {
+      "id": "rtx-1",
+      "query": "NVIDIA RTX 5070 Ti 16GB desktop graphics card",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900037",
+        "title": "微星 GeForce RTX 5070 Ti 16GB 台式机独立显卡",
+        "price": "10"
+      },
+      "expected_ranked": true,
+      "lang": "zh"
+    },
+    {
+      "id": "rtx-2",
+      "query": "NVIDIA RTX 5070 Ti 16GB desktop graphics card",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900038",
+        "title": "MSI GeForce RTX 5070 Ti 16GB kartu grafis desktop",
+        "price": "10"
+      },
+      "expected_ranked": true,
+      "lang": "id"
+    },
+    {
+      "id": "rtx-3",
+      "query": "NVIDIA RTX 5070 Ti 16GB desktop graphics card",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900039",
+        "title": "Water block for RTX 5070 Ti 16GB",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "rtx-4",
+      "query": "NVIDIA RTX 5070 Ti 16GB desktop graphics card",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900040",
+        "title": "RTX 5070 Ti 16GB 显卡水冷头",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "zh"
+    },
+    {
+      "id": "rtx-5",
+      "query": "NVIDIA RTX 5070 Ti 16GB desktop graphics card",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900041",
+        "title": "Kipas pengganti RTX 5070 Ti 16GB",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "id"
+    },
+    {
+      "id": "rtx-6",
+      "query": "NVIDIA RTX 5070 Ti 16GB desktop graphics card",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900042",
+        "title": "NVIDIA RTX 5070 12GB desktop graphics card",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "rtx-7",
+      "query": "NVIDIA RTX 5070 Ti 16GB desktop graphics card",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900043",
+        "title": "RTX 5070 / RTX 5070 Ti 12GB / 16GB 多款可选",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "zh"
+    },
+    {
+      "id": "rtx-8",
+      "query": "NVIDIA RTX 5070 Ti 16GB desktop graphics card",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900044",
+        "title": "ASUS laptop RTX 5070 Ti Laptop GPU 12GB RAM 16GB",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "rtx-9",
+      "query": "NVIDIA RTX 5070 Ti 16GB desktop graphics card",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900045",
+        "title": "RTX 5070 Ti 16GB 台式整机 电脑主机",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "zh"
+    },
+    {
+      "id": "rtx-wrong-selection",
+      "query": "NVIDIA RTX 5070 Ti 16GB desktop graphics card",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900046",
+        "title": "NVIDIA GeForce RTX 5070 Ti 16GB desktop graphics card",
+        "price": "10",
+        "variant": "RTX 5070 Ti 16GB 台式整机 电脑主机"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "rtx-unrelated",
+      "query": "NVIDIA RTX 5070 Ti 16GB desktop graphics card",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900047",
+        "title": "USB cable 1m",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "rtx-deposit-control",
+      "query": "NVIDIA RTX 5070 Ti 16GB desktop graphics card",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900048",
+        "title": "NVIDIA GeForce RTX 5070 Ti 16GB desktop graphics card deposit",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "rtx-source-index-control",
+      "query": "NVIDIA RTX 5070 Ti 16GB desktop graphics card",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900049",
+        "title": "NVIDIA GeForce RTX 5070 Ti 16GB desktop graphics card",
+        "price": "10",
+        "source_mode": "search_index"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "dji-0",
+      "query": "DJI Mini 4 Pro",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900050",
+        "title": "DJI Mini 4 Pro camera drone",
+        "price": "10"
+      },
+      "expected_ranked": true,
+      "lang": "en"
+    },
+    {
+      "id": "dji-1",
+      "query": "DJI Mini 4 Pro",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900051",
+        "title": "大疆 DJI Mini 4 Pro 航拍无人机",
+        "price": "10"
+      },
+      "expected_ranked": true,
+      "lang": "zh"
+    },
+    {
+      "id": "dji-2",
+      "query": "DJI Mini 4 Pro",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900052",
+        "title": "DJI Mini 4 Pro drone kamera",
+        "price": "10"
+      },
+      "expected_ranked": true,
+      "lang": "id"
+    },
+    {
+      "id": "dji-3",
+      "query": "DJI Mini 4 Pro",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900053",
+        "title": "Propeller guard for DJI Mini 4 Pro",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "dji-4",
+      "query": "DJI Mini 4 Pro",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900054",
+        "title": "大疆 DJI Mini 4 Pro 备用电池",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "zh"
+    },
+    {
+      "id": "dji-5",
+      "query": "DJI Mini 4 Pro",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900055",
+        "title": "Baling-baling DJI Mini 4 Pro",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "id"
+    },
+    {
+      "id": "dji-6",
+      "query": "DJI Mini 4 Pro",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900056",
+        "title": "DJI Mini 3 Pro camera drone",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "dji-7",
+      "query": "DJI Mini 4 Pro",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900057",
+        "title": "DJI Mini 3 Pro / Mini 4 Pro 无人机",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "zh"
+    },
+    {
+      "id": "dji-wrong-selection",
+      "query": "DJI Mini 4 Pro",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900058",
+        "title": "DJI Mini 4 Pro camera drone",
+        "price": "10",
+        "variant": "DJI Mini 3 Pro / Mini 4 Pro 无人机"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "dji-unrelated",
+      "query": "DJI Mini 4 Pro",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900059",
+        "title": "USB cable 1m",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "dji-deposit-control",
+      "query": "DJI Mini 4 Pro",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900060",
+        "title": "DJI Mini 4 Pro camera drone deposit",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "dji-source-index-control",
+      "query": "DJI Mini 4 Pro",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900061",
+        "title": "DJI Mini 4 Pro camera drone",
+        "price": "10",
+        "source_mode": "search_index"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "switch-0",
+      "query": "Nintendo Switch 2",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900062",
+        "title": "Nintendo Switch 2 console",
+        "price": "10"
+      },
+      "expected_ranked": true,
+      "lang": "en"
+    },
+    {
+      "id": "switch-1",
+      "query": "Nintendo Switch 2",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900063",
+        "title": "任天堂 Nintendo Switch 2 游戏主机",
+        "price": "10"
+      },
+      "expected_ranked": true,
+      "lang": "zh"
+    },
+    {
+      "id": "switch-2",
+      "query": "Nintendo Switch 2",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900064",
+        "title": "Nintendo Switch 2 konsol game",
+        "price": "10"
+      },
+      "expected_ranked": true,
+      "lang": "id"
+    },
+    {
+      "id": "switch-3",
+      "query": "Nintendo Switch 2",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900065",
+        "title": "Tempered glass for Nintendo Switch 2",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "switch-4",
+      "query": "Nintendo Switch 2",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900066",
+        "title": "任天堂 Nintendo Switch 2 收纳包",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "zh"
+    },
+    {
+      "id": "switch-5",
+      "query": "Nintendo Switch 2",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900067",
+        "title": "Tas pelindung Nintendo Switch 2",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "id"
+    },
+    {
+      "id": "switch-6",
+      "query": "Nintendo Switch 2",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900068",
+        "title": "Nintendo Switch OLED console",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "switch-7",
+      "query": "Nintendo Switch 2",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900069",
+        "title": "Nintendo Switch OLED / Switch 2 pilih varian",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "id"
+    },
+    {
+      "id": "switch-wrong-selection",
+      "query": "Nintendo Switch 2",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900070",
+        "title": "Nintendo Switch 2 console",
+        "price": "10",
+        "variant": "Nintendo Switch OLED / Switch 2 pilih varian"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "switch-unrelated",
+      "query": "Nintendo Switch 2",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900071",
+        "title": "USB cable 1m",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "switch-deposit-control",
+      "query": "Nintendo Switch 2",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900072",
+        "title": "Nintendo Switch 2 console deposit",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "switch-source-index-control",
+      "query": "Nintendo Switch 2",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900073",
+        "title": "Nintendo Switch 2 console",
+        "price": "10",
+        "source_mode": "search_index"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "iphone-good",
+      "query": "iPhone 17 Pro Max 512GB",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900074",
+        "title": "苹果 iPhone 17 Pro Max 512GB 手机",
+        "price": "10"
+      },
+      "expected_ranked": true,
+      "lang": "zh"
+    },
+    {
+      "id": "iphone-case",
+      "query": "iPhone 17 Pro Max",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900075",
+        "title": "Case iPhone 17 Pro Max",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "iphone-wrong-selection",
+      "query": "iPhone 17 Pro Max",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900076",
+        "title": "iPhone 17 Pro Max",
+        "price": "10",
+        "variant": "16 Pro Max"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "iphone-mixed-storage",
+      "query": "iPhone 17 Pro Max 512GB",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900077",
+        "title": "iPhone 17 Pro Max 256GB / 512GB",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "iphone-selected-storage",
+      "query": "iPhone 17 Pro Max 512GB",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900078",
+        "title": "iPhone 17 Pro Max 256GB / 512GB",
+        "price": "10",
+        "variant": "512GB"
+      },
+      "expected_ranked": true,
+      "lang": "en"
+    },
+    {
+      "id": "iphone-structured-variant",
+      "query": "iPhone 17 Pro Max 512GB",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900079",
+        "title": "iPhone 17 Pro Max 512GB",
+        "price": "10",
+        "variant": {
+          "model": "iPhone 16 Pro Max",
+          "capacity": "256GB"
+        }
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "airpods-good",
+      "query": "AirPods Max USB-C",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900080",
+        "title": "Apple AirPods Max USB-C with Smart Case",
+        "price": "10"
+      },
+      "expected_ranked": true,
+      "lang": "en"
+    },
+    {
+      "id": "airpods-wrong",
+      "query": "AirPods Max USB-C",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900081",
+        "title": "AirPods Max Lightning",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "airpods-case",
+      "query": "AirPods Max",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900082",
+        "title": "Smart Case AirPods Max",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "airpods-earpads",
+      "query": "AirPods Max",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900083",
+        "title": "Bantalan telinga AirPods Max",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "id"
+    },
+    {
+      "id": "airpods-compatibility",
+      "query": "AirPods Max",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900084",
+        "title": "AirPods Max compatible with replacement ear pads",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "airpods-bonus-earpads",
+      "query": "AirPods Max",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900085",
+        "title": "AirPods Max bonus bantalan telinga",
+        "price": "10"
+      },
+      "expected_ranked": true,
+      "lang": "id"
+    },
+    {
+      "id": "airpods-packaging-id",
+      "query": "AirPods Max",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900086",
+        "title": "AirPods Max dus kosong saja",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "id"
+    },
+    {
+      "id": "airpods-dict-variant",
+      "query": "AirPods Max USB-C",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900087",
+        "title": "AirPods Max USB-C",
+        "price": "10",
+        "variant": {
+          "connector": "Lightning"
+        }
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "zephyrus-good",
+      "query": "ROG Zephyrus G14 32GB 1TB",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900088",
+        "title": "华硕 ROG Zephyrus G14 32GB 1TB 笔记本",
+        "price": "10"
+      },
+      "expected_ranked": true,
+      "lang": "zh"
+    },
+    {
+      "id": "zephyrus-wrong-model",
+      "query": "ROG Zephyrus G14",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900089",
+        "title": "ROG Zephyrus G16",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "zephyrus-ambiguous-alias",
+      "query": "ROG Zephyrus G16",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900090",
+        "title": "华硕 ROG 幻16 笔记本",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "zh"
+    },
+    {
+      "id": "zephyrus-charger",
+      "query": "ROG Zephyrus G14",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900091",
+        "title": "ROG Zephyrus G14 charger",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "zephyrus-wrong-gpu",
+      "query": "ROG Zephyrus G16 RTX 5070 Ti 32GB 1TB",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900092",
+        "title": "ROG Zephyrus G16 RTX 4060 32GB 1TB",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "zephyrus-wrong-gpu-no-capacity",
+      "query": "ROG Zephyrus G16 RTX 5070 Ti",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900093",
+        "title": "ROG Zephyrus G16 RTX 4060",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "zephyrus-valid-extra-gpu",
+      "query": "ROG Zephyrus G16 32GB 1TB",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900094",
+        "title": "ROG Zephyrus G16 RTX 5070 Ti 32GB 1TB",
+        "price": "10"
+      },
+      "expected_ranked": true,
+      "lang": "en"
+    },
+    {
+      "id": "zephyrus-wrong-year",
+      "query": "ROG Zephyrus G14 2025",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900095",
+        "title": "ROG Zephyrus G14 2020",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "zephyrus-role-swapped-capacities",
+      "query": "ROG Zephyrus G16 RAM 32GB SSD 1TB",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900096",
+        "title": "ROG Zephyrus G16 RAM 1TB SSD 32GB",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    },
+    {
+      "id": "price-balance",
+      "query": "iPhone 17 Pro Max",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900097",
+        "title": "苹果 iPhone 17 Pro Max 预售尾款 非全款",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "zh"
+    },
+    {
+      "id": "price-rental-zh",
+      "query": "DJI Mini 4 Pro",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900098",
+        "title": "大疆 DJI Mini 4 Pro 无人机租赁 每天租金",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "zh"
+    },
+    {
+      "id": "price-rental-id",
+      "query": "Nintendo Switch 2",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900099",
+        "title": "Sewa Nintendo Switch 2 per hari",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "id"
+    },
+    {
+      "id": "price-dp-id",
+      "query": "Sony WH-1000XM6",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900100",
+        "title": "DP Sony WH-1000XM6 bukan harga penuh",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "id"
+    },
+    {
+      "id": "price-starting-zh",
+      "query": "iPhone 17 Pro Max 512GB",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900101",
+        "title": "苹果 iPhone 17 Pro Max 512GB 低至6999元起",
+        "price": "6999"
+      },
+      "expected_ranked": false,
+      "lang": "zh"
+    },
+    {
+      "id": "price-starting-id",
+      "query": "Nintendo Switch 2",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900102",
+        "title": "Nintendo Switch 2 harga mulai dari",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "id"
+    },
+    {
+      "id": "price-monthly-control",
+      "query": "Steam Deck OLED 1TB",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900103",
+        "title": "Steam Deck OLED 1TB cicilan per bulan",
+        "price": "10"
+      },
+      "expected_ranked": false,
+      "lang": "id"
+    },
+    {
+      "id": "price-native-risk-control",
+      "query": "AirPods Max",
+      "input": {
+        "marketplace": "jd",
+        "sku": "900104",
+        "title": "AirPods Max",
+        "price": "¥99起"
+      },
+      "expected_ranked": false,
+      "lang": "en"
+    }
+  ]
+}

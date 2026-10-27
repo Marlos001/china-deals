@@ -1,5 +1,6 @@
 """Small, conservative normalization boundary for untrusted marketplace records."""
 
+import json
 import re
 from datetime import datetime, timezone
 from decimal import Decimal, InvalidOperation
@@ -98,6 +99,40 @@ def _text(row, *keys):
         if isinstance(value, (str, int)) and not isinstance(value, bool) and str(value).strip():
             return str(value).strip()
     return None
+
+
+def _variant_text(value):
+    """Bound one selected observation without nesting normalized envelopes."""
+    if isinstance(value, dict):
+        value = json.dumps(value, ensure_ascii=False, sort_keys=True, default=str)
+    return value.strip()[:8000].rstrip() if isinstance(value, str) and value.strip() else None
+
+
+def _variant_observations(row):
+    """Keep independent observations flat, deduplicated and stable on re-import.
+
+    Current source fields take priority within the 20-observation bound. Sorting
+    keeps the output stable when a dictionary variant moves to legacy evidence.
+    Existing observations are strings, never wrappers around prior exports.
+    """
+    values = set()
+    for key in ("variant", "selected_variant", "variant_evidence"):
+        value = _variant_text(row.get(key))
+        if value:
+            values.add(value)
+    variant = _variant_text(_text(row, "variant", "spec"))
+    if variant:
+        values.add(variant)
+    retained = row.get("variant_observations")
+    if isinstance(retained, list):
+        for value in retained:
+            if len(values) >= 20:
+                break
+            if isinstance(value, str):
+                value = _variant_text(value)
+                if value:
+                    values.add(value)
+    return sorted(values)
 
 
 def _url_item_ids(value, marketplace):
@@ -330,7 +365,9 @@ def normalize_offer(marketplace, row, observed_at=None):
         "description": (_text(row, "description", "desc", "snippet") or "")[:8000],
         "source_mode": source_mode,
         "model": _text(row, "model"),
-        "variant_evidence": row.get("variant") if isinstance(row.get("variant"), dict) else row.get("variant_evidence") if isinstance(row.get("variant_evidence"), dict) else None,
+        "selected_variant": _variant_text(row.get("selected_variant")),
+        "variant_observations": _variant_observations(row),
+        "variant_evidence": row.get("variant_evidence") if isinstance(row.get("variant_evidence"), dict) else row.get("variant") if isinstance(row.get("variant"), dict) else None,
         "transaction_evidence": transaction_evidence,
         "ranking_exclusions": [value[:500] for value in row.get("ranking_exclusions", [])[:20] if isinstance(value, str)] if isinstance(row.get("ranking_exclusions"), list) else [],
         "price_freshness_policy": row.get("price_freshness_policy") if isinstance(row.get("price_freshness_policy"), dict) else None,

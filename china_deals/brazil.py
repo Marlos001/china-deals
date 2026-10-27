@@ -151,7 +151,9 @@ def _transaction_risk(offer):
     qualifiers = ' '.join(str(offer.get(k, '')) for k in ('title', 'variant', 'variant_evidence', 'payment_method', 'price_basis', 'transaction_evidence'))
     if isinstance(price, dict):
         qualifiers += ' ' + ' '.join(str(price.get(k, '')) for k in ('raw', 'type', 'scope'))
-    return bool(re.search(r'(?i)(?:\bdeposit\b|\bentrada\b|\bsinal\b|\bparcela\w*\b|\binstallment\w*\b|\b\d+\s*x\b|月供|月付|每月|cicilan)', qualifiers))
+    from .products import transaction_scope_warnings
+    return bool(transaction_scope_warnings(offer) or re.search(
+        r'(?i)(?:\bentrada\b|\bsinal\b|\bparcela\w*\b)', qualifiers))
 
 
 def _costs(side, fields, snapshot, excluded=()):

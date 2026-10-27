@@ -1,0 +1,852 @@
+{
+  "synthetic_offline_only": true,
+  "cases": [
+    {
+      "id": "positive_deck",
+      "query": "Steam Deck OLED 1TB",
+      "expected_ranked": true,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "Valve Steam Deck OLED 1TB handheld console",
+        "price": "100",
+        "source_mode": "guest_product_page"
+      }
+    },
+    {
+      "id": "wrong_selected_deck",
+      "query": "Steam Deck OLED 1TB",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "Valve Steam Deck OLED 1TB handheld console",
+        "price": "100",
+        "source_mode": "guest_product_page",
+        "variant": "Steam Deck LCD 512GB"
+      }
+    },
+    {
+      "id": "positive_sony",
+      "query": "Sony WH-1000XM6",
+      "expected_ranked": true,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "索尼 Sony WH-1000XM6 无线降噪耳机 黑色",
+        "price": "100",
+        "source_mode": "guest_product_page"
+      }
+    },
+    {
+      "id": "wrong_selected_sony",
+      "query": "Sony WH-1000XM6",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "索尼 Sony WH-1000XM6 无线降噪耳机 黑色",
+        "price": "100",
+        "source_mode": "guest_product_page",
+        "variant": "Sony WH-1000XM5"
+      }
+    },
+    {
+      "id": "positive_cpu",
+      "query": "AMD Ryzen 7 9800X3D",
+      "expected_ranked": true,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "AMD Ryzen 7 9800X3D 8-Core 16-Thread AM5 Desktop Processor",
+        "price": "100",
+        "source_mode": "guest_product_page"
+      }
+    },
+    {
+      "id": "wrong_selected_cpu",
+      "query": "AMD Ryzen 7 9800X3D",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "AMD Ryzen 7 9800X3D 8-Core 16-Thread AM5 Desktop Processor",
+        "price": "100",
+        "source_mode": "guest_product_page",
+        "variant": "AMD Ryzen 7 7800X3D"
+      }
+    },
+    {
+      "id": "positive_gpu",
+      "query": "RTX 5070 Ti 16GB",
+      "expected_ranked": true,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "ZOTAC GAMING GeForce RTX 5070 Ti SOLID OC 16GB GDDR7",
+        "price": "100",
+        "source_mode": "guest_product_page"
+      }
+    },
+    {
+      "id": "wrong_selected_gpu",
+      "query": "RTX 5070 Ti 16GB",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "ZOTAC GAMING GeForce RTX 5070 Ti SOLID OC 16GB GDDR7",
+        "price": "100",
+        "source_mode": "guest_product_page",
+        "variant": "RTX 5070 12GB"
+      }
+    },
+    {
+      "id": "positive_drone",
+      "query": "DJI Mini 4 Pro",
+      "expected_ranked": true,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "大疆 DJI Mini 4 Pro 无人机 畅飞套装",
+        "price": "100",
+        "source_mode": "guest_product_page"
+      }
+    },
+    {
+      "id": "wrong_selected_drone",
+      "query": "DJI Mini 4 Pro",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "大疆 DJI Mini 4 Pro 无人机 畅飞套装",
+        "price": "100",
+        "source_mode": "guest_product_page",
+        "variant": "DJI Mini 3 Pro"
+      }
+    },
+    {
+      "id": "positive_switch",
+      "query": "Nintendo Switch 2",
+      "expected_ranked": true,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "Nintendo Switch 2 console Japan edition",
+        "price": "100",
+        "source_mode": "guest_product_page"
+      }
+    },
+    {
+      "id": "wrong_selected_switch",
+      "query": "Nintendo Switch 2",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "Nintendo Switch 2 console Japan edition",
+        "price": "100",
+        "source_mode": "guest_product_page",
+        "variant": "Nintendo Switch OLED"
+      }
+    },
+    {
+      "id": "positive_iphone",
+      "query": "iPhone 17 Pro Max 1TB",
+      "expected_ranked": true,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "Apple iPhone 17 Pro Max 1TB",
+        "price": "100",
+        "source_mode": "guest_product_page"
+      }
+    },
+    {
+      "id": "wrong_selected_iphone",
+      "query": "iPhone 17 Pro Max 1TB",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "Apple iPhone 17 Pro Max 1TB",
+        "price": "100",
+        "source_mode": "guest_product_page",
+        "variant": "iPhone 16 Pro Max 1TB"
+      }
+    },
+    {
+      "id": "positive_airpods",
+      "query": "AirPods Max USB-C",
+      "expected_ranked": true,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "Apple AirPods Max USB-C headphones",
+        "price": "100",
+        "source_mode": "guest_product_page"
+      }
+    },
+    {
+      "id": "wrong_selected_airpods",
+      "query": "AirPods Max USB-C",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "Apple AirPods Max USB-C headphones",
+        "price": "100",
+        "source_mode": "guest_product_page",
+        "variant": "AirPods Pro 2 USB-C"
+      }
+    },
+    {
+      "id": "positive_zephyrus",
+      "query": "ROG Zephyrus G16 RTX 4070 RAM 32GB SSD 1TB 2024",
+      "expected_ranked": true,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "ASUS ROG Zephyrus G16 2024 RTX 4070 RAM 32GB SSD 1TB",
+        "price": "100",
+        "source_mode": "guest_product_page"
+      }
+    },
+    {
+      "id": "wrong_selected_zephyrus",
+      "query": "ROG Zephyrus G16 RTX 4070 RAM 32GB SSD 1TB 2024",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "ASUS ROG Zephyrus G16 2024 RTX 4070 RAM 32GB SSD 1TB",
+        "price": "100",
+        "source_mode": "guest_product_page",
+        "variant": "ROG Zephyrus G14 RTX 4070 RAM 32GB SSD 1TB 2024"
+      }
+    },
+    {
+      "id": "normalization_selected_variant",
+      "query": "Sony WH-1000XM6",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "Sony WH-1000XM6",
+        "price": "100",
+        "source_mode": "guest_product_page",
+        "selected_variant": "WH-1000XM5"
+      }
+    },
+    {
+      "id": "normalization_variant_evidence_overwrite",
+      "query": "Sony WH-1000XM6",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "Sony WH-1000XM6",
+        "price": "100",
+        "source_mode": "guest_product_page",
+        "variant": {
+          "color": "black"
+        },
+        "variant_evidence": {
+          "model": "WH-1000XM5"
+        }
+      }
+    },
+    {
+      "id": "normalization_variant_evidence_string",
+      "query": "Sony WH-1000XM6",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "Sony WH-1000XM6",
+        "price": "100",
+        "source_mode": "guest_product_page",
+        "variant_evidence": "WH-1000XM5"
+      }
+    },
+    {
+      "id": "compatible_accessory_deck",
+      "query": "Steam Deck OLED 1TB",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "Compatible with Valve Steam Deck OLED 1TB handheld console docking station",
+        "price": "100",
+        "source_mode": "guest_product_page"
+      }
+    },
+    {
+      "id": "compatible_accessory_sony",
+      "query": "Sony WH-1000XM6",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "Compatible with 索尼 Sony WH-1000XM6 无线降噪耳机 黑色 replacement ear pads",
+        "price": "100",
+        "source_mode": "guest_product_page"
+      }
+    },
+    {
+      "id": "compatible_accessory_cpu",
+      "query": "AMD Ryzen 7 9800X3D",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "Compatible with AMD Ryzen 7 9800X3D 8-Core 16-Thread AM5 Desktop Processor CPU cooler",
+        "price": "100",
+        "source_mode": "guest_product_page"
+      }
+    },
+    {
+      "id": "compatible_accessory_gpu",
+      "query": "RTX 5070 Ti 16GB",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "Compatible with ZOTAC GAMING GeForce RTX 5070 Ti SOLID OC 16GB GDDR7 water block",
+        "price": "100",
+        "source_mode": "guest_product_page"
+      }
+    },
+    {
+      "id": "compatible_accessory_drone",
+      "query": "DJI Mini 4 Pro",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "Compatible with 大疆 DJI Mini 4 Pro 无人机 畅飞套装 replacement propellers",
+        "price": "100",
+        "source_mode": "guest_product_page"
+      }
+    },
+    {
+      "id": "compatible_accessory_switch",
+      "query": "Nintendo Switch 2",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "Compatible with Nintendo Switch 2 console Japan edition replacement joycon",
+        "price": "100",
+        "source_mode": "guest_product_page"
+      }
+    },
+    {
+      "id": "explicit_other_family_deck",
+      "query": "Steam Deck OLED",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "Steam Deck OLED",
+        "price": "100",
+        "source_mode": "guest_product_page",
+        "variant": "Nintendo Switch 2"
+      }
+    },
+    {
+      "id": "explicit_other_family_sony",
+      "query": "Sony WH-1000XM6",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "Sony WH-1000XM6",
+        "price": "100",
+        "source_mode": "guest_product_page",
+        "variant": "AirPods Max USB-C"
+      }
+    },
+    {
+      "id": "explicit_other_family_gpu",
+      "query": "RTX 5070 Ti",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "NVIDIA GeForce RTX 5070 Ti 16GB",
+        "price": "100",
+        "source_mode": "guest_product_page",
+        "variant": "AMD Radeon RX 9070 XT 16GB"
+      }
+    },
+    {
+      "id": "explicit_other_family_cpu",
+      "query": "AMD Ryzen 9800X3D",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "Intel Core i9 14900K Desktop Processor",
+        "price": "100",
+        "source_mode": "guest_product_page",
+        "variant": "AMD Ryzen 9800X3D"
+      }
+    },
+    {
+      "id": "drone_controller_only",
+      "query": "DJI Mini 4 Pro RC 2",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "DJI Mini 4 Pro RC 2 remote controller only",
+        "price": "100",
+        "source_mode": "guest_product_page"
+      }
+    },
+    {
+      "id": "drone_wrong_controller",
+      "query": "DJI Mini 4 Pro RC 2",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "DJI Mini 4 Pro RC-N2",
+        "price": "100",
+        "source_mode": "guest_product_page"
+      }
+    },
+    {
+      "id": "positive_drone_combo",
+      "query": "DJI Mini 4 Pro",
+      "expected_ranked": true,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "DJI Mini 4 Pro Fly More Combo (DJI RC 2)",
+        "price": "100",
+        "source_mode": "guest_product_page"
+      }
+    },
+    {
+      "id": "positive_drone_explicit_bundle",
+      "query": "DJI Mini 4 Pro",
+      "expected_ranked": true,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "DJI Mini 4 Pro with RC 2 controller",
+        "price": "100",
+        "source_mode": "guest_product_page"
+      }
+    },
+    {
+      "id": "positive_gpu_3x",
+      "query": "RTX 5070 Ti",
+      "expected_ranked": true,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "NVIDIA RTX 5070 Ti MSI VENTUS 3X OC 16GB",
+        "price": "100",
+        "source_mode": "guest_product_page"
+      }
+    },
+    {
+      "id": "positive_selected_mixed_title",
+      "query": "Sony WH-1000XM6",
+      "expected_ranked": true,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "Sony WH-1000XM5 / WH-1000XM6",
+        "price": "100",
+        "source_mode": "guest_product_page",
+        "variant": "Black",
+        "variant_evidence": {
+          "model": "WH-1000XM6"
+        }
+      }
+    },
+    {
+      "id": "mixed_title_unselected",
+      "query": "Sony WH-1000XM6",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "Sony WH-1000XM5 / WH-1000XM6",
+        "price": "100",
+        "source_mode": "guest_product_page"
+      }
+    },
+    {
+      "id": "mixed_title_selected",
+      "query": "Sony WH-1000XM6",
+      "expected_ranked": true,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "Sony WH-1000XM5 / WH-1000XM6",
+        "price": "100",
+        "source_mode": "guest_product_page",
+        "variant": "WH-1000XM6"
+      }
+    },
+    {
+      "id": "old_boundary_zephyrus",
+      "query": "ROG Zephyrus G16",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "ROG Zephyrus G16X",
+        "price": "100",
+        "source_mode": "guest_product_page"
+      }
+    },
+    {
+      "id": "old_boundary_airpods",
+      "query": "AirPods Max",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "AirPods Maximus headphones",
+        "price": "100",
+        "source_mode": "guest_product_page"
+      }
+    },
+    {
+      "id": "old_boundary_iphone",
+      "query": "iPhone 17 Pro Max",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "iPhone 17 Pro Maximus",
+        "price": "100",
+        "source_mode": "guest_product_page"
+      }
+    },
+    {
+      "id": "old_conflicting_capacity",
+      "query": "iPhone 17 Pro Max 1TB",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "iPhone 17 Pro Max 256GB",
+        "price": "100",
+        "source_mode": "guest_product_page",
+        "variant": "1TB"
+      }
+    },
+    {
+      "id": "old_conflicting_typed_capacity",
+      "query": "ROG Zephyrus G16 RAM 32GB SSD 1TB",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "ROG Zephyrus G16 RAM 16GB SSD 512GB",
+        "price": "100",
+        "source_mode": "guest_product_page",
+        "variant": "RAM 32GB SSD 1TB"
+      }
+    },
+    {
+      "id": "unknown_explicit_intent",
+      "query": "Unlisted Camera Z900 Ultra",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "USB cable",
+        "price": "100",
+        "source_mode": "guest_product_page"
+      }
+    },
+    {
+      "id": "queryless_intent",
+      "query": null,
+      "expected_ranked": true,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "USB cable",
+        "price": "100",
+        "source_mode": "guest_product_page"
+      }
+    },
+    {
+      "id": "scope_top_payment_terms",
+      "query": "Sony WH-1000XM6",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "Sony WH-1000XM6",
+        "price": "100",
+        "source_mode": "guest_product_page",
+        "payment_terms": "monthly installment"
+      }
+    },
+    {
+      "id": "scope_top_price_scope",
+      "query": "Sony WH-1000XM6",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "Sony WH-1000XM6",
+        "price": "100",
+        "source_mode": "guest_product_page",
+        "price_scope": "rental"
+      }
+    },
+    {
+      "id": "scope_top_payment",
+      "query": "Sony WH-1000XM6",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "Sony WH-1000XM6",
+        "price": "100",
+        "source_mode": "guest_product_page",
+        "payment": "down payment"
+      }
+    },
+    {
+      "id": "scope_nested_scope",
+      "query": "Sony WH-1000XM6",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "Sony WH-1000XM6",
+        "price": {
+          "priceDisplay": "100",
+          "scope": "monthly installment"
+        },
+        "source_mode": "guest_product_page"
+      }
+    },
+    {
+      "id": "scope_nested_type",
+      "query": "Sony WH-1000XM6",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "Sony WH-1000XM6",
+        "price": {
+          "priceDisplay": "100",
+          "type": "rental"
+        },
+        "source_mode": "guest_product_page"
+      }
+    },
+    {
+      "id": "scope_selected_variant",
+      "query": "Sony WH-1000XM6",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "Sony WH-1000XM6",
+        "price": "100",
+        "source_mode": "guest_product_page",
+        "selected_variant": "monthly installment"
+      }
+    },
+    {
+      "id": "scope_remaining_balance",
+      "query": "Sony WH-1000XM6",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "Sony WH-1000XM6 remaining balance only",
+        "price": "100",
+        "source_mode": "guest_product_page"
+      }
+    },
+    {
+      "id": "scope_starting",
+      "query": "Sony WH-1000XM6",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "Sony WH-1000XM6 starting at 100",
+        "price": "100",
+        "source_mode": "guest_product_page"
+      }
+    },
+    {
+      "id": "scope_rental",
+      "query": "Sony WH-1000XM6",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "Sony WH-1000XM6 rental",
+        "price": "100",
+        "source_mode": "guest_product_page"
+      }
+    },
+    {
+      "id": "price_provenance_search_index",
+      "query": "Sony WH-1000XM6",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "Sony WH-1000XM6",
+        "price": "100",
+        "source_mode": "search_index"
+      }
+    },
+    {
+      "id": "price_provenance_proxy_catalog",
+      "query": "Sony WH-1000XM6",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "Sony WH-1000XM6",
+        "price": "100",
+        "source_mode": "proxy_catalog"
+      }
+    },
+    {
+      "id": "price_provenance_category_card",
+      "query": "Sony WH-1000XM6",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "Sony WH-1000XM6",
+        "price": "100",
+        "source_mode": "category_card"
+      }
+    },
+    {
+      "id": "price_provenance_page_minimum",
+      "query": "Sony WH-1000XM6",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "Sony WH-1000XM6",
+        "price": "100",
+        "source_mode": "guest_product_page",
+        "price_basis": "page_minimum"
+      }
+    },
+    {
+      "id": "price_provenance_currency",
+      "query": "Sony WH-1000XM6",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "Sony WH-1000XM6",
+        "price": "100",
+        "source_mode": "guest_product_page",
+        "currency": "USD"
+      }
+    },
+    {
+      "id": "price_provenance_id",
+      "query": "Sony WH-1000XM6",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/456.html",
+        "title": "Sony WH-1000XM6",
+        "price": "100",
+        "source_mode": "guest_product_page"
+      }
+    },
+    {
+      "id": "price_provenance_sold",
+      "query": "Sony WH-1000XM6",
+      "expected_ranked": false,
+      "input": {
+        "marketplace": "jd",
+        "sku": "123",
+        "url": "https://item.jd.com/123.html",
+        "title": "Sony WH-1000XM6",
+        "price": "100",
+        "source_mode": "guest_product_page",
+        "availability": "sold"
+      }
+    }
+  ]
+}

@@ -1,0 +1,621 @@
+{
+  "schema_version": "1",
+  "dataset_origin": "dated_retained_primary_observations_with_unresolved_costs",
+  "as_of": "2026-10-27T18:00:00Z",
+  "fx": {
+    "source": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml",
+    "rate_date": "2026-10-27",
+    "base": "BRL",
+    "brl_per_unit": {
+      "CNY": "0.802012294365",
+      "IDR": "0.000294810166",
+      "USD": "5.347443946188"
+    },
+    "warnings": [
+      "ECB reference rates are estimates, not Fansbuy payment rates, card rates or customs PTAX.",
+      "Rates exclude conversion spread, payment fees and any IOF; compare provider charges separately."
+    ],
+    "retrieved_at": "2026-10-27T16:33:29.916065+00:00"
+  },
+  "cases": [
+    {
+      "id": "sony-xm6-silver",
+      "imported": {
+        "offer": {
+          "marketplace": "blibli",
+          "item_id": "SOA-60059-00376-00003",
+          "title": "SONY WH-1000XM6 Noise Cancelling Headphones/ 1000XM6",
+          "url": "https://www.blibli.com/p/sony-wh-1000xm6-noise-cancelling-headphones-1000xm6/is--SOA-60059-00376-00003",
+          "url_basis": "source_url",
+          "identity_evidence": [
+            {
+              "field": "item_id",
+              "kind": "id",
+              "value": "SOA-60059-00376-00003"
+            },
+            {
+              "field": "url",
+              "kind": "url",
+              "value": "https://www.blibli.com/p/sony-wh-1000xm6-noise-cancelling-headphones-1000xm6/is--SOA-60059-00376-00003"
+            }
+          ],
+          "offers": null,
+          "price": {
+            "amount": "6179000",
+            "currency": "IDR",
+            "raw": 6179000,
+            "basis": "displayed",
+            "source_currency": null,
+            "currency_basis": "marketplace_adapter_contract"
+          },
+          "seller": "Sony Electronics Flagship Store",
+          "description": "Warna: Platinum Silver",
+          "source_mode": "guest_product_page",
+          "model": null,
+          "variant_evidence": {
+            "productSku": "SOA-60059-00376",
+            "itemSku": "SOA-60059-00376-00003",
+            "attributes": {
+              "Warna": "Platinum Silver"
+            },
+            "selected": true,
+            "available": true
+          },
+          "transaction_evidence": {},
+          "ranking_exclusions": [],
+          "price_freshness_policy": null,
+          "hardware": null,
+          "candidate_id": null,
+          "source_detail": {
+            "parser": "blibli_primary_product_state",
+            "productSku": "SOA-60059-00376",
+            "itemSku": "SOA-60059-00376-00003",
+            "native_url": "https://www.blibli.com/p/sony-wh-1000xm6-noise-cancelling-headphones-1000xm6/is--SOA-60059-00376-00003?pickupPointCode=PP-3205922",
+            "requested_url": "https://www.blibli.com/p/sony-wh-1000xm6-noise-cancelling-headphones-1000xm6/is--SOA-60059-00376-00003",
+            "selected_option": {
+              "id": "is--SOA-60059-00376-00003_PP-3205922",
+              "selected": true,
+              "available": true,
+              "attributes": [
+                {
+                  "name": "Warna",
+                  "value": "Platinum Silver",
+                  "label": "Warna"
+                }
+              ],
+              "pickupPointCode": "PP-3205922",
+              "tags": []
+            },
+            "price_claims": {
+              "listed": 7499000,
+              "listDiscount": 18,
+              "offered": 6179000,
+              "totalDiscount": 18
+            },
+            "price_field_present": true,
+            "stock_claim": 1173,
+            "merchant_claims": {
+              "name": "Sony Electronics Flagship Store",
+              "code": "SOA-60059",
+              "official": true,
+              "international": false,
+              "location": "SONY WAREHOUSE - Kota Jakarta Pusat",
+              "url": "/merchant/sony-electronics-flagship-store/SOA-60059",
+              "status": "ACTIVE",
+              "rating": {
+                "value": 98,
+                "review": 4.8,
+                "badgeUrl": "https://www.static-src.com/siva/asset/06_2025/seller-diamond.png",
+                "badge": "DIAMOND",
+                "positiveReview": 99,
+                "onTimeFulfillment": 100,
+                "activeResponse": 100,
+                "successfulTransaction": 96,
+                "reviewCount": 2442,
+                "new": true
+              },
+              "businessOperational": {
+                "day": "WEDNESDAY",
+                "status": "CLOSE",
+                "nextOperationalDay": "WEDNESDAY"
+              }
+            },
+            "fulfillment_claims": {
+              "delivery": "AVAILABLE",
+              "pickup": "AVAILABLE",
+              "selected": "DELIVERY",
+              "otherPickupPoints": 0
+            },
+            "summary_claims": {
+              "campaignInfo": {
+                "id": "CAMP-03340",
+                "promoEndTime": 1793465940000,
+                "remainingTime": 343267258,
+                "tagLabel": "https://www.static-src.com/fs/asset/10_2026/tag-label-ade87835f691.png",
+                "name": "ELECTRODEALS OKT 2026",
+                "type": "REGULAR",
+                "backgroundImage": "https://www.static-src.com/fs/asset/10_2026/pdp-bea5609194d1.png",
+                "subscribed": false,
+                "color": {
+                  "text": "#FFFFFF"
+                }
+              },
+              "installment": {
+                "interest": 0,
+                "startFrom": 257458,
+                "freeInstallmentLabel": "Cicilan 0%"
+              },
+              "preOrder": {
+                "isPreOrder": false
+              },
+              "tags": [
+                "RETURNABLE",
+                "AVAILABLE",
+                "CNC",
+                "CONTEXTUAL_LAYOUT_GADGET_AND_ELECTRONICS",
+                "INSTALLMENT_NON_CC",
+                "INSTALLMENT",
+                "HIGHLIGHTED_INSTALLMENT"
+              ],
+              "type": "REGULAR"
+            },
+            "currency_basis": "marketplace_adapter_contract",
+            "location_basis": "merchant_location_claim",
+            "server_date_claim": "Tue, 27 Oct 2026 17:37:52 GMT",
+            "response_text_sha256": "ac2b26340c09ee759517c1e018515dd878870c357d3708be39d9ebe2f12a6efc",
+            "retained_response_sha256": "ac2b26340c09ee759517c1e018515dd878870c357d3708be39d9ebe2f12a6efc"
+          },
+          "index_source_url": null,
+          "discovered_at": null,
+          "location": "SONY WAREHOUSE - Kota Jakarta Pusat",
+          "domestic_free_shipping": null,
+          "variant": "Warna: Platinum Silver; SKU SOA-60059-00376-00003; pickup PP-3205922",
+          "condition": "unknown",
+          "availability": "source_claimed_available",
+          "seller_trust": "unverified",
+          "observed_at": "2026-10-27T17:37:53.609726+00:00",
+          "signals": [],
+          "warnings": [
+            "Displayed price; stock, exact variant, seller claims and checkout total are unverified.",
+            "Blibli is in Indonesia. China-origin Fansbuy freight is not a verified route for this item."
+          ],
+          "source_warnings": [
+            "Listed price and discount percentages are source claims, not historical savings."
+          ],
+          "intent_query": "Sony WH-1000XM6"
+        },
+        "identity": {
+          "model": "Sony WH-1000XM6 Platinum Silver",
+          "condition": "unknown",
+          "variant": {
+            "color": "Platinum Silver"
+          }
+        },
+        "costs": {}
+      },
+      "brazil": {
+        "offer": {
+          "title": "Sony WH-1000XM6 Platinum Silver",
+          "url": "https://www.detonashop.com.br/fone-de-ouvido-sony-wh-1000xm6-platinum-silver.html",
+          "price": {
+            "amount": "2609.10",
+            "currency": "BRL",
+            "basis": "displayed"
+          },
+          "observed_at": "2026-10-27T17:54:18.752Z",
+          "source_mode": "retailer_product_page",
+          "condition": "unknown",
+          "availability": "source_claimed_available",
+          "payment_method": "Pix/boleto",
+          "source_detail": {
+            "retained_receipt_sha256": "31bcfc2266047834e0a2831879686066766a54e8112503be87219e09d1f6904e",
+            "hash_basis": "retained_tool_receipt_bytes",
+            "reference_report": "docs/validation/diverse-brazil-2026-10-27.md",
+            "checkout_verified": false
+          }
+        },
+        "identity": {
+          "model": "Sony WH-1000XM6 Platinum Silver",
+          "condition": "unknown",
+          "variant": {
+            "color": "Platinum Silver"
+          }
+        },
+        "costs": {}
+      },
+      "equivalence": {
+        "status": "unknown",
+        "note": "Foreign condition/package/warranty equivalence not established. Shared literal identity fields are insufficient."
+      },
+      "import_eligibility": {
+        "status": "unknown",
+        "note": "No item-specific import clearance or complete cost quote."
+      }
+    },
+    {
+      "id": "ryzen-9800x3d",
+      "imported": {
+        "offer": {
+          "marketplace": "blibli",
+          "item_id": "FOC-70056-02589",
+          "title": "AMD Ryzen 7 9800x3D Box Processor 8 Core 16 Thread Up to 4.7 GHz Garansi Resmi",
+          "url": "https://www.blibli.com/p/amd-ryzen-7-9800x3d-box-processor-8-core-16-thread-up-to-4-7-ghz-garansi-resmi/ps--FOC-70056-02589",
+          "url_basis": "source_url",
+          "identity_evidence": [
+            {
+              "field": "item_id",
+              "kind": "id",
+              "value": "FOC-70056-02589"
+            },
+            {
+              "field": "url",
+              "kind": "url",
+              "value": "https://www.blibli.com/p/amd-ryzen-7-9800x3d-box-processor-8-core-16-thread-up-to-4-7-ghz-garansi-resmi/ps--FOC-70056-02589"
+            }
+          ],
+          "offers": null,
+          "price": {
+            "amount": "8905000",
+            "currency": "IDR",
+            "raw": 8905000,
+            "basis": "displayed",
+            "source_currency": null,
+            "currency_basis": "marketplace_adapter_contract"
+          },
+          "seller": "Foursquare Computer Flagship Store",
+          "description": "",
+          "source_mode": "guest_product_page",
+          "model": null,
+          "variant_evidence": {
+            "productSku": "FOC-70056-02589",
+            "itemSku": "FOC-70056-02589-00004",
+            "attributes": {},
+            "selected": true,
+            "available": true
+          },
+          "transaction_evidence": {},
+          "ranking_exclusions": [],
+          "price_freshness_policy": null,
+          "hardware": null,
+          "candidate_id": null,
+          "source_detail": {
+            "parser": "blibli_primary_product_state",
+            "productSku": "FOC-70056-02589",
+            "itemSku": "FOC-70056-02589-00004",
+            "native_url": "https://www.blibli.com/p/amd-ryzen-7-9800x3d-box-processor-8-core-16-thread-up-to-4-7-ghz-garansi-resmi/is--FOC-70056-02589-00004?pickupPointCode=PP-3508358",
+            "requested_url": "https://www.blibli.com/p/amd-ryzen-7-9800x3d-box-processor-8-core-16-thread-up-to-4-7-ghz-garansi-resmi/ps--FOC-70056-02589",
+            "selected_option": {
+              "id": "is--FOC-70056-02589-00004_PP-3508358",
+              "selected": true,
+              "available": true,
+              "attributes": [],
+              "pickupPointCode": "PP-3508358",
+              "tags": []
+            },
+            "price_claims": {
+              "listed": 8905000,
+              "listDiscount": 0,
+              "offered": 8905000,
+              "totalDiscount": 0
+            },
+            "price_field_present": true,
+            "stock_claim": 25,
+            "merchant_claims": {
+              "name": "Foursquare Computer Flagship Store",
+              "code": "FOC-70056",
+              "official": true,
+              "international": false,
+              "location": "Babakan Surabaya, Kota Bandung",
+              "url": "/merchant/foursquare-computer-flagship-store/FOC-70056",
+              "status": "ACTIVE",
+              "rating": {
+                "value": 90,
+                "review": 4.9,
+                "badgeUrl": "https://www.static-src.com/siva/asset/06_2025/seller-gold.png",
+                "badge": "GOLD",
+                "positiveReview": 98,
+                "onTimeFulfillment": 96,
+                "activeResponse": 99,
+                "successfulTransaction": 73,
+                "reviewCount": 184,
+                "new": true
+              },
+              "businessOperational": {
+                "day": "WEDNESDAY",
+                "status": "CLOSE",
+                "nextOperationalDay": "WEDNESDAY"
+              }
+            },
+            "fulfillment_claims": {
+              "delivery": "AVAILABLE",
+              "pickup": "UNAVAILABLE",
+              "selected": "DELIVERY",
+              "otherPickupPoints": 0
+            },
+            "summary_claims": {
+              "installment": {
+                "interest": 0,
+                "startFrom": 371042,
+                "freeInstallmentLabel": "Cicilan 0%"
+              },
+              "preOrder": {
+                "isPreOrder": false
+              },
+              "tags": [
+                "RETURNABLE",
+                "AVAILABLE",
+                "CONTEXTUAL_LAYOUT_GADGET_AND_ELECTRONICS",
+                "INSTALLMENT_NON_CC",
+                "INSTALLMENT",
+                "HIGHLIGHTED_INSTALLMENT"
+              ],
+              "type": "REGULAR"
+            },
+            "currency_basis": "marketplace_adapter_contract",
+            "location_basis": "merchant_location_claim",
+            "server_date_claim": "Tue, 27 Oct 2026 17:37:54 GMT",
+            "response_text_sha256": "0ee65759a1043913485da4f29f360e01a32a540db4832b4459b7c3ec27a7a956",
+            "retained_response_sha256": "0ee65759a1043913485da4f29f360e01a32a540db4832b4459b7c3ec27a7a956"
+          },
+          "index_source_url": null,
+          "discovered_at": null,
+          "location": "Babakan Surabaya, Kota Bandung",
+          "domestic_free_shipping": null,
+          "variant": "SKU FOC-70056-02589-00004; pickup PP-3508358",
+          "condition": "unknown",
+          "availability": "source_claimed_available",
+          "seller_trust": "unverified",
+          "observed_at": "2026-10-27T17:37:55.178472+00:00",
+          "signals": [],
+          "warnings": [
+            "Displayed price; stock, exact variant, seller claims and checkout total are unverified.",
+            "Blibli is in Indonesia. China-origin Fansbuy freight is not a verified route for this item."
+          ],
+          "source_warnings": [
+            "Listed price and discount percentages are source claims, not historical savings."
+          ],
+          "intent_query": "AMD Ryzen 7 9800X3D"
+        },
+        "identity": {
+          "model": "AMD Ryzen 7 9800X3D",
+          "condition": "unknown",
+          "variant": {
+            "model": "9800X3D"
+          }
+        },
+        "costs": {}
+      },
+      "brazil": {
+        "offer": {
+          "title": "AMD Ryzen 7 9800X3D",
+          "url": "https://www.pichau.com.br/processador-amd-ryzen-7-9800x3d-8-core-16-threads-4-7ghz-5-2ghz-turbo-cache-104mb-am5-100-100001084wof",
+          "price": {
+            "amount": "2199.99",
+            "currency": "BRL",
+            "basis": "displayed"
+          },
+          "observed_at": "2026-10-27T17:54:47.941Z",
+          "source_mode": "retailer_product_page",
+          "condition": "new",
+          "availability": "source_claimed_available",
+          "payment_method": "Pix",
+          "source_detail": {
+            "retained_receipt_sha256": "b2ed90853c3662b2ed843136028745768f9179f62c2d543acab5ee6765681144",
+            "hash_basis": "retained_tool_receipt_bytes",
+            "reference_report": "docs/validation/diverse-brazil-2026-10-27.md",
+            "checkout_verified": false
+          }
+        },
+        "identity": {
+          "model": "AMD Ryzen 7 9800X3D",
+          "condition": "new",
+          "variant": {
+            "model": "9800X3D"
+          }
+        },
+        "costs": {}
+      },
+      "equivalence": {
+        "status": "unknown",
+        "note": "Foreign condition/package/warranty equivalence not established. Shared literal identity fields are insufficient."
+      },
+      "import_eligibility": {
+        "status": "unknown",
+        "note": "No item-specific import clearance or complete cost quote."
+      }
+    },
+    {
+      "id": "dji-mini4pro-rc2",
+      "imported": {
+        "offer": {
+          "marketplace": "blibli",
+          "item_id": "FUS-60039-01703",
+          "title": "DJI Mini 4 Pro DJI RC 2 Drone Garansi Resmi",
+          "url": "https://www.blibli.com/p/dji-mini-4-pro-dji-rc-2-drone-garansi-resmi/ps--FUS-60039-01703",
+          "url_basis": "source_url",
+          "identity_evidence": [
+            {
+              "field": "item_id",
+              "kind": "id",
+              "value": "FUS-60039-01703"
+            },
+            {
+              "field": "url",
+              "kind": "url",
+              "value": "https://www.blibli.com/p/dji-mini-4-pro-dji-rc-2-drone-garansi-resmi/ps--FUS-60039-01703"
+            }
+          ],
+          "offers": null,
+          "price": {
+            "amount": "12266000",
+            "currency": "IDR",
+            "raw": 12266000,
+            "basis": "displayed",
+            "source_currency": null,
+            "currency_basis": "marketplace_adapter_contract"
+          },
+          "seller": "FUJISHOPid Sedayu Flagship Store",
+          "description": "• Quadcopter with 4K camera • 3-axis motorized gimbal • APAS 4.0 (Advanced Pilot Assistant Systems) • 1/1.3\" CMOS sensor • FOV (field of view): 82.1° • maximum speed: 35.7 mph • DJI RC 2 smart remote controller • Up to 4K100 Video & 48MP Raw Stills • Omnidirectional Obstacle Avoidance • Regulation-Friendly 8.8 oz Weight",
+          "source_mode": "guest_product_page",
+          "model": null,
+          "variant_evidence": {
+            "productSku": "FUS-60039-01703",
+            "itemSku": "FUS-60039-01703-00001",
+            "attributes": {},
+            "selected": true,
+            "available": true
+          },
+          "transaction_evidence": {},
+          "ranking_exclusions": [],
+          "price_freshness_policy": null,
+          "hardware": null,
+          "candidate_id": null,
+          "source_detail": {
+            "parser": "blibli_primary_product_state",
+            "productSku": "FUS-60039-01703",
+            "itemSku": "FUS-60039-01703-00001",
+            "native_url": "https://www.blibli.com/p/dji-mini-4-pro-dji-rc-2-drone-garansi-resmi/is--FUS-60039-01703-00001?pickupPointCode=PP-3414881",
+            "requested_url": "https://www.blibli.com/p/dji-mini-4-pro-dji-rc-2-drone-garansi-resmi/ps--FUS-60039-01703",
+            "selected_option": {
+              "id": "is--FUS-60039-01703-00001_PP-3414881",
+              "selected": true,
+              "available": true,
+              "attributes": [],
+              "pickupPointCode": "PP-3414881",
+              "tags": []
+            },
+            "price_claims": {
+              "listed": 14430000,
+              "listDiscount": 15,
+              "offered": 12266000,
+              "totalDiscount": 15
+            },
+            "price_field_present": true,
+            "stock_claim": 1,
+            "merchant_claims": {
+              "name": "FUJISHOPid Sedayu Flagship Store",
+              "code": "FUS-60039",
+              "official": true,
+              "international": false,
+              "location": "Fujishopid Sedayu Square - Kota Jakarta Barat",
+              "url": "/merchant/fujishopid-sedayu-flagship-store/FUS-60039",
+              "status": "ACTIVE",
+              "rating": {
+                "value": 92,
+                "review": 4.8,
+                "badgeUrl": "https://www.static-src.com/siva/asset/06_2025/seller-silver.png",
+                "badge": "SILVER",
+                "positiveReview": 100,
+                "onTimeFulfillment": 100,
+                "activeResponse": 84,
+                "successfulTransaction": 83,
+                "reviewCount": 243,
+                "new": true
+              },
+              "businessOperational": {
+                "day": "WEDNESDAY",
+                "status": "CLOSE",
+                "nextOperationalDay": "WEDNESDAY"
+              }
+            },
+            "fulfillment_claims": {
+              "delivery": "AVAILABLE",
+              "pickup": "UNAVAILABLE",
+              "selected": "DELIVERY",
+              "otherPickupPoints": 0
+            },
+            "summary_claims": {
+              "installment": {
+                "interest": 0,
+                "startFrom": 511083,
+                "freeInstallmentLabel": "Cicilan 0%"
+              },
+              "preOrder": {
+                "isPreOrder": false
+              },
+              "tags": [
+                "LIMITED",
+                "RETURNABLE",
+                "AVAILABLE",
+                "CONTEXTUAL_LAYOUT_GADGET_AND_ELECTRONICS",
+                "INSTALLMENT_NON_CC",
+                "INSTALLMENT",
+                "HIGHLIGHTED_INSTALLMENT"
+              ],
+              "type": "REGULAR"
+            },
+            "currency_basis": "marketplace_adapter_contract",
+            "location_basis": "merchant_location_claim",
+            "server_date_claim": "Tue, 27 Oct 2026 17:37:57 GMT",
+            "response_text_sha256": "1c192f34330326fe2ac8305dd034e53bef2c55cce57093c46e189530157f0c24",
+            "retained_response_sha256": "1c192f34330326fe2ac8305dd034e53bef2c55cce57093c46e189530157f0c24"
+          },
+          "index_source_url": null,
+          "discovered_at": null,
+          "location": "Fujishopid Sedayu Square - Kota Jakarta Barat",
+          "domestic_free_shipping": null,
+          "variant": "SKU FUS-60039-01703-00001; pickup PP-3414881",
+          "condition": "unknown",
+          "availability": "source_claimed_available",
+          "seller_trust": "unverified",
+          "observed_at": "2026-10-27T17:37:57.883567+00:00",
+          "signals": [],
+          "warnings": [
+            "Displayed price; stock, exact variant, seller claims and checkout total are unverified.",
+            "Blibli is in Indonesia. China-origin Fansbuy freight is not a verified route for this item."
+          ],
+          "source_warnings": [
+            "Listed price and discount percentages are source claims, not historical savings."
+          ],
+          "intent_query": "DJI Mini 4 Pro RC 2"
+        },
+        "identity": {
+          "model": "DJI Mini 4 Pro RC 2",
+          "condition": "unknown",
+          "variant": {
+            "controller": "RC 2"
+          }
+        },
+        "costs": {}
+      },
+      "brazil": {
+        "offer": {
+          "title": "DJI Mini 4 Pro RC 2",
+          "url": "https://drones2u.com.br/produtos/drone-dji-mini-4-pro-standard-com-tela-br-dji042/",
+          "price": {
+            "amount": "8350.50",
+            "currency": "BRL",
+            "basis": "displayed"
+          },
+          "observed_at": "2026-10-27T17:54:33.819Z",
+          "source_mode": "retailer_product_page",
+          "condition": "unknown",
+          "availability": "out_of_stock",
+          "payment_method": "Pix",
+          "source_detail": {
+            "retained_receipt_sha256": "41acc734c7ce8c9d60cc5bdc04b91031c588f74bd0349d17d9ffd71f1109d97a",
+            "hash_basis": "retained_tool_receipt_bytes",
+            "reference_report": "docs/validation/diverse-brazil-2026-10-27.md",
+            "checkout_verified": false
+          }
+        },
+        "identity": {
+          "model": "DJI Mini 4 Pro RC 2",
+          "condition": "unknown",
+          "variant": {
+            "controller": "RC 2"
+          }
+        },
+        "costs": {}
+      },
+      "equivalence": {
+        "status": "unknown",
+        "note": "Foreign condition/package/warranty equivalence not established. Shared literal identity fields are insufficient."
+      },
+      "import_eligibility": {
+        "status": "unknown",
+        "note": "No item-specific import clearance or complete cost quote."
+      }
+    }
+  ]
+}

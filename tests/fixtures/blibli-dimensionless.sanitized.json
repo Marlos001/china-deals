@@ -1,0 +1,468 @@
+{
+  "_fixture": {
+    "source": "Five public Blibli product responses retained 2026-10-27; selected fields projected only, values unchanged.",
+    "sanitization": "Omitted unrelated state, descriptions, customer/address/session/analytics data and SEO except canonicalUrl.",
+    "network": "Offline fixtures; no requests authorized."
+  },
+  "cases": [
+    {
+      "name": "steam",
+      "body_file": "http-01.body",
+      "sha256": "03e563fb1a71b26014fbfafb26f919f28219883500a6f0c3ca29596c7ec7b8a3",
+      "requested_url": "https://www.blibli.com/p/steam-deck-oled-limited-edition-white-color-1tb/ps--PSP-60021-07252",
+      "observed_at": "2026-10-27T17:37:51.886103+00:00",
+      "expected_price": null,
+      "state": {
+        "productDetail.product/summary": {
+          "productSku": "PSP-60021-07252",
+          "itemSku": "PSP-60021-07252-00001",
+          "name": "Steam Deck OLED Limited Edition White Color 1TB",
+          "url": "https://www.blibli.com/p/steam-deck-oled-limited-edition-white-color-1tb/is--PSP-60021-07252-00001?pickupPointCode=PP-3035029",
+          "pickupPointCode": "PP-3035029",
+          "stock": 33,
+          "options": [
+            {
+              "id": "is--PSP-60021-07252-00001_PP-3035029",
+              "selected": true,
+              "available": false,
+              "attributes": [],
+              "pickupPointCode": "PP-3035029",
+              "tags": []
+            }
+          ],
+          "attributes": [],
+          "fulfillmentTypes": {
+            "delivery": "AVAILABLE",
+            "pickup": "UNAVAILABLE",
+            "selected": "DELIVERY",
+            "otherPickupPoints": 0
+          },
+          "tags": [
+            "RETURNABLE",
+            "COMING_SOON",
+            "CONTEXTUAL_LAYOUT_GADGET_AND_ELECTRONICS"
+          ],
+          "type": "REGULAR",
+          "preOrder": {
+            "isPreOrder": false
+          },
+          "seo": {
+            "canonicalUrl": "https://www.blibli.com/p/steam-deck-oled-limited-edition-white-color-1tb/ps--PSP-60021-07252"
+          },
+          "merchant": {
+            "name": "PSEGAMESHOP Flagship Store",
+            "code": "PSP-60021",
+            "location": "PSEGAMESHOP - Kota Jakarta Utara",
+            "official": true,
+            "status": "ACTIVE",
+            "businessOperational": {
+              "day": "WEDNESDAY",
+              "status": "CLOSE",
+              "nextOperationalDay": "WEDNESDAY"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "sony",
+      "body_file": "http-02.body",
+      "sha256": "ac2b26340c09ee759517c1e018515dd878870c357d3708be39d9ebe2f12a6efc",
+      "requested_url": "https://www.blibli.com/p/sony-wh-1000xm6-noise-cancelling-headphones-1000xm6/is--SOA-60059-00376-00003",
+      "observed_at": "2026-10-27T17:37:53.609726+00:00",
+      "expected_price": 6179000,
+      "state": {
+        "productDetail.product/summary": {
+          "productSku": "SOA-60059-00376",
+          "itemSku": "SOA-60059-00376-00003",
+          "name": "SONY WH-1000XM6 Noise Cancelling Headphones/ 1000XM6",
+          "url": "https://www.blibli.com/p/sony-wh-1000xm6-noise-cancelling-headphones-1000xm6/is--SOA-60059-00376-00003?pickupPointCode=PP-3205922",
+          "pickupPointCode": "PP-3205922",
+          "stock": 1173,
+          "price": {
+            "listed": 7499000,
+            "listDiscount": 18,
+            "offered": 6179000,
+            "totalDiscount": 18
+          },
+          "installment": {
+            "interest": 0,
+            "startFrom": 257458,
+            "freeInstallmentLabel": "Cicilan 0%"
+          },
+          "options": [
+            {
+              "id": "is--SOA-60059-00376-00001_PP-3205922",
+              "selected": false,
+              "available": true,
+              "attributes": [
+                {
+                  "name": "Warna",
+                  "value": "Black",
+                  "label": "Warna"
+                }
+              ],
+              "pickupPointCode": "PP-3205922",
+              "tags": []
+            },
+            {
+              "id": "is--SOA-60059-00376-00002_PP-3205922",
+              "selected": false,
+              "available": true,
+              "attributes": [
+                {
+                  "name": "Warna",
+                  "value": "Midnight Blue",
+                  "label": "Warna"
+                }
+              ],
+              "pickupPointCode": "PP-3205922",
+              "tags": []
+            },
+            {
+              "id": "is--SOA-60059-00376-00003_PP-3205922",
+              "selected": true,
+              "available": true,
+              "attributes": [
+                {
+                  "name": "Warna",
+                  "value": "Platinum Silver",
+                  "label": "Warna"
+                }
+              ],
+              "pickupPointCode": "PP-3205922",
+              "tags": []
+            },
+            {
+              "id": "is--SOA-60059-00376-00004_PP-3205922",
+              "selected": false,
+              "available": true,
+              "attributes": [
+                {
+                  "name": "Warna",
+                  "value": "Sand Pink",
+                  "label": "Warna"
+                }
+              ],
+              "pickupPointCode": "PP-3205922",
+              "tags": []
+            },
+            {
+              "id": "is--SOA-60059-00376-00006_PP-3205922",
+              "selected": false,
+              "available": true,
+              "attributes": [
+                {
+                  "name": "Warna",
+                  "value": "Sandstone",
+                  "label": "Warna"
+                }
+              ],
+              "pickupPointCode": "PP-3205922",
+              "tags": []
+            },
+            {
+              "id": "is--SOA-60059-00376-00007_PP-3205922",
+              "selected": false,
+              "available": true,
+              "attributes": [
+                {
+                  "name": "Warna",
+                  "value": "Olive Gray",
+                  "label": "Warna"
+                }
+              ],
+              "pickupPointCode": "PP-3205922",
+              "tags": []
+            }
+          ],
+          "attributes": [
+            {
+              "name": "Warna",
+              "type": "IMAGE",
+              "values": [
+                {
+                  "image": "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/thumbnail/catalog-image/MTA-181951821/sony_full02_te7i202h.webp",
+                  "value": "Olive Gray"
+                },
+                {
+                  "image": "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/thumbnail/catalog-image/MTA-181951821/sony_sony_wh-1000xm6_noise_cancelling_headphones-_1000xm6_full01_ue9vw6b0.webp",
+                  "value": "Sand Pink"
+                },
+                {
+                  "image": "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/thumbnail/catalog-image/MTA-181951821/sony_sony_wh-1000xm6_noise_cancelling_headphones-_1000xm6_full05_ga4axy57.webp",
+                  "value": "Black"
+                },
+                {
+                  "image": "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/thumbnail/catalog-image/MTA-181951821/sony_sony_wh-1000xm6_noise_cancelling_headphones-_1000xm6_full04_vne77q0v.webp",
+                  "value": "Midnight Blue"
+                },
+                {
+                  "image": "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/thumbnail/catalog-image/MTA-181951821/sony_sony_wh-1000xm6_noise_cancelling_headphones-_1000xm6_full03_k64pd9g3.webp",
+                  "value": "Platinum Silver"
+                },
+                {
+                  "image": "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/thumbnail/catalog-image/MTA-181951821/sony_sony_wh-1000xm6_noise_cancelling_headphones-_1000xm6_full01_vuhl6s2u.webp",
+                  "value": "Sandstone"
+                }
+              ]
+            }
+          ],
+          "fulfillmentTypes": {
+            "delivery": "AVAILABLE",
+            "pickup": "AVAILABLE",
+            "selected": "DELIVERY",
+            "otherPickupPoints": 0
+          },
+          "tags": [
+            "RETURNABLE",
+            "AVAILABLE",
+            "CNC",
+            "CONTEXTUAL_LAYOUT_GADGET_AND_ELECTRONICS",
+            "INSTALLMENT_NON_CC",
+            "INSTALLMENT",
+            "HIGHLIGHTED_INSTALLMENT"
+          ],
+          "type": "REGULAR",
+          "preOrder": {
+            "isPreOrder": false
+          },
+          "campaignInfo": {
+            "id": "CAMP-03340",
+            "promoEndTime": 1793465940000,
+            "remainingTime": 343267258,
+            "tagLabel": "https://www.static-src.com/fs/asset/10_2026/tag-label-ade87835f691.png",
+            "name": "ELECTRODEALS OKT 2026",
+            "type": "REGULAR",
+            "backgroundImage": "https://www.static-src.com/fs/asset/10_2026/pdp-bea5609194d1.png",
+            "subscribed": false,
+            "color": {
+              "text": "#FFFFFF"
+            }
+          },
+          "seo": {
+            "canonicalUrl": "https://www.blibli.com/p/sony-wh-1000xm6-noise-cancelling-headphones-1000xm6/ps--SOA-60059-00376"
+          },
+          "merchant": {
+            "name": "Sony Electronics Flagship Store",
+            "code": "SOA-60059",
+            "location": "SONY WAREHOUSE - Kota Jakarta Pusat",
+            "official": true,
+            "status": "ACTIVE",
+            "businessOperational": {
+              "day": "WEDNESDAY",
+              "status": "CLOSE",
+              "nextOperationalDay": "WEDNESDAY"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "ryzen",
+      "body_file": "http-03.body",
+      "sha256": "0ee65759a1043913485da4f29f360e01a32a540db4832b4459b7c3ec27a7a956",
+      "requested_url": "https://www.blibli.com/p/amd-ryzen-7-9800x3d-box-processor-8-core-16-thread-up-to-4-7-ghz-garansi-resmi/ps--FOC-70056-02589",
+      "observed_at": "2026-10-27T17:37:55.178472+00:00",
+      "expected_price": 8905000,
+      "state": {
+        "productDetail.product/summary": {
+          "productSku": "FOC-70056-02589",
+          "itemSku": "FOC-70056-02589-00004",
+          "name": "AMD Ryzen 7 9800x3D Box Processor 8 Core 16 Thread Up to 4.7 GHz Garansi Resmi",
+          "url": "https://www.blibli.com/p/amd-ryzen-7-9800x3d-box-processor-8-core-16-thread-up-to-4-7-ghz-garansi-resmi/is--FOC-70056-02589-00004?pickupPointCode=PP-3508358",
+          "pickupPointCode": "PP-3508358",
+          "stock": 25,
+          "price": {
+            "listed": 8905000,
+            "listDiscount": 0,
+            "offered": 8905000,
+            "totalDiscount": 0
+          },
+          "installment": {
+            "interest": 0,
+            "startFrom": 371042,
+            "freeInstallmentLabel": "Cicilan 0%"
+          },
+          "options": [
+            {
+              "id": "is--FOC-70056-02589-00004_PP-3508358",
+              "selected": true,
+              "available": true,
+              "attributes": [],
+              "pickupPointCode": "PP-3508358",
+              "tags": []
+            }
+          ],
+          "attributes": [],
+          "fulfillmentTypes": {
+            "delivery": "AVAILABLE",
+            "pickup": "UNAVAILABLE",
+            "selected": "DELIVERY",
+            "otherPickupPoints": 0
+          },
+          "tags": [
+            "RETURNABLE",
+            "AVAILABLE",
+            "CONTEXTUAL_LAYOUT_GADGET_AND_ELECTRONICS",
+            "INSTALLMENT_NON_CC",
+            "INSTALLMENT",
+            "HIGHLIGHTED_INSTALLMENT"
+          ],
+          "type": "REGULAR",
+          "preOrder": {
+            "isPreOrder": false
+          },
+          "seo": {
+            "canonicalUrl": "https://www.blibli.com/p/amd-ryzen-7-9800x3d-box-processor-8-core-16-thread-up-to-4-7-ghz-garansi-resmi/ps--FOC-70056-02589"
+          },
+          "merchant": {
+            "name": "Foursquare Computer Flagship Store",
+            "code": "FOC-70056",
+            "location": "Babakan Surabaya, Kota Bandung",
+            "official": true,
+            "status": "ACTIVE",
+            "businessOperational": {
+              "day": "WEDNESDAY",
+              "status": "CLOSE",
+              "nextOperationalDay": "WEDNESDAY"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "rtx",
+      "body_file": "http-04.body",
+      "sha256": "90268d7bf91f98bc1c1eb29e3f081678d7ce1f2094fe08f629f8cceb8f605564",
+      "requested_url": "https://www.blibli.com/p/gigabyte-geforce-rtx-5070-ti-gaming-oc-16g/ps--ITS-29724-04198",
+      "observed_at": "2026-10-27T17:37:56.470724+00:00",
+      "expected_price": null,
+      "state": {
+        "productDetail.product/summary": {
+          "productSku": "ITS-29724-04198",
+          "itemSku": "ITS-29724-04198-00001",
+          "name": "Gigabyte GeForce RTX 5070 Ti GAMING OC 16G",
+          "url": "https://www.blibli.com/p/gigabyte-geforce-rtx-5070-ti-gaming-oc-16g/is--ITS-29724-04198-00001?pickupPointCode=PP-3005896",
+          "pickupPointCode": "PP-3005896",
+          "stock": 0,
+          "options": [
+            {
+              "id": "is--ITS-29724-04198-00001_PP-3005896",
+              "selected": true,
+              "available": false,
+              "attributes": [],
+              "pickupPointCode": "PP-3005896",
+              "tags": []
+            }
+          ],
+          "attributes": [],
+          "fulfillmentTypes": {
+            "delivery": "AVAILABLE",
+            "pickup": "UNAVAILABLE",
+            "selected": "DELIVERY",
+            "otherPickupPoints": 0
+          },
+          "tags": [
+            "RETURNABLE",
+            "COMING_SOON",
+            "CONTEXTUAL_LAYOUT_GADGET_AND_ELECTRONICS"
+          ],
+          "type": "REGULAR",
+          "preOrder": {
+            "isPreOrder": false
+          },
+          "seo": {
+            "canonicalUrl": "https://www.blibli.com/p/gigabyte-geforce-rtx-5070-ti-gaming-oc-16g/ps--ITS-29724-04198"
+          },
+          "merchant": {
+            "name": "IT Shop Flagship Store",
+            "code": "ITS-29724",
+            "location": "Mojo, Kota Surabaya",
+            "official": true,
+            "status": "ACTIVE",
+            "businessOperational": {
+              "day": "WEDNESDAY",
+              "status": "CLOSE",
+              "nextOperationalDay": "WEDNESDAY"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "dji",
+      "body_file": "http-05.body",
+      "sha256": "1c192f34330326fe2ac8305dd034e53bef2c55cce57093c46e189530157f0c24",
+      "requested_url": "https://www.blibli.com/p/dji-mini-4-pro-dji-rc-2-drone-garansi-resmi/ps--FUS-60039-01703",
+      "observed_at": "2026-10-27T17:37:57.883567+00:00",
+      "expected_price": 12266000,
+      "state": {
+        "productDetail.product/summary": {
+          "productSku": "FUS-60039-01703",
+          "itemSku": "FUS-60039-01703-00001",
+          "name": "DJI Mini 4 Pro DJI RC 2 Drone Garansi Resmi",
+          "url": "https://www.blibli.com/p/dji-mini-4-pro-dji-rc-2-drone-garansi-resmi/is--FUS-60039-01703-00001?pickupPointCode=PP-3414881",
+          "pickupPointCode": "PP-3414881",
+          "stock": 1,
+          "price": {
+            "listed": 14430000,
+            "listDiscount": 15,
+            "offered": 12266000,
+            "totalDiscount": 15
+          },
+          "installment": {
+            "interest": 0,
+            "startFrom": 511083,
+            "freeInstallmentLabel": "Cicilan 0%"
+          },
+          "options": [
+            {
+              "id": "is--FUS-60039-01703-00001_PP-3414881",
+              "selected": true,
+              "available": true,
+              "attributes": [],
+              "pickupPointCode": "PP-3414881",
+              "tags": []
+            }
+          ],
+          "attributes": [],
+          "fulfillmentTypes": {
+            "delivery": "AVAILABLE",
+            "pickup": "UNAVAILABLE",
+            "selected": "DELIVERY",
+            "otherPickupPoints": 0
+          },
+          "tags": [
+            "LIMITED",
+            "RETURNABLE",
+            "AVAILABLE",
+            "CONTEXTUAL_LAYOUT_GADGET_AND_ELECTRONICS",
+            "INSTALLMENT_NON_CC",
+            "INSTALLMENT",
+            "HIGHLIGHTED_INSTALLMENT"
+          ],
+          "type": "REGULAR",
+          "preOrder": {
+            "isPreOrder": false
+          },
+          "seo": {
+            "canonicalUrl": "https://www.blibli.com/p/dji-mini-4-pro-dji-rc-2-drone-garansi-resmi/ps--FUS-60039-01703"
+          },
+          "merchant": {
+            "name": "FUJISHOPid Sedayu Flagship Store",
+            "code": "FUS-60039",
+            "location": "Fujishopid Sedayu Square - Kota Jakarta Barat",
+            "official": true,
+            "status": "ACTIVE",
+            "businessOperational": {
+              "day": "WEDNESDAY",
+              "status": "CLOSE",
+              "nextOperationalDay": "WEDNESDAY"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

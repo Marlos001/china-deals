@@ -108,6 +108,62 @@ def _models(text):
         r'(?:iPhone\s*)?(\d{2}\s*Pro(?:\s*Max)?)(?![A-Za-z])', text, re.I)}
 
 
+def _condition_claims(sources):
+    """Bind literal conditions within clauses; repair evidence is independent."""
+    evidence = []
+    pattern = (r'几乎全新|近乎全新|轻微使用痕迹|使用痕迹|\d{1,2}(?:成)?新|'
+               r'二手|磕碰|划痕|全新')
+    component = r'(?:屏幕|外屏|内屏|电池|手机壳|保护壳|耳垫|充电器|数据线)'
+    repair_pattern = (r'(?:换过|更换过?|换了|换上|维修过?|替换)(?:了|过|的)?'
+                      r'\s*(?:全新|新|原装)?\s*' + component + r'|'
+                      + component + r'(?:有|经过)?维修')
+    main_device = any(_models(text) for _, text in sources)
+    for source, text in sources:
+        for clause in re.split(r'[，,。；;！!？?\n]+', text):
+            repair_spans = []
+            for match in re.finditer(repair_pattern, clause):
+                if re.search(r'(?:无|没有|未|未经|没)\s*$', clause[:match.start()]):
+                    continue
+                repair_spans.append((match.start(), match.end()))
+                evidence.append({'source': source, 'source_excerpt': match.group(),
+                                 'scope': 'main_product', 'repair_or_replacement_claim': True,
+                                 'condition': None})
+            for match in re.finditer(pattern, clause):
+                if re.search(r'(?:无|没有|非|不是|并非|不售卖|不卖)\s*$', clause[:match.start()]):
+                    continue
+                prefix = clause[max(0, match.start() - 16):match.start()]
+                suffix = clause[match.end():match.end() + 16]
+                replacement = any(start <= match.start() and end >= match.start() - 16
+                                  for start, end in repair_spans)
+                gift = bool(re.search(r'赠送|附赠|赠品|附送', prefix))
+                subject_prefix = re.sub(r'(?:无|没有|未|未经|没)\s*(?:' + repair_pattern + ')', '', prefix)
+                component_subject = bool(re.search(component + r'\s*(?:是|为|的)?\s*$', subject_prefix)
+                                         or re.match(r'\s*(?:(?:的|原装|一个|新的)\s*){0,2}' + component, suffix))
+                off_main = source != 'attribute_rows' and (
+                    replacement or gift or main_device and component_subject)
+                evidence.append({'source': source,
+                                 'source_excerpt': (prefix + match.group() + suffix) if off_main else match.group(),
+                                 'scope': 'component_or_gift' if off_main else 'main_product',
+                                 'repair_or_replacement_claim': replacement,
+                                 'condition': None if off_main else 'new' if match.group() == '全新' else 'used'})
+    states = {claim['condition'] for claim in evidence if claim['condition'] is not None}
+    if 'new' in states and any(claim.get('repair_or_replacement_claim') for claim in evidence):
+        return 'unknown', 'main_condition_with_repair_claim', evidence
+    reason = ('conflicting_source_claims' if len(states) > 1 else
+              'explicit_source_claim' if states else 'only_component_or_gift_claims' if evidence else 'no_explicit_source_claim')
+    return (next(iter(states)) if len(states) == 1 else 'unknown'), reason, evidence
+
+
+def _price_basis_claims(sources):
+    evidence = []
+    for source, text in sources:
+        for match in re.finditer(r'标价[^。\n，,！!；;]{0,80}|价格仅供参考[^。\n！!；;]{0,80}', text):
+            if re.search(r'预售|裸机|仅供参考', match.group()):
+                evidence.append({'source': source, 'source_excerpt': match.group(),
+                                 'reason': 'qualified_base_or_reference_price'})
+    return evidence
+
+
 def parse_capture(capture, requested_url):
     """Return one raw offer; reject wrong identity or incomplete primary DOM.
 
@@ -171,7 +227,14 @@ def parse_capture(capture, requested_url):
             attributes[key] = value
             attribute_rows.append({'label': key, 'value': value, 'raw': literal})
     storage = attributes.get('存储容量', '')
-    capacities = _capacities(title + '\n' + description + '\n' + storage)
+    # These are untyped literal quantities, not RAM/SSD/VRAM specifications.
+    # In particular, 内存容量 on a console does not establish the hardware role.
+    capacity_claims = [
+        {'source': 'attribute_rows', 'label': row['label'], 'value': row['value'],
+         'source_excerpt': row['raw'], 'interpretation': 'unresolved'}
+        for row in attribute_rows if '容量' in row['label'] and _capacities(row['value'])]
+    capacities = _capacities(title + '\n' + description + '\n' + '\n'.join(
+        claim['value'] for claim in capacity_claims))
     models = _models(title + '\n' + description + '\n' + attributes.get('型号', ''))
     mixed = len(capacities) > 1 or len(models) > 1 or duplicate_attributes
     consistent = (not mixed and len(capacities) == 1 and bool(_capacities(storage))
@@ -184,26 +247,39 @@ def parse_capture(capture, requested_url):
     # Financing availability alone is not a deposit or monthly-price claim.
     partial = bool(re.search(r'定金|订金|首付|月供|每月|deposit|per month',
                              title + '\n' + description, re.I))
-    priced = consistent and amount is not None and not partial
+    source_texts = [('title', title), ('description', description)]
+    price_basis_evidence = _price_basis_claims(source_texts)
+    priced = consistent and amount is not None and not partial and not price_basis_evidence
     shipping = [n.text() for n in info.find('post--')]
     purchase = [n.text() for n in info.find('buy--')]
     main_text = info.text()
     availability = 'source_claimed_available' if any('立即购买' in x for x in purchase) else 'unknown'
-    for pattern, state in [(r'已售出|已卖出', 'sold'), (r'已下架|已删除|商品不存在', 'delisted'),
+    availability_claims = []
+    for pattern, state in [(r'已售出|已卖出|卖掉了', 'sold'), (r'已下架|已删除|商品不存在', 'delisted'),
                            (r'已售罄|无货|缺货', 'unavailable')]:
-        if re.search(pattern, main_text):
+        claims = re.findall(pattern, main_text)
+        if claims:
+            availability_claims = claims
             availability = state
             priced = False
             break
     pickup_only = bool(re.search(r'仅[^。\n]{0,30}自提|只[^。\n]{0,20}自提|不邮寄|不发货', description))
     wholesale = '批发' in description
-    repaired = bool(re.search(r'换过外屏|屏幕有维修|更换过屏幕|换过屏', description + str(attributes)))
-    used = repaired or bool(re.search(r'磕碰|划痕|二手|\d{2}新', description + attributes.get('成色', '')))
+    condition_sources = source_texts + [
+        ('attribute_rows', row['raw']) for row in attribute_rows
+        if row['label'] in {'成色', '拆修和功能', '功能状态'}]
+    condition, condition_reason, condition_evidence = _condition_claims(condition_sources)
     warnings = ['Public listing claims only; selected SKU, stock quantity and checkout are unverified.',
                 'Fulfillment destination, shipping charges and eligibility remain unresolved.',
                 'Used-device imports require condition and import-rule review; no legal clearance is established.']
     if mixed:
         warnings.append('Mixed/conflicting model or capacity evidence; displayed amount cannot price an exact configuration.')
+    if price_basis_evidence:
+        warnings.append('Wrong price basis: qualified base/presale unit or reference quote; not an exact full-product price.')
+    if condition_reason == 'conflicting_source_claims':
+        warnings.append('Conflicting condition source claims; normalized condition remains unknown.')
+    if any(claim['label'] == '内存容量' for claim in capacity_claims):
+        warnings.append('Literal 内存容量 retained without assigning RAM or storage hardware semantics.')
     if not priced:
         warnings.append('Exact full-price binding is unresolved; retain the literal main price as evidence only.')
     if pickup_only:
@@ -218,9 +294,14 @@ def parse_capture(capture, requested_url):
               'cardinalities': actual, 'configuration_binding': binding, 'selected_sku_id': None,
               'availability_evidence': ('public_listing_with_purchase_control'
                                       if availability == 'source_claimed_available' else availability),
+              'availability_claims': availability_claims,
               'stock_quantity': None, 'checkout_verified': False,
               'pickup_only': pickup_only, 'wholesale_qualifier': wholesale,
               'repair_claim': attributes.get('拆修和功能'), 'condition_claim': attributes.get('成色'),
+              'condition_basis': 'source_claim_only', 'condition_reason': condition_reason,
+              'condition_evidence': condition_evidence,
+              'partial_price_claim': partial, 'price_basis_evidence': price_basis_evidence,
+              'capacity_claims': capacity_claims, 'capacity_evidence_kind': 'untyped_literal_tokens',
               'capacity_evidence': sorted(capacities), 'model_evidence': sorted(models),
               'variant_basis': 'literal_listing_attributes; selected SKU remains unknown'}
     if not priced and price_text is not None:
@@ -230,11 +311,12 @@ def parse_capture(capture, requested_url):
     return {'item_id': item_id, 'url': capture['url'], 'title': title, 'description': description,
             'variant': '; '.join(attributes[key] for key in ('型号', '存储容量', '版本') if attributes.get(key)),
             'currency': 'CNY', 'price': amount if priced else None,
-            'price_basis': 'displayed' if priced else 'configuration_unresolved',
+            'price_basis': 'displayed' if priced else (
+                'wrong_basis' if price_basis_evidence else 'configuration_unresolved'),
             'source_mode': 'guest_product_page', 'observed_at': stamp,
             'source_detail': detail, 'attributes': attributes,
             'configuration_binding': binding, 'selected_sku_id': None,
             'availability': availability, 'availability_evidence': detail['availability_evidence'],
             'stock_quantity': None, 'checkout_verified': False,
-            'condition': 'used' if used else 'unknown', 'domestic_free_shipping': None,
+            'condition': condition, 'domestic_free_shipping': None,
             'source_warnings': warnings}

@@ -6,7 +6,7 @@ Run `china-deals schema` and `china-deals config show` first. **Guest access is 
 
 1. Extract model, required variant, voltage, quantity, condition, budget and destination. Search with the available information; ask for missing details when they affect a comparison or shipping decision. Do not infer variant equivalence from a similar title.
 2. Supply Chinese keywords for Taobao/JD/Goofish using a Chinese positional query, `--zh-query`, or repeated `--query-for MARKET=QUERY`. An individual override wins over `--zh-query`. Each Chinese-market query must contain Chinese characters; otherwise that source returns `chinese_query_required` without sending a marketplace search request. Translate Blibli keywords into Indonesian when useful.
-3. Search a few specific queries with small limits. `--include-offers` retains the full fetched population for offline work; otherwise limited groups can omit candidates. `--hydrate N` attempts guest product detail for N discovered links per source, not guaranteed verification.
+3. Search a few specific queries with small limits. `--include-offers` retains assessed offers and separate `filter_excluded_offers` with their holds for offline work; otherwise limited groups can omit candidates. `--hydrate N` attempts guest product detail for N discovered links per source, not guaranteed verification.
 4. Read every source status and warning. `discovery_only`, `blocked`, `auth_required`, `unavailable`, `empty_unverified` and `error` report evidence/access, not inventory. Never ingest unrelated recommendations as keyword matches. Stop at CAPTCHA, login, risk or verification challenges; do not retry around them or switch transports to evade them.
 
 ```sh
@@ -24,11 +24,13 @@ The detail ID is a retained research example, not an available deal. Guest mode 
 
 Use `plan QUERY` for offline starting queries. Broad `ASUS ROG Zephyrus` covers bounded G14/G15/G16/M16/Duo/S17 suggestions; a specific G14, storage or connector request retains that scope. Check and improve Chinese aliases before executing. A plan is neither a search result nor exhaustive model coverage.
 
-Search/rank attach `intent_query` and title/selected-variant relevance for iPhone 17 Pro Max, AirPods Max and Zephyrus. Explicit other selections, accessories, repairs, replicas, dummy models and uncertain matches cannot win. Deposit/monthly-payment amounts remain null. Use `rank --query QUERY` for imported arrays. Keep envelope intent when processing results through coupons or compare; do not discard it when flattening offers.
+Search/rank attach `intent_query` and title/selected-variant relevance for iPhone 17 Pro Max, AirPods Max, Zephyrus, Steam Deck, Sony WH, AMD Ryzen, NVIDIA RTX, DJI Mini and Nintendo Switch. Unknown explicit intent stays uncertain and unranked; do not drop intent to promote it. Explicit other selections, accessories, repairs, replicas, dummy models and uncertain matches cannot win. Deposit/monthly-payment, rental, remaining-balance and starting-price amounts remain null. Preserve independent string/dictionary selected observations; one color label cannot erase explicit conflicting identity. CPU box/tray, desktop/laptop GPU role, controller and bundle are distinct axes. Use `rank --query QUERY` for imported arrays. Keep envelope intent when processing results through coupons or compare; do not discard it when flattening offers.
 
 One command shares a host-level challenge gate. Inspect `access.attempts` for the actual challenged URL, `network_attempted` and `gate_origin`; `skipped_after_challenge` means no request was sent. An index challenge is not evidence about native marketplace login requirements. Hydration receipts preserve product-detail failures and original index provenance. Opaque JD product URLs remain discovery-only with no guessed numeric SKU or price. Blibli JSON-LD out-of-stock/sold/discontinued claims suppress prices; InStock is only a source claim.
 
-See [three-product validation](validation/README.md) for the bounded live results and offline regression coverage.
+Literal `--require-term`/`--exclude-term` checks operate on title substrings and are not exact model or bundle safety checks. No native filter parameter is claimed without source verification.
+
+See [diverse-query validation](validation/diverse-results.md) and [three-product validation](validation/README.md) for the bounded live results and offline regression coverage.
 
 ## Public catalogs and retained browser observations
 
