@@ -163,6 +163,11 @@ def normalize_offer(marketplace, row, observed_at=None):
         elif marketplace == "jd":
             match = re.fullmatch(r"/(\d+)\.html", parsed.path)
             url_item_id = match.group(1) if match else None
+        elif marketplace == "blibli":
+            match = re.fullmatch(r"/p/[^/]+/(?:ps|is)--([A-Za-z0-9-]+)/?", parsed.path)
+            url_item_id = match.group(1) if match else None
+    if not item_id and url_item_id:
+        item_id = url_item_id
     if not item_id and url:
         parsed = urlparse(url)
         candidate = parse_qs(parsed.query).get("id", [None])[0]

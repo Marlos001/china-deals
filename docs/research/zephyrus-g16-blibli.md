@@ -1,5 +1,7 @@
 # ROG Zephyrus G16: Blibli research, bounded findings
 
+**Superseded comparison:** see [updated prices, descriptions, screenshots and coupon rules](zephyrus-g16-blibli-v2.md). The amounts and conditional shortlist below are historical research observations.
+
 Inspection: 27 October 2026. This is a discovery record, not a list of current offers. Blibli's native pages and search API were blocked in the retained probes; stock, exact configuration, seller, price and checkout cannot be verified. No winner or best value can be established.
 
 ## Candidates for later verification

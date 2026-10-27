@@ -146,6 +146,16 @@ class DetailTests(unittest.TestCase):
         with patch.object(guest, "_fetch", return_value=(body, final_url)):
             return guest.get_guest_item("jd", item_id)
 
+    def test_native_product_url_is_accepted_for_hydration(self):
+        for value in (JD_URL, JD_MOBILE):
+            with self.subTest(value=value):
+                result = self.detail(jd_html(), item_id=value)
+                self.assertEqual(result['status'], 'ok')
+                self.assertEqual(result['items'][0]['item_id'], JD_ID)
+        for value in ('https://search.jd.com/Search?keyword=laptop', 'https://item.jd.com.evil.test/123.html'):
+            with self.assertRaises(ValueError):
+                self.detail(jd_html(), item_id=value)
+
     def test_jd_masked_title_selected_fields_and_trailing_comma(self):
         result = self.detail(jd_html(trailing=True))
         self.assertEqual(result["status"], "ok")

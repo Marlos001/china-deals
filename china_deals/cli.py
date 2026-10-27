@@ -112,6 +112,7 @@ def build_parser():
 
     def presentation(sub):
         preferences(sub)
+        sub.add_argument("--coupons-from-json", help="Coupon rules and eligibility context; separate scenarios, never silently deducted from listing prices")
         sub.add_argument("--currency", choices=("BRL", "native"), help="Display estimates; defaults to config (BRL)")
         sub.add_argument("--fx-from-json", help="Use a captured ECB-style FX snapshot instead of fetching reference rates")
 
@@ -171,6 +172,10 @@ def build_parser():
     compare.add_argument("--new-only", action="store_true")
     compare.add_argument("--freight-cny", help="Explicit Fansbuy freight scenario; does not apply to excluded marketplaces")
     compare.add_argument("--icms-rate", help="Required for a China landed-cost scenario; no automatic destination-state assumption")
+    coupon_cmd = command("coupons", "Evaluate independent coupon alternatives for imported offers; no claiming or checkout")
+    coupon_cmd.add_argument("input", help="Offer/search JSON file or -")
+    coupon_cmd.add_argument("--rules", required=True, help="JSON campaigns, eligibility context and optional as_of")
+    presentation(coupon_cmd)
     filters_cmd = command("filters", "Explain native URL/filter support and local verification scope")
     filters_cmd.add_argument("marketplace", type=marketplace_name)
     filters_cmd.add_argument("query", nargs="?", default="")
@@ -208,7 +213,7 @@ def build_parser():
 def schema():
     return {
         "schema_version": "1", "version": __version__, "marketplaces": list(MARKETPLACES),
-        "commands": ["search", "detail", "rank", "compare", "filters", "config", "fx", "shipping", "estimate", "restrictions", "doctor", "schema"],
+        "commands": ["search", "detail", "rank", "compare", "coupons", "filters", "config", "fx", "shipping", "estimate", "restrictions", "doctor", "schema"],
         "default_access": "guest",
         "guest_engines": ["http", "browser (optional Playwright, ephemeral Chromium)"],
         "default_display_currency": "BRL",
@@ -255,13 +260,24 @@ def input_offers(payload):
 
 
 def decorate_brl(result, args, config, offers=None):
+    candidates = offers if offers is not None else [item for group in result.get("groups", {}).values() for item in group] + result.get("unranked", []) + result.get("items", []) + result.get("offers", [])
+    if getattr(args, "coupons_from_json", None):
+        from .coupons import annotate_offers
+        for item, annotated in zip(candidates, annotate_offers(candidates, read_json(args.coupons_from_json)), strict=True):
+            item["coupon_estimates"] = annotated["coupon_estimates"]
     if (getattr(args, "currency", None) or config["display_currency"]) == "native":
         return None
     from . import fx
     try:
         snapshot = fx.validate_snapshot(read_json(args.fx_from_json)) if args.fx_from_json else fx.fetch_rates()
-        candidates = offers if offers is not None else [item for group in result.get("groups", {}).values() for item in group] + result.get("unranked", []) + result.get("items", [])
         fx.annotate_offers(candidates, snapshot, config)
+        for item in candidates:
+            estimate = item.get("coupon_estimates")
+            if estimate:
+                for campaign in estimate["campaigns"] + (estimate["best_eligible"] or []) + (estimate["best_potential"] or []):
+                    for key in ("amount_due", "cashback", "discount_amount"):
+                        campaign[key + "_brl"] = fx.convert_brl(campaign[key], campaign["currency"], snapshot) if campaign[key] is not None else None
+                estimate["fx_rate_date"] = snapshot["rate_date"]
         if offers is None and "offers" in result:
             fx.annotate_offers(result["offers"], snapshot, config)
         result["fx"] = snapshot
@@ -406,6 +422,15 @@ def run(args):
             result["offers"] = offers
         decorate_brl(result, args, config)
         return result, 0 if all(s.get("status") == "ok" for s in sources) else 3
+    if args.command == "coupons":
+        payload = rank_offers(input_offers(read_json(args.input)), limit=None, deduplicate=False)
+        offers = [item for group in payload["groups"].values() for item in group] + payload["unranked"]
+        args.coupons_from_json = args.rules
+        result = {"schema_version": "1", "dataset_origin": "caller_supplied_coupon_scenario", "offers": offers,
+                  "warnings": ["Rules and eligibility are caller-supplied assertions, not independently verified live coupons. No coupon was claimed or redeemed.",
+                               "Listing discounts are already in the displayed price. Cashback is separate from amount payable, and stacking is not assumed."]}
+        decorate_brl(result, args, config, offers)
+        return result, 0
     if args.command == "rank":
         payload = read_json(args.input)
         offers = input_offers(payload)

@@ -224,3 +224,19 @@ uv run china-deals schema
 Fixture/mocked checks do not prove live marketplace access. No order, cart change, seller message, payment or shipment-submission commands are exposed. Keep credentials, profiles, private captures and product research out of Git. Respect marketplace terms and verification controls.
 
 A subscription agent can invoke this CLI directly; an MCP wrapper is optional and neither protocol inherently guarantees lower token use or requires paid AI APIs. MIT licensed.
+
+
+### Coupons and newer G16 evidence (0.3)
+
+The CLI evaluates imported coupon rules with `coupons` or `--coupons-from-json` on `search`, `detail`, `rank` and `compare`. It does not claim or redeem vouchers, and does not automatically discover every current campaign. Your subscription agent supplies source-linked rules after reading the actual terms.
+
+```sh
+china-deals coupons examples/g16-user-observations-2026-10-27.json \
+  --rules examples/blibli-coupons-research-2026-10-27.json
+```
+
+`campaigns` supports a fixed amount or percentage, caps, minimum spend, marketplace/product/seller scope, dates, and explicit `requires` context for the actual purchasing account, payment method, app/member status or quota. `best_eligible` means eligible **under caller-supplied assertions**, not live checkout proof. Unknown facts produce `potential`; contradicting facts produce `ineligible`. Cashback stays separate from amount payable. Coupons are independent alternatives; stacking is not assumed. The original listing price never changes, so its sale percentage is not deducted twice. BRL fields use the same dated reference FX snapshot.
+
+The [example coupon schema](examples/coupons.example.json) is synthetic. The [Blibli research rules](examples/blibli-coupons-research-2026-10-27.json) are real promotional leads with **unverified applicability**, not promised discounts. Some displayed prices may already incorporate a voucher. Rules must follow the purchasing account: the customer's personal entitlement is not automatically transferable to Fansbuy or another purchasing agent.
+
+The [updated Blibli report](docs/research/zephyrus-g16-blibli-v2.md) records the user's newer prices, full configuration claims and screenshots. The selected AMD 5060 variant is out of stock in the supplied screenshot. The [second Goofish search](docs/research/zephyrus-g16-goofish-v2.md) and [expanded access-solution review](docs/research/access-solutions-v2.md) document broader searches, extensions, public endpoints and buying-agent alternatives; no newly available Goofish G16 or working universal account-free access path was established.

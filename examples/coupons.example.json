@@ -1,0 +1,41 @@
+{
+  "as_of": "2026-10-27T12:00:00Z",
+  "context": {
+    "buyer_account": "fansbuy",
+    "payment_method": null,
+    "account_holder": null
+  },
+  "campaigns": [
+    {
+      "id": "synthetic-only-not-a-real-blibli-coupon-10-percent-cap-75k",
+      "marketplace": "blibli",
+      "currency": "IDR",
+      "kind": "instant",
+      "discount": {"percent": "10"},
+      "min_spend": "1000000",
+      "cap": "75000",
+      "requires": {"payment_method": "synthetic-bank"},
+      "eligibility": "unconfirmed",
+      "confirmed": false,
+      "starts_at": "2026-10-01T00:00:00+07:00",
+      "ends_at": "2026-10-31T23:59:59+07:00",
+      "source_url": "https://example.invalid/synthetic-not-real-coupon",
+      "observed_at": "2026-10-27T10:00:00Z"
+    },
+    {
+      "id": "synthetic-only-not-a-real-taobao-holder-cashback",
+      "marketplace": "taobao",
+      "product_ids": ["synthetic-item-1"],
+      "seller": "synthetic-seller",
+      "currency": "CNY",
+      "kind": "cashback",
+      "discount": {"amount": "20.00"},
+      "min_spend": "500.00",
+      "requires": {"buyer_account": "fansbuy", "account_holder": "synthetic-holder"},
+      "eligibility": "unconfirmed",
+      "confirmed": false,
+      "source_url": "https://example.invalid/synthetic-not-real-cashback",
+      "observed_at": "2026-10-27T10:00:00Z"
+    }
+  ]
+}

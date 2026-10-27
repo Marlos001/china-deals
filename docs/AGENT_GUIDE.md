@@ -98,3 +98,12 @@ Prefer JSON for provenance, filter/FX inspection and agent parsing; `--format ma
 Present source-linked observations, exact comparison groups, incomplete/discovery evidence, dated BRL assumptions, shipping exclusions and outstanding checks. Use [validation](VALIDATION.md) for current checks and limits and the [research index](research/README.md) for primary-source context. Fixture or mocked tests do not prove marketplace access.
 
 The CLI is read-only. Finding or comparing goods does not authorize seller messages, cart changes, purchases, payments, shipment submissions or customs declarations. Keep credentials, profiles and private captures out of prompts, Git and reports.
+
+
+## Coupon scenarios
+
+Preserve the displayed price before applying any extra coupon. Identify whether it already includes the advertised voucher, then read the exact code's terms: minimum spend, cap, selected product/seller, actual purchasing account, payment method, platform/member/new-customer conditions, validity, quota and stacking. A banner or coupon-aggregator result alone is a lead. Keep instant discounts, cashback and financing costs separate.
+
+Use `coupons INPUT --rules RULES` or `--coupons-from-json RULES` on normal offer commands. Rules contain `campaigns`, optional `context` and reproducible `as_of`; see [synthetic schema](../examples/coupons.example.json). No inference fills missing account context. `eligible` remains a caller-supplied scenario and never means live redemption verification. Never replace `price.amount` with a potential post-coupon amount or add independent coupons together. Source item IDs must match exact product URLs before a product-restricted coupon can qualify.
+
+The [user-observation example](../examples/g16-user-observations-2026-10-27.json) carries source mode `user_observation`, so hardware extraction remains visible while automatic current-listing comparison stays unverified. The selected out-of-stock Blibli variant cannot win a deal ranking. Distinguish fresh user screenshots from older cached descriptions and from an actual live CLI read.

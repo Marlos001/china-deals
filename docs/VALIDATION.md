@@ -2,6 +2,18 @@
 
 Checked 2026-10-27 in `/home/marlos/projects/china-deals`.
 
+## Version 0.3 coupon and screenshot update
+
+- `python -m unittest discover -s tests -q`: **168 passed**. `uvx ruff check china_deals tests`, compilation, package build and whitespace checks passed.
+- Added deterministic imported coupon scenarios: fixed/percentage discounts, caps, minimum spend, dates, product/seller scope, explicit account/payment requirements, unknown eligibility, cashback separation, ties and no inferred stacking. Base listing prices remain unchanged. Caller-confirmed eligibility is not independently verified checkout acceptance.
+- Coupon CLI/FX integration, capped discounts on large laptop amounts, contradictory product IDs/URLs and native guest detail URL hydration have regression coverage. Independent Terra review found the product-restricted Blibli coupon binding issue; the fix validates identity in normalization and coupon evaluation.
+- User screenshots support the first two displayed Blibli prices and a voucher summary (3%, advertised Rp2,000,000 benefit, Rp4,000,000 minimum). Its code/full terms and whether the displayed amount already includes it remain unknown. The selected second listing is visibly out of stock and excluded from purchase candidates.
+- All five reported amounts are retained in a public example with `user_observation` provenance; older cached seller hardware descriptions remain a distinct evidence source. No additional eligible coupon was established by the example evaluation.
+- The broader Goofish pass retained 68 search queries; no new currently available G16 offer was validated. It distinguished an HP main item from contaminating G16 recommendation text. This is not an inventory-wide absence claim.
+- A single public legacy JD price request reset the connection. Superbuy's guest homepage loaded, but its target keyword search reached security verification. No price bypass or full guest catalog success is claimed. No marketplace account, cart, coupon claim, checkout, purchase or message was created.
+
+See [updated Blibli evidence](research/zephyrus-g16-blibli-v2.md), [Goofish evidence](research/zephyrus-g16-goofish-v2.md) and [access solutions](research/access-solutions-v2.md). Local checks and hosted CI remain separate evidence.
+
 ## Version 0.2 guest-access update
 
 - **139 local tests pass** with `python -m unittest discover -s tests -q`; `uvx ruff check china_deals tests` passes. The update adds Chinese-query enforcement, guest HTTP/browser contracts, native/local filter disclosure, per-market policies, dated ECB BRL estimates, hardware conflicts and comparison provenance checks.

@@ -428,7 +428,10 @@ def get_guest_item(marketplace, item_id, timeout=30) -> dict:
         hosts = {"www.blibli.com"}
     else:
         if not re.fullmatch(r"[0-9]+", item_id):
-            raise ValueError("Chinese marketplace item_id must contain only ASCII digits")
+            native_url = _product_url(marketplace, item_id)
+            if not native_url:
+                raise ValueError("Supply an ASCII numeric item ID or an exact native product URL")
+            item_id = _item_id(marketplace, native_url)
         url = {"jd": f"https://item.jd.com/{item_id}.html", "taobao": f"https://item.taobao.com/item.htm?id={item_id}",
                "goofish": f"https://www.goofish.com/item?id={item_id}"}[marketplace]
         fetch_url = f"https://item.m.jd.com/product/{item_id}.html"

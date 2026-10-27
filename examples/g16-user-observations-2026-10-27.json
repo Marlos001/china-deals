@@ -1,0 +1,147 @@
+{
+  "schema_version": "1",
+  "dataset_origin": "user_reported_observations",
+  "reported_at": "2026-10-27T14:44:00.450632+00:00",
+  "observation_time": null,
+  "fx": {
+    "source": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml",
+    "rate_date": "2026-10-26",
+    "base": "BRL",
+    "brl_per_unit": {
+      "CNY": "0.838076216774",
+      "IDR": "0.000307687084",
+      "USD": "5.588398283876"
+    },
+    "warnings": [
+      "ECB reference rates are estimates, not Fansbuy payment rates, card rates or customs PTAX.",
+      "Rates exclude conversion spread, payment fees and any IOF; compare provider charges separately."
+    ]
+  },
+  "warnings": [
+    "Prices supplied by the user in chat; not independently verified by the CLI.",
+    "Mapping follows the five-row comparison order; selected SKU and description require confirmation.",
+    "Displayed sale prices already include the listing discount; do not subtract that percentage again.",
+    "No additional coupon eligibility established. Blibli freight excluded.",
+    "The user screenshot marks the selected GA605KM LAPTOP ONLY variant out of stock; its reported amount is retained as reference only."
+  ],
+  "offers": [
+    {
+      "marketplace": "blibli",
+      "title": "ASUS ROG Zephyrus G16 GU603ZU",
+      "url": "https://www.blibli.com/p/asus-rog-zephyrus-g16-gu603zu-i745j6g-o-eclipse-gray/ps--MAP-60071-00253",
+      "currency": "IDR",
+      "price": "25218992",
+      "source_mode": "user_observation",
+      "observed_at": null,
+      "source_detail": {
+        "reported_by": "user",
+        "original_idr": "25999000",
+        "displayed_discount_percent": "3",
+        "selected_variant_verified": false,
+        "description_basis": "Seller claims from exact first-party listing cache retrieved 2026-10-27; see docs/research/zephyrus-g16-blibli-v2.md",
+        "description_is_current": false,
+        "evidence_basis": "User screenshot confirms model, seller, displayed price and visible voucher summary; current checkout not tested",
+        "voucher_summary": {
+          "percent": 3,
+          "cap_idr": "2000000",
+          "minimum_spend_idr": "4000000",
+          "code": null,
+          "already_reflected_in_displayed_price": "unknown"
+        }
+      },
+      "reference_brl": "7759.56",
+      "description": "Core i7-12700H; RTX 4050 Laptop GPU 6GB GDDR6; TGP 120W; RAM 16GB DDR4; 512GB SSD; 16-inch 1920x1200 IPS 165Hz",
+      "item_id": "MAP-60071-00253"
+    },
+    {
+      "marketplace": "blibli",
+      "title": "ASUS ROG Zephyrus G16 GA605KM",
+      "url": "https://www.blibli.com/p/laptop-asus-rog-zephyrus-g16-ga605km-r7n56ol6g-hm-rtx-5060-8gb-ryzen-7-ai-350-ram-32gb-ssd-1tb-16-oled-wqxga-240hz-win-11-home-ohs-eclipse-gray/is--BEO-60066-07913-00001",
+      "currency": "IDR",
+      "price": "38023030",
+      "source_mode": "user_observation",
+      "observed_at": null,
+      "source_detail": {
+        "reported_by": "user",
+        "original_idr": "39199000",
+        "displayed_discount_percent": "3",
+        "selected_variant_verified": false,
+        "description_basis": "Seller claims from exact first-party listing cache retrieved 2026-10-27; see docs/research/zephyrus-g16-blibli-v2.md",
+        "description_is_current": false,
+        "availability_evidence": "User screenshot: Stoknya lagi habis; LAPTOP ONLY selected",
+        "voucher_summary": {
+          "percent": 3,
+          "cap_idr": "2000000",
+          "minimum_spend_idr": "4000000",
+          "code": null,
+          "already_reflected_in_displayed_price": "unknown"
+        }
+      },
+      "reference_brl": "11699.20",
+      "description": "Ryzen AI 7 350; RTX 5060 Laptop GPU 8GB; RAM 32GB LPDDR5X; 1TB SSD; 16-inch 2560x1600 OLED 240Hz",
+      "item_id": "BEO-60066-07913-00001",
+      "availability": "unavailable"
+    },
+    {
+      "marketplace": "blibli",
+      "title": "ASUS ROG Zephyrus G16 GU605CM",
+      "url": "https://www.blibli.com/p/asus-rog-zephyrus-g16-oled-gu605cm-ultra-9-285h-rtx5060-8gb-32gb-1tb-w11-ohs-m365b-16-0wqxga-240hz-garansi-resmi/ps--DWJ-29772-01622",
+      "currency": "IDR",
+      "price": "54029000",
+      "source_mode": "user_observation",
+      "observed_at": null,
+      "source_detail": {
+        "reported_by": "user",
+        "original_idr": "58900000",
+        "displayed_discount_percent": "8",
+        "selected_variant_verified": false,
+        "description_basis": "Seller claims from exact first-party listing cache retrieved 2026-10-27; see docs/research/zephyrus-g16-blibli-v2.md",
+        "description_is_current": false
+      },
+      "reference_brl": "16624.03",
+      "description": "Core Ultra 9 285H; RTX 5060 Laptop GPU 8GB; RAM 32GB LPDDR5X; 1TB SSD; 16-inch 2560x1600 OLED 240Hz",
+      "item_id": "DWJ-29772-01622"
+    },
+    {
+      "marketplace": "blibli",
+      "title": "ASUS ROG Zephyrus G16 GU605CP",
+      "url": "https://www.blibli.com/p/asus-rog-zephyrus-g16-oled-gu605cp-ultra-9-285h-rtx5070-8gb-32gb-2tb-w11-ohs-m365b-16-0wqxga-240hz-garansi-resmi/ps--DWJ-29772-01620",
+      "currency": "IDR",
+      "price": "58189330",
+      "source_mode": "user_observation",
+      "observed_at": null,
+      "source_detail": {
+        "reported_by": "user",
+        "original_idr": "66000000",
+        "displayed_discount_percent": "12",
+        "selected_variant_verified": false,
+        "description_basis": "Seller claims from exact first-party listing cache retrieved 2026-10-27; see docs/research/zephyrus-g16-blibli-v2.md",
+        "description_is_current": false
+      },
+      "reference_brl": "17904.11",
+      "description": "Core Ultra 9 285H; RTX 5070 Laptop GPU 8GB GDDR7; TGP 105W; RAM 32GB LPDDR5X; 2TB SSD; 16-inch 2560x1600 OLED 240Hz",
+      "item_id": "DWJ-29772-01620"
+    },
+    {
+      "marketplace": "blibli",
+      "title": "ASUS ROG Zephyrus G16 RTX 5070 Ti lead",
+      "url": "https://www.blibli.com/p/asus-rog-zephyrus-g16-oled-gu605-ultra-9-285h-rtx5070ti-12gb-vram-32gb-2tb-w11-ohs-m365b-16-0wqxga-240hz-garansi-resmi/ps--DWJ-29772-01621",
+      "currency": "IDR",
+      "price": "55193000",
+      "source_mode": "user_observation",
+      "observed_at": null,
+      "source_detail": {
+        "reported_by": "user",
+        "original_idr": "58900000",
+        "displayed_discount_percent": "6",
+        "selected_variant_verified": false,
+        "description_basis": "Seller claims from exact first-party listing cache retrieved 2026-10-27; see docs/research/zephyrus-g16-blibli-v2.md",
+        "description_is_current": false,
+        "gpu_power_conflict": "Seller105W; ASUS2025family GU605CR lists115WTurbo125WManual. Exact full model suffix unverified."
+      },
+      "reference_brl": "16982.17",
+      "description": "Core Ultra 9 285H; RTX 5070 Ti Laptop GPU 12GB GDDR7; TGP 105W; RAM 32GB LPDDR5X; 2TB SSD; 16-inch 2560x1600 OLED 240Hz",
+      "item_id": "DWJ-29772-01621"
+    }
+  ]
+}
