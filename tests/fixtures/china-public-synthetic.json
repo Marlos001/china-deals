@@ -1,0 +1,40 @@
+{
+  "provenance": "Synthetic contract cases, not retained marketplace responses or evidence of live extraction.",
+  "observed_at": "2026-10-27T18:55:04.607Z",
+  "cases": [
+    {
+      "marketplace": "tmall",
+      "url": "https://detail.tmall.com/item.htm?id=123456789001",
+      "product": {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "url": "https://detail.tmall.com/item.htm?id=123456789001",
+        "productID": "123456789001",
+        "name": "索尼 WH-1000XM6 无线降噪耳机",
+        "description": "合成测试；颜色和库存未验证。",
+        "offers": {"@type": "Offer", "price": "2999.00", "priceCurrency": "CNY", "availability": "https://schema.org/InStock"}
+      }
+    },
+    {
+      "marketplace": "1688",
+      "url": "https://detail.1688.com/offer/123456789002.html",
+      "product": {
+        "@type": "Product",
+        "url": "https://detail.1688.com/offer/123456789002.html",
+        "productID": "123456789002",
+        "name": "AMD 锐龙 Ryzen 7 9800X3D 批发",
+        "offers": {"@type": "AggregateOffer", "lowPrice": "100", "highPrice": "3999", "priceCurrency": "CNY", "eligibleQuantity": {"@type": "QuantitativeValue", "minValue": 10}}
+      }
+    },
+    {
+      "marketplace": "weidian",
+      "url": "https://weidian.com/item.html?itemID=123456789003",
+      "product": {
+        "@type": "Product",
+        "url": "https://weidian.com/item.html?itemID=123456789003",
+        "name": "Steam Deck OLED 掌机 定金",
+        "offers": {"@type": "Offer", "price": "50", "priceCurrency": "CNY", "priceSpecification": {"name": "订金 / 分期 installment", "price": "50", "priceCurrency": "USD"}}
+      }
+    }
+  ]
+}

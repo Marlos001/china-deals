@@ -4,13 +4,13 @@ build-backend = "hatchling.build"
 
 [project]
 name = "china-deals"
-version = "0.7.0"
+version = "0.8.0"
 description = "Read-only marketplace research and Fansbuy-to-Brazil cost estimates for AI agents"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
 authors = [{ name = "Marlos" }]
-keywords = ["cli", "agents", "taobao", "goofish", "jd", "blibli", "fansbuy", "brazil"]
+keywords = ["cli", "agents", "taobao", "tmall", "1688", "weidian", "goofish", "jd", "blibli", "fansbuy", "brazil"]
 classifiers = ["Programming Language :: Python :: 3", "Environment :: Console", "Topic :: Internet"]
 dependencies = []
 

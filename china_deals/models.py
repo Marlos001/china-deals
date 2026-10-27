@@ -6,15 +6,7 @@ from datetime import datetime, timezone
 from decimal import Decimal, InvalidOperation
 from urllib.parse import parse_qs, urlparse, urlunsplit
 
-MARKETPLACES = ("taobao", "jd", "goofish", "blibli")
-ALIASES = {"xianyu": "goofish", "jd.com": "jd", "blibli.com": "blibli"}
-CURRENCIES = {"taobao": "CNY", "jd": "CNY", "goofish": "CNY", "blibli": "IDR"}
-HOSTS = {
-    "taobao": ("taobao.com", "tmall.com"),
-    "jd": ("jd.com",),
-    "goofish": ("goofish.com",),
-    "blibli": ("blibli.com",),
-}
+from .marketplaces import ALIASES, CURRENCIES, HOSTS, ID_FIELDS, MARKETPLACES, item_url, product_id
 
 
 def utc_now():
@@ -137,6 +129,9 @@ def _variant_observations(row):
 
 def _url_item_ids(value, marketplace):
     """Read only known product routes; opaque tokens are never numeric item IDs."""
+    if marketplace in {"tmall", "1688", "weidian"}:
+        identity = product_id(marketplace, value)
+        return [identity] if identity is not None else []
     url = safe_url(value, marketplace)
     if not url:
         return []
@@ -276,12 +271,8 @@ def normalize_offer(marketplace, row, observed_at=None):
         availability = "unknown"
     if availability in {"delisted", "sold", "unavailable"}:
         amount = None
-    id_fields = {"taobao": ("item_id", "itemId", "num_iid"),
-                 "jd": ("item_id", "sku", "skuId"),
-                 "goofish": ("item_id", "itemId"),
-                 "blibli": ("item_id", "productSku", "sku")}
-    item_id = _text(row, *id_fields[marketplace])
-    identity_evidence = _identity_evidence(row, id_fields[marketplace], original_price)
+    item_id = _text(row, *ID_FIELDS[marketplace])
+    identity_evidence = _identity_evidence(row, ID_FIELDS[marketplace], original_price)
     identity_warnings = _identity_warnings(identity_evidence, marketplace)
     source_url = row.get("url") or row.get("productUrl") or row.get("link")
     if not source_url and isinstance(structured_offer, dict):
@@ -292,12 +283,8 @@ def normalize_offer(marketplace, row, observed_at=None):
     url_item_id = url_ids[0] if len(url_ids) == 1 else None
     if not item_id and url_item_id and (marketplace == "blibli" or re.fullmatch(r"[0-9]+", url_item_id)):
         item_id = url_item_id
-    if not url and item_id and item_id.isdigit():
-        url = {
-            "taobao": f"https://item.taobao.com/item.htm?id={item_id}",
-            "jd": f"https://item.jd.com/{item_id}.html",
-            "goofish": f"https://www.goofish.com/item?id={item_id}",
-        }.get(marketplace)
+    if not url and item_id:
+        url = item_url(marketplace, item_id)
         if url:
             url_basis = "constructed_from_source_item_id"
     warnings = ["Displayed price; stock, exact variant, seller claims and checkout total are unverified."]

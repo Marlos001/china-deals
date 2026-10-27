@@ -26,6 +26,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlsplit, urlunsplit
 
 from . import adapters, browser_guest, freshness, guest
+from .marketplaces import ID_FIELDS, MARKETPLACES
 from .models import decimal_value, marketplace_name, normalize_offer, utc_now
 from .ranking import apply_product_intent, apply_transaction_scope
 
@@ -90,7 +91,7 @@ def _safe_link(value):
         parts = urlsplit(value)
         if parts.scheme != "https" or not parts.hostname or parts.username or parts.password or parts.port:
             return None
-        for market in ("jd", "taobao", "goofish", "blibli"):
+        for market in MARKETPLACES:
             native = guest._product_url(market, value)
             if native:
                 return native
@@ -162,8 +163,7 @@ def _rows(payload):
         if market in {"taobao", "goofish"} and len(parse_qs(urlsplit(value).query, keep_blank_values=True).get("id", [])) != 1:
             raise ValueError("Product URL has ambiguous item IDs")
         item_id = guest._item_id(market, url)
-        for field in {"jd": ("item_id", "sku", "skuId"), "taobao": ("item_id", "itemId", "num_iid"),
-                      "goofish": ("item_id", "itemId"), "blibli": ("item_id", "sku", "productSku")}[market]:
+        for field in ID_FIELDS[market]:
             if row.get(field) is not None and str(row[field]) != item_id:
                 raise ValueError("Source item ID conflicts with the native URL")
         original = context | {key: row[key] for key in _CONTEXT if key in row}

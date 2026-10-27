@@ -55,7 +55,8 @@ def native_plan(market, query, filters=None):
                 supported.add(key)
     elif market == "taobao" and filters.get("sort") in {"price-asc", "sales"}:
         opencli += ["--sort", {"price-asc": "price", "sales": "sale"}[filters["sort"]]]
-    return {"marketplace": market, "requested": filters, "native_search_url": roots[market] + "?" + urlencode(params),
+    native_url = roots[market] + "?" + urlencode(params) if market in roots else None
+    return {"marketplace": market, "requested": filters, "native_search_url": native_url,
             "documented_native_filters": sorted(supported), "opencli_argv": opencli,
             "submitted_native_filters": [], "unverified_or_local_filters": sorted(filters),
             "note": "A constructed URL or documented parameter does not prove native filtering was applied. Indexed discovery does not implement native facets."}

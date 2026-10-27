@@ -60,8 +60,9 @@ def query_plan(query):
         blibli = [query]
     else:
         chinese, blibli = [query] if re.search(r'[\u3400-\u9fff]', query) else [], [query]
+    from .marketplaces import CHINESE_MARKETPLACES
     return {"query": query, "family": family, "marketplace_queries": {
-        "taobao": list(chinese), "jd": list(chinese), "goofish": list(chinese), "blibli": blibli},
+        **{market: list(chinese) for market in CHINESE_MARKETPLACES}, "blibli": blibli},
         "requires_agent_translation": family is None,
         "warnings": ["Suggested queries are bounded starting points, not exhaustive inventory or generation coverage.",
                      "Refined queries preserve original terms; additional translation may improve local recall.",

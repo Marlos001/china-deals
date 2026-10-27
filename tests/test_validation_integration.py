@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch
 
 from china_deals import adapters, browser_guest, guest
 from china_deals.cli import build_parser, hydrate_leads, run
-from china_deals.models import normalize_offer
+from china_deals.models import MARKETPLACES, normalize_offer
 from china_deals.ranking import rank_offers
 
 BLIBLI = 'https://www.blibli.com/p/synthetic/ps--SYN-00001-00001'
@@ -23,7 +23,8 @@ class AccessSessionTests(unittest.TestCase):
             self.assertEqual(fetch.call_count, 2)
             attempts = [a for source in result['sources'] for a in source.get('access', {}).get('attempts', [])]
             skipped = [a for a in attempts if a['status'] == 'skipped_after_challenge']
-            self.assertEqual(len(skipped), 3)
+            self.assertEqual(len(skipped), len(MARKETPLACES) - 1)
+            self.assertEqual({s['marketplace'] for s in result['sources']}, set(MARKETPLACES))
             self.assertTrue(all(a['network_attempted'] is False for a in skipped))
             self.assertTrue(all('duckduckgo.com' in a['gate_origin']['url'] for a in skipped))
             run(args)

@@ -12,11 +12,12 @@ from contextlib import contextmanager
 from urllib.parse import parse_qs, urlencode, urljoin, urlsplit
 
 from . import adapters, guest
+from .marketplaces import DISCOVERY_DOMAINS, item_url
 from .models import CURRENCIES, marketplace_name, utc_now
 
 _GOOGLE_HOSTS = {"www.google.com", "google.com"}
-_DOMAINS = {"taobao": "item.taobao.com", "jd": "item.jd.com",
-            "goofish": "www.goofish.com", "blibli": "www.blibli.com/p/"}
+
+_DOMAINS = DISCOVERY_DOMAINS
 _Failure = adapters._Failure
 
 # Read rendered headings and their actual anchors; never synthesize URLs from
@@ -281,8 +282,7 @@ def get_browser_guest_item(marketplace, url_or_id, timeout=30, executable_path=N
     result = _base(marketplace)
     result["source_mode"] = "guest_product_page"
     if marketplace != "blibli" and re.fullmatch(r"[0-9]+", value):
-        value = {"jd": f"https://item.jd.com/{value}.html", "taobao": f"https://item.taobao.com/item.htm?id={value}",
-                 "goofish": f"https://www.goofish.com/item?id={value}"}[marketplace]
+        value = item_url(marketplace, value) or value
     url = guest._product_url(marketplace, value)
     if not url and guest._discovery_url(marketplace, value):
         return guest._failure(result, _Failure("unavailable", "numeric_sku_unresolved", "Opaque product link is discovery only; numeric SKU is unresolved."))
@@ -311,6 +311,12 @@ def get_browser_guest_item(marketplace, url_or_id, timeout=30, executable_path=N
                         rows = guest._jd_detail(parser, guest._item_id(marketplace, url), url)
                     elif marketplace == "blibli":
                         rows = guest._blibli_detail(parser, url)
+                    elif marketplace in {"tmall", "1688", "weidian"}:
+                        from .china_public import parse_product_page
+                        try:
+                            rows = [parse_product_page(page.content(), marketplace, url, utc_now())]
+                        except ValueError:
+                            raise _Failure("unavailable", "item_schema_unverified", "No identity-bound primary product evidence was validated.") from None
                     else:
                         raise _Failure("unavailable", "item_schema_unverified", "No verified primary-item DOM contract; description, price and availability remain unknown.")
                 result.update(status="ok", items=rows)

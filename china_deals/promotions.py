@@ -13,6 +13,7 @@ from html import escape
 from html.parser import HTMLParser
 
 from . import adapters, guest
+from .marketplaces import HOSTS, PRODUCT_HOSTS
 from .models import marketplace_name, utc_now
 
 MAX_SNIPPETS = 30
@@ -24,6 +25,10 @@ _HOSTS = {
     'goofish': {'www.goofish.com', 'goofish.com'},
     'blibli': {'www.blibli.com'},
 }
+
+_HOSTS.update({market: set(PRODUCT_HOSTS[market]) | {HOSTS[market][0], "www." + HOSTS[market][0]}
+               for market in ("tmall", "1688", "weidian")})
+
 _TERMS = re.compile(
     r'优惠|优惠券|领券|折扣|满减|满.{0,16}减|立减|直降|折|补贴|返现|红包|促销|包邮|'
     r'\b(?:coupons?|discounts?|vouchers?|cashback|promo(?:tion)?s?|kupon|diskon|'

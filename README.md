@@ -1,10 +1,26 @@
 # china-deals
 
-A read-only **0.7 CLI** for researching products on **Taobao, JD.com, Goofish/Xianyu and Blibli**, comparing observed configurations and prices, and estimating **Fansbuy → Brazil** freight and landed costs.
+A read-only **0.8 CLI** for researching products on **Taobao, Tmall, 1688, Weidian, JD.com, Goofish/Xianyu and Blibli**, comparing observed configurations and prices, and estimating **Fansbuy → Brazil** freight and landed costs.
 
 **Guest access is the default. No marketplace account or AI API credentials are required.** Your subscription-backed Codex, Claude Code, Gemini/AGY or other terminal-capable agent supplies translation, analysis and presentation. The CLI makes no LLM calls. Existing OpenCLI sessions are an explicit, optional native mode.
 
 Guest mode does not guarantee accessible search or visible prices. In the [retained live research](docs/research/zephyrus-g16-test.md), JD detail showed a masked price, Blibli returned HTTP 403 / a verification page, and Goofish native guest search produced no verified target results; a readable Goofish item was delisted. These observations do not establish global restrictions or absence of inventory. Search-index leads are discovery evidence, never current purchasable offers.
+
+## Fansbuy marketplace coverage (0.8)
+
+The CLI now covers all five platforms explicitly named in the retained first-party Fansbuy guide/procurement copy: **Taobao, Tmall, 1688, Weidian and JD**. Existing Goofish and Blibli support remains available. The official copy is inclusive, cached evidence; it does not establish an exhaustive list for manual fill-and-buy or successful live purchasing. [Sources and exact evidence scope](docs/research/fansbuy-marketplaces-2026-10-27.md).
+
+```sh
+china-deals marketplaces
+china-deals search 'Sony WH-1000XM6' --markets fansbuy \
+  --zh-query '索尼 WH-1000XM6 头戴式耳机' --currency native --include-offers
+china-deals detail weidian 'https://weidian.com/item.html?itemID=SOURCE_ID'
+china-deals filters 1688 '索尼 耳机' --max-price 2000
+```
+
+Replace `SOURCE_ID` with an exact source ID; it is not a live example. `--markets fansbuy` expands the five named platforms; `--markets all` selects all seven. Tmall, 1688 and Weidian implement bounded HTTP/browser index discovery, exact native URL/ID binding, primary metadata reads and offline browser captures, plus the existing rank, freshness, refresh/history, coupon-evidence and Brazil cost workflows. Primary metadata is **unpriced** until a selected-variant/full-payment contract is established. Index snippets never supply current prices. New native OpenCLI operations return explicit unavailable receipts; native filter mappings are not invented.
+
+[Capability matrix and three-round validation](docs/validation/fansbuy-expansion.md) distinguish implemented paths, source evidence, blocked/unverified live access and remaining price contracts. Legacy Taobao records can still contain Tmall links; separate searches may overlap. Blibli retains its IDR/Indonesia and excluded-freight policy.
 
 ## Fresh prices and import versus Brazil (0.6)
 
@@ -33,7 +49,7 @@ The CLI accepts keywords rather than conversational prompts. The external agent 
 
 ## Search, detail and the Chinese query gate
 
-Taobao, JD and Goofish require a query containing Chinese characters. Supply the Chinese query directly, use `--zh-query` for all selected Chinese marketplaces, or repeat `--query-for MARKET=QUERY` to override individual sources. A per-market override takes precedence. Without a Chinese query, that source returns `chinese_query_required` and sends no marketplace search request. Brand/model names alone do not pass the gate.
+Taobao, Tmall, 1688, Weidian, JD and Goofish require a query containing Chinese characters. Supply the Chinese query directly, use `--zh-query` for all selected Chinese marketplaces, or repeat `--query-for MARKET=QUERY` to override individual sources. A per-market override takes precedence. Without a Chinese query, that source returns `chinese_query_required` and sends no marketplace search request. Brand/model names alone do not pass the gate.
 
 ```sh
 china-deals search 'ROG Zephyrus G16' --zh-query '华硕 ROG 幻16 笔记本' \

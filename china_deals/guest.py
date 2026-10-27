@@ -19,11 +19,12 @@ from contextvars import ContextVar
 from html.parser import HTMLParser
 
 from . import adapters
+from .marketplaces import DISCOVERY_DOMAINS, PRODUCT_HOSTS, canonical_product_url, item_url, product_id
 from .models import CURRENCIES, marketplace_name, utc_now
 
 MAX_RESPONSE_BYTES = 2 * 1024 * 1024
-_DOMAINS = {"jd": "item.jd.com", "taobao": "item.taobao.com", "goofish": "www.goofish.com",
-            "blibli": "www.blibli.com/p/"}
+
+_DOMAINS = DISCOVERY_DOMAINS
 _Failure = adapters._Failure
 _ACCESS_GATES = ContextVar("china_deals_access_gates", default=None)
 _GATE_CODES = {"challenge", "http_401", "http_403", "http_429"}
@@ -78,6 +79,8 @@ def _valid_url(value, hosts):
 
 def _product_url(marketplace, value):
     """Exact first-party product routes only; drop tracking and fragments."""
+    if marketplace in {"tmall", "1688", "weidian"}:
+        return canonical_product_url(marketplace, value)
     hosts = {"jd": {"item.jd.com", "item.m.jd.com"},
              "taobao": {"item.taobao.com", "detail.tmall.com"},
              "goofish": {"www.goofish.com", "goofish.com"},
@@ -115,6 +118,8 @@ def _discovery_url(marketplace, value):
 
 
 def _item_id(marketplace, url):
+    if marketplace in {"tmall", "1688", "weidian"}:
+        return product_id(marketplace, url)
     p = urllib.parse.urlsplit(url)
     if marketplace in {"taobao", "goofish"}:
         return urllib.parse.parse_qs(p.query)["id"][0]
@@ -174,6 +179,11 @@ def _fetch(url, hosts, deadline):
                 if size > MAX_RESPONSE_BYTES:
                     raise _Failure("error", "output_limit", "Guest response exceeded 2 MiB.")
                 if not chunk:
+                    # HTTPResponse.read1() can silently reach EOF before a fixed
+                    # Content-Length is satisfied (unlike read()).
+                    outstanding = getattr(response, "length", None)
+                    if isinstance(outstanding, int) and outstanding > 0:
+                        raise _Failure("unavailable", "incomplete_response", "Guest response ended before its declared length; no retry was made.")
                     break
                 chunks.append(chunk)
             charset = response.headers.get_content_charset() or "utf-8"
@@ -237,9 +247,12 @@ def _html(body):
     parser.feed(body)
     text = " ".join(parser.visible).lower()
     if (re.search(r"anomaly\.js|anomaly-modal|challenge-form|cf-chl-|(?:id|class)\s*=\s*['\"][^'\"]*(?:captcha|recaptcha)", body, re.I)
-            or re.search(r"<title[^>]*>[^<]*(?:captcha|access denied|just a moment)", body, re.I)
-            or re.search(r"verify.{0,25}human|just a moment|access denied|verifikasi sedang|京东验证", text)):
-        raise _Failure("blocked", "challenge", "Guest page requested verification; no retry or bypass was attempted.")
+            or re.search(r"<title[^>]*>[^<]*(?:captcha|access denied|just a moment|登录|登陆|验证|\blogin\b|sign in)", body, re.I)
+            or re.search(r"verify.{0,25}human|just a moment|access denied|verifikasi sedang|京东验证|"
+                         r"unusual traffic|our systems have detected|非法访问|请使用正常浏览器|滑动验证|安全验证|完成验证|"
+                         r"检测到异常流量|我们的系统检测到|请先登录|请登录后|登录后查看|登录后继续|"
+                         r"sign in to continue|log in to continue", text)):
+        raise _Failure("blocked", "challenge", "Guest page requested login or verification; no retry or bypass was attempted.")
     return parser
 
 
@@ -542,6 +555,27 @@ def get_guest_item(marketplace, item_id, timeout=30) -> dict:
     item_id = adapters._text(item_id, "item_id")
     deadline = time.monotonic() + adapters._timeout(timeout)
     result = _envelope(marketplace)
+    if marketplace in {"tmall", "1688", "weidian"}:
+        url = _product_url(marketplace, item_id) or item_url(marketplace, item_id)
+        if not url:
+            raise ValueError("Supply an ASCII numeric item ID or exact native product URL")
+        result["product_url"] = url
+        try:
+            body, final_url = _read(result, url, PRODUCT_HOSTS[marketplace], deadline, "guest_product_page")
+            if _product_url(marketplace, final_url) != url:
+                raise _Failure("unavailable", "item_url_mismatch", "Guest detail redirected away from the requested product.")
+            from .china_public import parse_product_page
+            try:
+                row = parse_product_page(body, marketplace, url, utc_now())
+            except ValueError:
+                failure = _Failure("unavailable", "item_schema_unverified", "No identity-bound primary product evidence was validated.")
+                failure.response_text_sha256 = hashlib.sha256(body.encode('utf-8')).hexdigest()
+                raise failure from None
+            result.update(status="ok", items=[row], source_mode="guest_product_page")
+            result['warnings'].append("Public product evidence only; selected variant, current inventory, full payable price and checkout remain unverified.")
+            return result
+        except _Failure as exc:
+            return _failure(result, exc)
     if marketplace == "blibli":
         url = _product_url(marketplace, item_id)
         if not url:

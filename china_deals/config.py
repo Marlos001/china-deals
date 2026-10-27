@@ -5,16 +5,15 @@ import json
 import os
 from pathlib import Path
 
-from .models import MARKETPLACES
+from .models import CURRENCIES, MARKETPLACES
 
 DEFAULT_CONFIG = {
     "schema_version": 1,
     "display_currency": "BRL",
     "marketplaces": {
-        "taobao": {"access": "guest", "shipping": "fansbuy", "currency": "CNY"},
-        "jd": {"access": "guest", "shipping": "fansbuy", "currency": "CNY"},
-        "goofish": {"access": "guest", "shipping": "fansbuy", "currency": "CNY"},
-        "blibli": {"access": "guest", "shipping": "excluded", "currency": "IDR"},
+        market: {"access": "guest", "shipping": "excluded" if market == "blibli" else "fansbuy",
+                 "currency": CURRENCIES[market]}
+        for market in MARKETPLACES
     },
 }
 

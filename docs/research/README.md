@@ -10,3 +10,5 @@ Source review and live checks: 2026-10-27. The user means **Blibli Indonesia** a
 - [Validation](../VALIDATION.md): actual checks, independent-review findings and current access limits.
 
 The Python core has zero runtime dependencies. Existing subscription agents handle query translation, product reasoning and presentation by invoking the CLI. An MCP wrapper is optional; neither protocol inherently requires paid AI APIs or guarantees lower token use.
+
+- [Fansbuy named marketplaces](fansbuy-marketplaces-2026-10-27.md): five explicitly named platforms, separate keyword/link/procurement claims and non-exhaustive cached evidence.

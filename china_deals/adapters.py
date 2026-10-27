@@ -19,6 +19,8 @@ import urllib.parse
 import urllib.request
 import uuid
 
+from .models import marketplace_name
+
 OPENCLI_VERSION = "2.0.2"
 MAX_OUTPUT_BYTES = 2 * 1024 * 1024
 _LIMITS = {"taobao": 40, "jd": 30, "goofish": 60, "blibli": 60}
@@ -48,9 +50,7 @@ def _result(marketplace, items=None, failure=None, warnings=()):
 
 
 def _marketplace(value):
-    if not isinstance(value, str) or value not in _LIMITS:
-        raise ValueError("marketplace must be taobao, jd, goofish, or blibli")
-    return value
+    return marketplace_name(value)
 
 
 def _text(value, name):
@@ -331,6 +331,10 @@ def search_marketplace(marketplace: str, query: str, limit: int = 10, timeout: f
         raise ValueError("limit must be an integer from 1 to 1000")
     if type(browser_fallback) is not bool:
         raise ValueError("browser_fallback must be a boolean")
+    if marketplace not in _LIMITS:
+        return _result(marketplace, failure=_Failure(
+            "unavailable", "native_adapter_unavailable",
+            "No validated OpenCLI native adapter for this marketplace; use guest discovery/detail or imported observations."))
     actual_limit = min(limit, _LIMITS[marketplace])
     warnings = [] if actual_limit == limit else [f"Requested limit capped at upstream maximum {actual_limit}."]
     deadline = time.monotonic() + timeout
@@ -370,6 +374,10 @@ def get_item(marketplace: str, item_id: str, timeout: float = 90, executable: st
     Taobao/JD items retain their raw field/value table, not one offer per field.
     """
     marketplace, item_id = _marketplace(marketplace), _text(item_id, "item_id")
+    if marketplace not in _LIMITS:
+        return _result(marketplace, failure=_Failure(
+            "unavailable", "native_adapter_unavailable",
+            "No validated OpenCLI native detail adapter for this marketplace; use guest detail or imported observations."))
     executable, timeout = _text(executable, "executable"), _timeout(timeout)
     if type(browser_fallback) is not bool:
         raise ValueError("browser_fallback must be a boolean")
