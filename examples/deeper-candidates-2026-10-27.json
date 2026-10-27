@@ -1,0 +1,556 @@
+{
+  "schema_version": "1",
+  "dataset_origin": "retained_source_observations",
+  "query": null,
+  "offers": [
+    {
+      "marketplace": "blibli",
+      "item_id": "HEO-70120-00970",
+      "url": "https://www.blibli.com/p/airpods-max-2024/ps--HEO-70120-00970",
+      "title": "Airpods Max 2024",
+      "description": "connector: USB-C; chip: H1; battery_hours_up_to: 20",
+      "seller": "Hello Flagship Store",
+      "variant": null,
+      "price": "8799000",
+      "currency": "IDR",
+      "source_mode": "indexed_product_block",
+      "condition": "unknown",
+      "availability": "unknown",
+      "observed_at": null,
+      "source_detail": {
+        "price_observation": {
+          "amount": "8799000",
+          "currency": "IDR",
+          "source_url": "https://www.blibli.com/p/airpods-max-2024/ps--HEO-70120-00970",
+          "crawl_age": "2 weeks ago",
+          "crawled_at": null,
+          "current_stock_verified": false,
+          "checkout_verified": false,
+          "quantity_claim": 1,
+          "condition": "unknown",
+          "native_access": "403",
+          "variant": null,
+          "comparison_amount": "8999000",
+          "coupon_eligibility": "unknown",
+          "retrieved_at": null,
+          "research_date": "2026-10-27",
+          "exact_retrieval_time_unknown": true
+        },
+        "research_report": "docs/validation/blibli-deeper.md"
+      },
+      "source_warnings": [
+        "Cached source claim only. Selected color, present stock, condition and checkout remain unverified. Blibli freight excluded."
+      ]
+    },
+    {
+      "marketplace": "blibli",
+      "item_id": "BLS-70244-00413",
+      "url": "https://www.blibli.com/p/airpods-max/ps--BLS-70244-00413",
+      "title": "AirPods Max",
+      "description": "warranty_years_claim: 1",
+      "seller": "Blibli Store Flagship Store",
+      "variant": null,
+      "price": "8799000",
+      "currency": "IDR",
+      "source_mode": "connector_product_open_cached",
+      "condition": "unknown",
+      "availability": "unknown",
+      "observed_at": null,
+      "source_detail": {
+        "price_observation": {
+          "amount": "8799000",
+          "currency": "IDR",
+          "source_url": "https://www.blibli.com/p/airpods-max/ps--BLS-70244-00413",
+          "crawl_age": "3 months ago",
+          "crawled_at": null,
+          "current_stock_verified": false,
+          "checkout_verified": false,
+          "quantity_claim": 1,
+          "condition": "unknown",
+          "native_access": "cached_content_returned",
+          "variant": null,
+          "comparison_amount": "9499000",
+          "coupon_eligibility": "unknown",
+          "retrieved_at": null,
+          "research_date": "2026-10-27",
+          "exact_retrieval_time_unknown": true
+        },
+        "research_report": "docs/validation/blibli-deeper.md"
+      },
+      "source_warnings": [
+        "Cached source claim only. Selected color, present stock, condition and checkout remain unverified. Blibli freight excluded."
+      ]
+    },
+    {
+      "marketplace": "blibli",
+      "item_id": "APF-70017-00964",
+      "url": "https://www.blibli.com/p/airpods-max-2/ps--APF-70017-00964",
+      "title": "Airpods Max 2",
+      "description": "chip: H2",
+      "seller": "Blibli - Apple Authorized Reseller Flagship Store",
+      "variant": null,
+      "price": "10499000",
+      "currency": "IDR",
+      "source_mode": "indexed_product_block",
+      "condition": "unknown",
+      "availability": "unknown",
+      "observed_at": null,
+      "source_detail": {
+        "price_observation": {
+          "amount": "10499000",
+          "currency": "IDR",
+          "source_url": "https://www.blibli.com/p/airpods-max-2/ps--APF-70017-00964",
+          "crawl_age": "2 weeks ago",
+          "crawled_at": null,
+          "current_stock_verified": false,
+          "checkout_verified": false,
+          "quantity_claim": 2,
+          "condition": "unknown",
+          "native_access": "not_attempted",
+          "variant": null,
+          "comparison_amount": null,
+          "coupon_eligibility": "unknown",
+          "retrieved_at": null,
+          "research_date": "2026-10-27",
+          "exact_retrieval_time_unknown": true
+        },
+        "research_report": "docs/validation/blibli-deeper.md"
+      },
+      "source_warnings": [
+        "Cached source claim only. Selected color, present stock, condition and checkout remain unverified. Blibli freight excluded."
+      ]
+    },
+    {
+      "marketplace": "blibli",
+      "item_id": "ITG-70010-02072-00002",
+      "url": "https://www.blibli.com/p/asus-rog-zephyrus-g16-gu605cp-i957ol1g-hm-intel-core-ultra-9-285h-rtx5070-8gb-ram-32gb-ssd-1tb-16-inch-2-5k-oled-240hz-windows-11-home/is--ITG-70010-02072-00002?pickupPointCode=PP-3557967",
+      "title": "ASUS ROG Zephyrus G16 GU605CP-I957OL1G-HM +ANTIVIRUS",
+      "description": "cpu: Intel Core Ultra 9-285H; gpu: RTX 5070; vram_gb: 8; ram_gb: 32; ssd_tb: 1; display_inches: 16; resolution: 2560x1600; technology: OLED; refresh_hz: 240",
+      "seller": "IT Galeri Flagship Store",
+      "variant": "+ANTIVIRUS",
+      "price": "60249000",
+      "currency": "IDR",
+      "source_mode": "indexed_product_block",
+      "condition": "unknown",
+      "availability": "unknown",
+      "observed_at": null,
+      "source_detail": {
+        "price_observation": {
+          "amount": "60249000",
+          "currency": "IDR",
+          "source_url": "https://www.blibli.com/p/asus-rog-zephyrus-g16-gu605cp-i957ol1g-hm-intel-core-ultra-9-285h-rtx5070-8gb-ram-32gb-ssd-1tb-16-inch-2-5k-oled-240hz-windows-11-home/is--ITG-70010-02072-00002?pickupPointCode=PP-3557967",
+          "crawl_age": "last week",
+          "crawled_at": null,
+          "current_stock_verified": false,
+          "checkout_verified": false,
+          "quantity_claim": 1,
+          "condition": "unknown",
+          "native_access": "403",
+          "variant": "+ANTIVIRUS",
+          "comparison_amount": null,
+          "coupon_eligibility": "unknown",
+          "retrieved_at": null,
+          "research_date": "2026-10-27",
+          "exact_retrieval_time_unknown": true
+        },
+        "research_report": "docs/validation/blibli-deeper.md"
+      },
+      "source_warnings": [
+        "Cached source claim only. Selected color, present stock, condition and checkout remain unverified. Blibli freight excluded."
+      ]
+    },
+    {
+      "marketplace": "taobao",
+      "item_id": "982744194230",
+      "title": "【17PM】Apple/苹果 iPhone 17 Pro Max 新款全网通5G手机",
+      "url": "https://item.taobao.com/item.htm?id=982744194230",
+      "url_basis": "source_url",
+      "identity_evidence": [
+        {
+          "field": "item_id",
+          "kind": "id",
+          "value": "982744194230"
+        },
+        {
+          "field": "url",
+          "kind": "url",
+          "value": "https://item.taobao.com/item.htm?id=982744194230"
+        }
+      ],
+      "offers": null,
+      "price": {
+        "amount": null,
+        "currency": "CNY",
+        "raw": "6138",
+        "basis": "catalog_quote_unverified",
+        "source_currency": "CNY",
+        "currency_basis": "explicit_source_field"
+      },
+      "seller": null,
+      "description": "",
+      "source_mode": "proxy_catalog",
+      "hardware": null,
+      "candidate_id": null,
+      "source_detail": {
+        "catalog_observation": {
+          "provider": "jadeship",
+          "marketplace": "taobao",
+          "item_id": "982744194230",
+          "title": "【17PM】Apple/苹果 iPhone 17 Pro Max 新款全网通5G手机",
+          "source_url": "https://www.jadeship.com/item/taobao/982744194230",
+          "native_url": "https://item.taobao.com/item.htm?id=982744194230",
+          "amount": "6138",
+          "currency": "CNY",
+          "observed_at": "2026-10-27T16:33:29.189863+00:00",
+          "price_basis": "third_party_catalog_display",
+          "underlying_fetched_at": null,
+          "variant": null,
+          "condition": "unknown",
+          "availability": "unknown",
+          "coupon_eligibility": "unknown",
+          "evidence": [
+            {
+              "price": 6138,
+              "id": "982744194230",
+              "marketplace": "taobao",
+              "thumbnailUrl": "https://img.alicdn.com/imgextra/i4/15785155/O1CN01yKM9hX1nx2oXIMiQu_!!15785155.jpg",
+              "timeFetched": null,
+              "title": "【17PM】Apple/苹果 iPhone 17 Pro Max 新款全网通5G手机",
+              "shipping": {
+                "volume": {
+                  "height": null,
+                  "width": null,
+                  "length": null
+                },
+                "domesticFreight": null,
+                "weight": null
+              },
+              "imgUrls": "$undefined",
+              "props": "$undefined",
+              "description": "$undefined",
+              "descriptionImgUrls": "$undefined",
+              "sales": "$undefined",
+              "qnaPairs": "$undefined"
+            },
+            {
+              "marketplace": "taobao",
+              "id": "982744194230",
+              "title": "【17PM】Apple/苹果 iPhone 17 Pro Max 新款全网通5G手机",
+              "price": 6138,
+              "imageSrc": "https://img.alicdn.com/imgextra/i4/15785155/O1CN01yKM9hX1nx2oXIMiQu_!!15785155.jpg"
+            }
+          ],
+          "warnings": [
+            "Catalog display only; underlying freshness, exact variant, stock and authenticity are unknown.",
+            "The catalog is a third-party aggregator, not a Taobao offer or verified checkout quote.",
+            "No coupon, account entitlement or Fansbuy purchasing acceptance was established."
+          ],
+          "brl_reference": {
+            "amount": "4922.75",
+            "rate_date": "2026-10-27",
+            "source": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml",
+            "scope": "Third-party catalog product amount only; no variant/stock validation, freight or tax."
+          }
+        }
+      },
+      "index_source_url": null,
+      "discovered_at": null,
+      "location": null,
+      "domestic_free_shipping": null,
+      "variant": null,
+      "condition": "unknown",
+      "availability": "unknown",
+      "seller_trust": "unverified",
+      "observed_at": "2026-10-27T16:33:29.189863+00:00",
+      "signals": [],
+      "warnings": [
+        "Displayed price; stock, exact variant, seller claims and checkout total are unverified.",
+        "Upstream price is a page minimum or other non-comparable amount; excluded from ranking.",
+        "No unambiguous positive single price; excluded from price ranking."
+      ],
+      "source_warnings": [],
+      "brl": {
+        "product_cost": null,
+        "rate_date": "2026-10-27",
+        "source": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml",
+        "shipping_policy": "fansbuy",
+        "landed_total": null,
+        "scope": "product_only; Fansbuy freight/tax require a parcel and eligible import procedure"
+      }
+    },
+    {
+      "marketplace": "goofish",
+      "item_id": "1096499480089",
+      "title": "17promax 国行双卡 1TB 橙色_闲鱼",
+      "url": "https://www.goofish.com/item?id=1096499480089",
+      "url_basis": "source_url",
+      "identity_evidence": [
+        {
+          "field": "item_id",
+          "kind": "id",
+          "value": "1096499480089"
+        },
+        {
+          "field": "url",
+          "kind": "url",
+          "value": "https://www.goofish.com/item?id=1096499480089"
+        }
+      ],
+      "offers": null,
+      "price": {
+        "amount": "7999",
+        "currency": "CNY",
+        "raw": "7999",
+        "basis": "displayed",
+        "source_currency": "CNY",
+        "currency_basis": "explicit_source_field"
+      },
+      "seller": null,
+      "description": "Seller claims orange mainland-China 1TB, 91% battery, cosmetic wear and pickup only in Qingdao Chengyang.",
+      "source_mode": "guest_product_page",
+      "hardware": null,
+      "candidate_id": null,
+      "source_detail": {
+        "requested_url": "https://www.goofish.com/item?id=1096499480089",
+        "attributes": {
+          "品牌": "Apple/苹果",
+          "型号": "iPhone 17 Pro Max",
+          "存储容量": "1TB",
+          "版本": "大陆国行",
+          "成色": "少量磕碰划痕",
+          "拆修和功能": "无任何维修"
+        },
+        "attribute_rows": [
+          {
+            "label": "品牌",
+            "value": "Apple/苹果",
+            "raw": "品 牌 ： Apple/苹果"
+          },
+          {
+            "label": "型号",
+            "value": "iPhone 17 Pro Max",
+            "raw": "型 号 ： iPhone 17 Pro Max"
+          },
+          {
+            "label": "存储容量",
+            "value": "1TB",
+            "raw": "存 储 容 量 ： 1TB"
+          },
+          {
+            "label": "版本",
+            "value": "大陆国行",
+            "raw": "版 本 ： 大陆国行"
+          },
+          {
+            "label": "成色",
+            "value": "少量磕碰划痕",
+            "raw": "成 色 ： 少量磕碰划痕"
+          },
+          {
+            "label": "拆修和功能",
+            "value": "无任何维修",
+            "raw": "拆 修 和 功 能 ： 无任何维修"
+          }
+        ],
+        "price_text": "7999",
+        "price_texts": [
+          "7999"
+        ],
+        "shipping_badges": [
+          "包邮"
+        ],
+        "purchase_controls": [
+          "立即购买"
+        ],
+        "cardinalities": {
+          "main": 1,
+          "info": 1,
+          "price": 1,
+          "description": 1,
+          "labels": 1
+        },
+        "configuration_binding": "single_listing_consistent",
+        "selected_sku_id": null,
+        "availability_evidence": "public_listing_with_purchase_control",
+        "stock_quantity": null,
+        "checkout_verified": false,
+        "pickup_only": true,
+        "wholesale_qualifier": false,
+        "repair_claim": "无任何维修",
+        "condition_claim": "少量磕碰划痕",
+        "capacity_evidence": [
+          "1T"
+        ],
+        "model_evidence": [
+          "17promax"
+        ],
+        "variant_basis": "literal_listing_attributes; selected SKU remains unknown",
+        "retained_capture_sha256": "71e50d195c2c64089a73905c27991de1219f682fc427bcd9280b39bb32cb8f4e"
+      },
+      "index_source_url": null,
+      "discovered_at": null,
+      "location": null,
+      "domestic_free_shipping": null,
+      "variant": "iPhone 17 Pro Max; 1TB; 大陆国行",
+      "condition": "used",
+      "availability": "source_claimed_available",
+      "seller_trust": "unverified",
+      "observed_at": "2026-10-27T16:46:50.751Z",
+      "signals": [
+        "secondhand_marketplace_condition_needs_review"
+      ],
+      "warnings": [
+        "Displayed price; stock, exact variant, seller claims and checkout total are unverified."
+      ],
+      "source_warnings": [
+        "Public listing claims only; selected SKU, stock quantity and checkout are unverified.",
+        "Fulfillment destination, shipping charges and eligibility remain unresolved.",
+        "Used-device imports require condition and import-rule review; no legal clearance is established.",
+        "Seller restricts fulfillment to pickup; generic shipping badges do not establish shipping.",
+        "Pickup-only description conflicts with the generic free-shipping badge."
+      ],
+      "brl": {
+        "product_cost": "6415.30",
+        "rate_date": "2026-10-27",
+        "source": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml",
+        "shipping_policy": "fansbuy",
+        "landed_total": null,
+        "scope": "product_only; Fansbuy freight/tax require a parcel and eligible import procedure"
+      }
+    },
+    {
+      "marketplace": "goofish",
+      "item_id": "1092800987315",
+      "title": "苹果17ProMax、1TB国行_闲鱼",
+      "url": "https://www.goofish.com/item?id=1092800987315&categoryId=0",
+      "url_basis": "source_url",
+      "identity_evidence": [
+        {
+          "field": "item_id",
+          "kind": "id",
+          "value": "1092800987315"
+        },
+        {
+          "field": "url",
+          "kind": "url",
+          "value": "https://www.goofish.com/item?id=1092800987315&categoryId=0"
+        }
+      ],
+      "offers": null,
+      "price": {
+        "amount": "7499",
+        "currency": "CNY",
+        "raw": "7499",
+        "basis": "displayed",
+        "source_currency": "CNY",
+        "currency_basis": "explicit_source_field"
+      },
+      "seller": null,
+      "description": "Seller claims silver mainland-China 1TB, 90% battery, replaced outer screen and a wholesale-price qualifier.",
+      "source_mode": "guest_product_page",
+      "hardware": null,
+      "candidate_id": null,
+      "source_detail": {
+        "requested_url": "https://www.goofish.com/item?id=1092800987315",
+        "attributes": {
+          "品牌": "Apple/苹果",
+          "型号": "iPhone 17 Pro Max",
+          "存储容量": "1TB",
+          "版本": "大陆国行",
+          "成色": "少量磕碰划痕",
+          "拆修和功能": "屏幕有维修"
+        },
+        "attribute_rows": [
+          {
+            "label": "品牌",
+            "value": "Apple/苹果",
+            "raw": "品 牌 ： Apple/苹果"
+          },
+          {
+            "label": "型号",
+            "value": "iPhone 17 Pro Max",
+            "raw": "型 号 ： iPhone 17 Pro Max"
+          },
+          {
+            "label": "存储容量",
+            "value": "1TB",
+            "raw": "存 储 容 量 ： 1TB"
+          },
+          {
+            "label": "版本",
+            "value": "大陆国行",
+            "raw": "版 本 ： 大陆国行"
+          },
+          {
+            "label": "成色",
+            "value": "少量磕碰划痕",
+            "raw": "成 色 ： 少量磕碰划痕"
+          },
+          {
+            "label": "拆修和功能",
+            "value": "屏幕有维修",
+            "raw": "拆 修 和 功 能 ： 屏幕有维修"
+          }
+        ],
+        "price_text": "7499",
+        "price_texts": [
+          "7499"
+        ],
+        "shipping_badges": [
+          "可自提"
+        ],
+        "purchase_controls": [
+          "立即购买"
+        ],
+        "cardinalities": {
+          "main": 1,
+          "info": 1,
+          "price": 1,
+          "description": 1,
+          "labels": 1
+        },
+        "configuration_binding": "single_listing_consistent",
+        "selected_sku_id": null,
+        "availability_evidence": "public_listing_with_purchase_control",
+        "stock_quantity": null,
+        "checkout_verified": false,
+        "pickup_only": false,
+        "wholesale_qualifier": true,
+        "repair_claim": "屏幕有维修",
+        "condition_claim": "少量磕碰划痕",
+        "capacity_evidence": [
+          "1T"
+        ],
+        "model_evidence": [
+          "17promax"
+        ],
+        "variant_basis": "literal_listing_attributes; selected SKU remains unknown",
+        "retained_capture_sha256": "fda8ed8fadcb5fca8583ec7e17349e691c5f6d779ea23f573dba878b141bd0f0"
+      },
+      "index_source_url": null,
+      "discovered_at": null,
+      "location": null,
+      "domestic_free_shipping": null,
+      "variant": "iPhone 17 Pro Max; 1TB; 大陆国行",
+      "condition": "used",
+      "availability": "source_claimed_available",
+      "seller_trust": "unverified",
+      "observed_at": "2026-10-27T16:29:42.755Z",
+      "signals": [
+        "secondhand_marketplace_condition_needs_review"
+      ],
+      "warnings": [
+        "Displayed price; stock, exact variant, seller claims and checkout total are unverified."
+      ],
+      "source_warnings": [
+        "Public listing claims only; selected SKU, stock quantity and checkout are unverified.",
+        "Fulfillment destination, shipping charges and eligibility remain unresolved.",
+        "Used-device imports require condition and import-rule review; no legal clearance is established.",
+        "Wholesale price qualifier retained; minimum quantity and eligibility are unknown."
+      ]
+    }
+  ],
+  "warnings": [
+    "Mixed source observations, not verified current deals. See source modes and underlying crawl ages. No extra coupons deducted."
+  ]
+}

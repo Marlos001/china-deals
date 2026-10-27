@@ -1,4 +1,4 @@
-# Using china-deals 0.4 from a subscription-backed agent
+# Using china-deals 0.5 from a subscription-backed agent
 
 Run `china-deals schema` and `china-deals config show` first. **Guest access is the default; no marketplace account or AI API credentials are required.** Your existing subscription agent handles translation, product reasoning and presentation. The CLI makes no LLM calls. `doctor` checks the optional OpenCLI backend, so a missing native session is not a guest prerequisite failure.
 
@@ -29,6 +29,14 @@ Search/rank attach `intent_query` and title/selected-variant relevance for iPhon
 One command shares a host-level challenge gate. Inspect `access.attempts` for the actual challenged URL, `network_attempted` and `gate_origin`; `skipped_after_challenge` means no request was sent. An index challenge is not evidence about native marketplace login requirements. Hydration receipts preserve product-detail failures and original index provenance. Opaque JD product URLs remain discovery-only with no guessed numeric SKU or price. Blibli JSON-LD out-of-stock/sold/discontinued claims suppress prices; InStock is only a source claim.
 
 See [three-product validation](validation/README.md) for the bounded live results and offline regression coverage.
+
+## Public catalogs and retained browser observations
+
+`catalog taobao ID_OR_URL` reads the optional public Jadeship catalog. `catalog_observations` retains an item-bound source amount and separate dated BRL reference, with missing variant/stock/underlying timestamp explicit. Normal marketplace price remains null; do not turn that catalog amount into a Taobao offer, coupon base or confirmed landed total.
+
+Cached exact-product, category and proxy observations remain outside fresh-offer rankings. When supplied under `source_detail.price_observation`, their amount/currency/crawl age can be shown with `brl.source_observation_cost`; the separate normal `brl.product_cost` stays null. Preserve every conflicting observation independently. See the [portable example](../examples/deeper-candidates-2026-10-27.json) and [deeper results](validation/deeper-results.md).
+
+A Goofish browser capture can be imported with `detail goofish ID --from-browser-json FILE`. Capture JSON contains `url`, `title`, `capturedAt`, `mainHtml` from exactly one bounded primary item container, optionally wrapped in T3 `structuredContent.value`. It does not contain a full page of recommendations or credentials. The parser binds the requested/final numeric ID, preserves attrs/prose separately, rejects ranges and unresolved model/storage conflicts, and retains repair/pickup/wholesale qualifiers. Importing makes no network request and does not independently authenticate the file or refresh its observation time. Supply a local --fx-from-json snapshot for BRL; otherwise capture imports keep native amounts without fetching FX. The current Goofish price binder covers phone-style model/storage evidence, not every product family. Read the returned warnings before ranking a used or pickup-only unit.
 
 ## Use filters without overstating native support
 
@@ -95,7 +103,7 @@ china-deals detail jd 100214660452 --guest-engine browser \
 
 Both search and detail accept `--guest-engine http|browser`. Chromium defaults to `/usr/bin/chromium`; alternatively run `python -m playwright install chromium` and pass the downloaded executable's absolute path. See the [README browser setup](../README.md#optional-fresh-guest-browser). Browser mode uses a fresh ephemeral context, no saved cookies/profile, closes its session and stops at challenges without retry/bypass. It does not establish unblocked access.
 
-Browser search is indexed discovery. JD/Blibli detail can attempt their bound product schemas; Taobao/Goofish currently have no verified primary-item DOM contract and yield unavailable/blocked rather than a fabricated quote. See the [browser backend report](research/browser-guest.md), including its challenge-stopped live smoke check.
+Browser search is indexed discovery. JD/Blibli detail can attempt their bound product schemas. Goofish can attempt bounded primary DOM and phone-style model/storage reconciliation; actual T3 capture plus offline CLI ingestion succeeded, while live CLI browser transport remains unverified. Taobao has no validated primary-item detail contract. See the [browser backend report](research/browser-guest.md), including its challenge-stopped live smoke check.
 
 Use existing OpenCLI only when the user chooses session reuse: `--access native` explicitly, or a deliberate per-market `access: native` preference. Native mode may need OpenCLI 2.0.2, Node.js, Browser Bridge and a user-controlled login. Those are optional, not guest setup requirements. See [native setup](../README.md#optional-opencli-native-sessions); `--opencli PATH` selects a trusted executable. Blibli's `--access native --browser-fallback` permits existing-session reuse and differs from the fresh guest engine; successful live product extraction remains unverified. Do not silently switch guest research into native session use.
 

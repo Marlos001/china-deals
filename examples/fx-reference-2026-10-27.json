@@ -1,0 +1,15 @@
+{
+  "source": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml",
+  "rate_date": "2026-10-27",
+  "base": "BRL",
+  "brl_per_unit": {
+    "CNY": "0.802012294365",
+    "IDR": "0.000294810166",
+    "USD": "5.347443946188"
+  },
+  "warnings": [
+    "ECB reference rates are estimates, not Fansbuy payment rates, card rates or customs PTAX.",
+    "Rates exclude conversion spread, payment fees and any IOF; compare provider charges separately."
+  ],
+  "retrieved_at": "2026-10-27T16:33:29.916065+00:00"
+}

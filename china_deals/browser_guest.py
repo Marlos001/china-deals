@@ -272,8 +272,8 @@ def search_browser_guest(marketplace, query, limit=10, timeout=30, filters=None,
 def get_browser_guest_item(marketplace, url_or_id, timeout=30, executable_path=None) -> dict:
     """Read an exact public product; unsupported schemas remain unavailable.
 
-    JD and Blibli reuse the existing identity-bound JSON contracts. Goofish and
-    Taobao do not yet have a verified primary-item rendered DOM contract.
+    JD and Blibli reuse identity-bound JSON contracts. Goofish uses bounded
+    primary-item DOM; Taobao still has no validated detail contract.
     """
     marketplace = marketplace_name(marketplace)
     value = adapters._text(url_or_id, "url_or_id")
@@ -295,13 +295,24 @@ def get_browser_guest_item(marketplace, url_or_id, timeout=30, executable_path=N
             try:
                 if guest._product_url(marketplace, page.url) != url:
                     raise _Failure("unavailable", "item_url_mismatch", "Rendered URL does not match the requested item.")
-                parser = guest._html(page.content())
-                if marketplace == "jd":
-                    rows = guest._jd_detail(parser, guest._item_id(marketplace, url), url)
-                elif marketplace == "blibli":
-                    rows = guest._blibli_detail(parser, url)
+                if marketplace == "goofish":
+                    from .goofish_public import CAPTURE_JS, parse_capture
+                    page.wait_for_function(
+                        "() => document.querySelector('[class^=\"item-main-container--\"] [class^=\"notLoginContainer--\"] [class^=\"main--\"]') || /宝贝被删掉|已下架|商品不存在|非法访问|安全验证|请登录后/.test(document.body.innerText)",
+                        timeout=_milliseconds(deadline))
+                    _check_page(page)
+                    try:
+                        rows = [parse_capture(page.evaluate(CAPTURE_JS), url)]
+                    except ValueError:
+                        raise _Failure("unavailable", "item_schema_unverified", "No complete identity-bound Goofish primary item DOM was validated.") from None
                 else:
-                    raise _Failure("unavailable", "item_schema_unverified", "No verified primary-item DOM contract; description, price and availability remain unknown.")
+                    parser = guest._html(page.content())
+                    if marketplace == "jd":
+                        rows = guest._jd_detail(parser, guest._item_id(marketplace, url), url)
+                    elif marketplace == "blibli":
+                        rows = guest._blibli_detail(parser, url)
+                    else:
+                        raise _Failure("unavailable", "item_schema_unverified", "No verified primary-item DOM contract; description, price and availability remain unknown.")
                 result.update(status="ok", items=rows)
                 result["warnings"].append("Public source claims only; availability, selected variant and checkout price remain unverified.")
             finally:

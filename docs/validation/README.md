@@ -2,6 +2,10 @@
 
 Three GPT-6 Astra validation agents independently exercised **iPhone 17 Pro Max**, **AirPods Max**, and **ASUS ROG Zephyrus across model families**. They used guest CLI searches, bounded source discovery, and T3 browser inspection where an exact link was available. Reports distinguish the published 0.3.0 baseline, evolving code, synthetic reproductions, and live evidence.
 
+## Follow-up: stronger results
+
+The subsequent [deeper verification pass](deeper-results.md) recovered two freshly readable, consistent Goofish 1 TB phone listings, four cached Blibli product candidates and an account-free public Taobao proxy-catalog quote. Version 0.5 adds bounded Goofish primary capture parsing/import, a Jadeship catalog command and visible-but-unranked cached observations. This supersedes the initial pass's zero-candidate outcome; it does not turn source claims into checkout verification. The original reports below retain their historical scope.
+
 ## What the live searches established
 
 - [iPhone 17 Pro Max](iphone-17-pro-max.md): the all-market CLI search returned zero offers after index/API verification responses. Four product links were opened in the browser: a deleted Goofish item, JD login, a Blibli case behind verification, and a readable Goofish listing with contradictory storage/variant prices. **¥6,999 is not a verified 1 TB payable price.**

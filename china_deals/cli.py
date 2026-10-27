@@ -156,6 +156,14 @@ def build_parser():
     presentation(detail)
     detail.add_argument("--access", choices=("guest", "native"))
     detail.add_argument("--browser-fallback", action="store_true", help="Required for Blibli detail; reads product JSON-LD from a native URL")
+    detail.add_argument("--from-browser-json", help="Import a retained Goofish primary-DOM browser capture; no network request")
+    catalog = command("catalog", "Read a public third-party catalog quote; never a verified marketplace price")
+    catalog.add_argument("marketplace", type=marketplace_name)
+    catalog.add_argument("item_id", help="Taobao numeric ID or exact native product URL; Jadeship currently supports Taobao only")
+    catalog.add_argument("--timeout", type=positive_timeout, default=30)
+    preferences(catalog)
+    catalog.add_argument("--currency", choices=("BRL", "native"))
+    catalog.add_argument("--fx-from-json")
     rank = command("rank", "Rank an existing JSON search result or raw marketplace offer array")
     rank.add_argument("input", help="JSON file or - for stdin")
     rank.add_argument("--query", help="Product intent for relevance checks; defaults to the imported search query")
@@ -216,7 +224,7 @@ def build_parser():
 def schema():
     return {
         "schema_version": "1", "version": __version__, "marketplaces": list(MARKETPLACES),
-        "commands": ["search", "detail", "rank", "compare", "coupons", "plan", "filters", "config", "fx", "shipping", "estimate", "restrictions", "doctor", "schema"],
+        "commands": ["search", "detail", "catalog", "rank", "compare", "coupons", "plan", "filters", "config", "fx", "shipping", "estimate", "restrictions", "doctor", "schema"],
         "default_access": "guest",
         "query_planning": "Offline bounded suggestions; no AI API or automatic search",
         "relevance": "Title and selected variant checks for iPhone 17 Pro Max, AirPods Max and ROG Zephyrus; unverified facts remain unknown",
@@ -238,7 +246,7 @@ def schema():
                          "availability", "seller_trust", "observed_at", "signals", "warnings", "source_warnings", "source_mode", "source_detail", "identity_evidence", "relevance", "ranking_exclusions", "brl"],
         "price": {"amount": "positive decimal string or null", "currency": "CNY or IDR",
                   "raw": "original displayed value", "basis": "displayed"},
-        "source_statuses": ["ok", "discovery_only", "empty_unverified", "blocked", "auth_required", "unavailable", "error"],
+        "source_statuses": ["ok", "catalog_only", "discovery_only", "empty_unverified", "blocked", "auth_required", "unavailable", "error"],
         "exit_codes": {"0": "command completed; inspect warnings", "2": "invalid input or command error",
                        "3": "one or more marketplace sources unavailable, blocked, or empty without verified coverage"},
         "no_ai_api_required": True,
@@ -374,13 +382,46 @@ def _run(args):
         from .fx import fetch_rates
         return fetch_rates(args.timeout), 0
     config = load_config(getattr(args, "config", None))
+    if args.command == "catalog":
+        from .catalogs import get_catalog_item
+        result = get_catalog_item(args.marketplace, args.item_id, args.timeout)
+        snapshot = decorate_brl(result, args, config)
+        if snapshot:
+            from .fx import convert_brl
+            for observation in result["catalog_observations"]:
+                observation["brl_reference"] = {
+                    "amount": convert_brl(observation["amount"], observation["currency"], snapshot),
+                    "rate_date": snapshot["rate_date"], "source": snapshot.get("source"),
+                    "scope": "Third-party catalog product amount only; no variant/stock validation, freight or tax.",
+                }
+        return result, 0 if result["status"] == "catalog_only" else 3
     if args.command in ("search", "detail", "doctor"):
         from . import adapters
         if args.command == "doctor":
             return adapters.doctor(args.opencli, live=args.live), 0
         if args.command == "detail":
             access = args.access or config["marketplaces"][args.marketplace]["access"]
-            if access == "guest":
+            if args.from_browser_json:
+                if args.marketplace != "goofish":
+                    raise ValueError("--from-browser-json currently supports Goofish primary-DOM captures only")
+                from .goofish_public import parse_capture
+                from .guest import _product_url
+                requested_url = ("https://www.goofish.com/item?id=" + args.item_id
+                                 if re.fullmatch(r"[0-9]+", args.item_id) else _product_url("goofish", args.item_id))
+                if not requested_url:
+                    raise ValueError("A numeric Goofish ID or exact product URL is required")
+                capture = read_json(args.from_browser_json)
+                if isinstance(capture, dict) and isinstance(capture.get("structuredContent"), dict):
+                    capture = capture["structuredContent"].get("value")
+                elif isinstance(capture, dict) and isinstance(capture.get("value"), dict):
+                    capture = capture["value"]
+                row = parse_capture(capture, requested_url)
+                result = {"marketplace": "goofish", "status": "ok", "items": [row],
+                          "dataset_origin": "caller_supplied_browser_capture", "source_mode": "guest_product_page",
+                          "warnings": ["Imported DOM and capture time are caller-supplied; authenticity, freshness, stock and checkout are not independently verified."],
+                          "access": {"mode": "browser_capture_import", "authenticated": False, "attempts": []}}
+                access = "capture"
+            elif access == "guest":
                 getter, options = guest_functions(args)
                 result = getter(args.marketplace, args.item_id, timeout=args.timeout, **options)
             else:
@@ -397,13 +438,17 @@ def _run(args):
             result["items"] = []
             for row in rows:
                 try:
-                    result["items"].append(normalize_offer(args.marketplace, row, utc_now()))
+                    result["items"].append(normalize_offer(args.marketplace, row, row.get("observed_at") or utc_now()))
                 except ValueError:
                     result.setdefault("warnings", []).append("Unusable detail row omitted; source fields remain unverified.")
                     result["status"] = "error"
             result["schema_version"] = "1"
             result["access_mode"] = access
-            decorate_brl(result, args, config)
+            if args.from_browser_json and not args.fx_from_json:
+                if (args.currency or config["display_currency"]) != "native":
+                    result["warnings"].append("Capture import stays offline: native prices retained. Supply --fx-from-json for BRL references.")
+            else:
+                decorate_brl(result, args, config)
             return result, 0 if result.get("status") == "ok" else 3
         args.query = args.query.strip()
         if (not args.query or len(args.query) > 500 or args.query.startswith("-")
@@ -600,8 +645,22 @@ def markdown(result):
                           "not_a_validated_product_route": "link does not identify a validated product"}
                 reasons = [labels.get(reason, reason.replace("_", " ")) for reason in row.get("ranking_exclusions", [])] or ["price or product evidence unverified"]
                 lines.append("- " + _md_cell(row["title"]) + ": " + _md_cell(", ".join(reasons)) + " — " + _md_cell(row.get("url")))
+                detail = row.get("source_detail")
+                observation = (detail.get("price_observation") or detail.get("catalog_observation")) if isinstance(detail, dict) else None
+                if isinstance(observation, dict):
+                    lines.append("  Source observation: " + _md_cell(observation.get("amount", "unknown")) + " " + _md_cell(observation.get("currency", "")) +
+                                 "; BRL reference " + _md_cell(row.get("brl", {}).get("source_observation_cost", "unknown")) +
+                                 "; crawl age " + _md_cell(observation.get("crawl_age", "unknown")) + ". Current price/variant/stock unverified.")
         for source in result.get("sources", []):
             lines.append(f"{source.get('marketplace', 'unknown')}: {source.get('status', 'error')}")
+    elif "catalog_observations" in result:
+        lines.append("Third-party catalog observations; variant, stock and underlying freshness remain unknown.")
+        for observation in result["catalog_observations"]:
+            reference = observation.get("brl_reference", {})
+            lines.append("- " + _md_cell(observation["title"]) + ": " + _md_cell(observation["amount"]) + " " + _md_cell(observation["currency"]) +
+                         "; BRL reference " + _md_cell(reference.get("amount", "unknown")) + " (" + _md_cell(reference.get("rate_date", "no FX date")) + ")")
+            lines.append("  Catalog: " + _md_cell(observation["source_url"]) + "; marketplace link: " + _md_cell(observation["native_url"]))
+        lines.append("Status: " + _md_cell(result.get("status")))
     elif "quotes" in result:
         lines.extend(["Fansbuy → Brazil base freight estimates, before import tax.\n",
                       "| Route | CNY | Advertised days |", "|---|---:|---|"])

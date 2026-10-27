@@ -2,6 +2,14 @@
 
 Checked 2026-10-27 in `/home/marlos/projects/china-deals`.
 
+## Version 0.5 deeper validation
+
+- **266 local tests pass**. A fresh T3 Goofish capture and actual offline CLI ingestion retained a consistent 1 TB price, timestamp, used condition and pickup-only conflict. Four retained pages replay as ¥7,999/¥7,499 and two unpriced ambiguous controls. New browser integration is fixture-tested; live CLI Playwright transport remains unverified.
+- The new `catalog taobao` command succeeded over plain HTTP against one public Jadeship item: ¥6,138, separately converted to R$4,922.75 using fresh ECB 2026-10-27 rates. Underlying freshness, variant, condition and stock remain unknown, and the normalized marketplace price stays null.
+- Four useful Blibli cached product observations are retained with source-specific crawl ages, descriptions, stock claims and no extra coupon. Their amounts can show separate BRL references while remaining excluded from current-price rankings. Blibli freight remains excluded.
+- Independent Astra review found and drove fixes for explicit catalog currency conflicts, dropped/overflowed/whitespace-formatted conflicting item props and an implicit FX network call during capture import. Its follow-up verified the objections resolved with 30 focused tests and retained-capture replays. Default capture import is offline; local FX is optional.
+- No purchase, cart, account, message, coupon redemption, challenge operation, payment, shipment or declaration was made. New source-linked evidence and limits: [deeper results](validation/deeper-results.md).
+
 ## Version 0.4 product validation update
 
 - Three GPT-6 Astra validation agents tested iPhone 17 Pro Max, AirPods Max and broad Zephyrus searches. All bounded live CLI searches met index/API verification; the browser found no verified purchasable exact-variant winner. See the [validation summary](validation/README.md) and its source-specific reports.

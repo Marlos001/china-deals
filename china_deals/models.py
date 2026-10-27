@@ -230,6 +230,8 @@ def normalize_offer(marketplace, row, observed_at=None):
     price_basis = row.get("price_basis", price_envelope.get("basis", "displayed"))
     if source_mode == "search_index":
         price_basis = "search_index_unverified"
+    elif source_mode in {"proxy_catalog", "indexed_product_block", "connector_product_open_cached", "category_card"}:
+        price_basis = "source_observation_unverified"
     if price_basis != "displayed":
         amount = None
     availability = row.get("availability", "unknown")

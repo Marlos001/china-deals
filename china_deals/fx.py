@@ -80,4 +80,13 @@ def annotate_offers(offers, snapshot, config):
             "landed_total": None,
             "scope": "product_only; shipping and tax not added" if item["marketplace"] == "blibli" else "product_only; Fansbuy freight/tax require a parcel and eligible import procedure",
         }
+        detail = item.get("source_detail")
+        observation = (detail.get("price_observation") or detail.get("catalog_observation")) if isinstance(detail, dict) else None
+        if isinstance(observation, dict) and observation.get("currency") == price.get("currency"):
+            try:
+                quoted = decimal_value(observation.get("amount"), "observed amount", positive=True)
+                item["brl"]["source_observation_cost"] = convert_brl(quoted, price["currency"], snapshot)
+                item["brl"]["source_observation_scope"] = "Unverified source observation only; variant, current stock, freight and taxes unresolved."
+            except ValueError:
+                pass
     return offers

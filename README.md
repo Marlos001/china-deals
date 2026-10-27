@@ -1,6 +1,6 @@
 # china-deals
 
-A read-only **0.4 CLI** for researching products on **Taobao, JD.com, Goofish/Xianyu and Blibli**, comparing observed configurations and prices, and estimating **Fansbuy → Brazil** freight and landed costs.
+A read-only **0.5 CLI** for researching products on **Taobao, JD.com, Goofish/Xianyu and Blibli**, comparing observed configurations and prices, and estimating **Fansbuy → Brazil** freight and landed costs.
 
 **Guest access is the default. No marketplace account or AI API credentials are required.** Your subscription-backed Codex, Claude Code, Gemini/AGY or other terminal-capable agent supplies translation, analysis and presentation. The CLI makes no LLM calls. Existing OpenCLI sessions are an explicit, optional native mode.
 
@@ -68,6 +68,20 @@ For these recognized families, ranking checks title and selected variant indepen
 Verification/login/HTTP 401/403/429 responses gate further requests to the same host during one command. `access.attempts` names the actual index or marketplace host and records `skipped_after_challenge`, `network_attempted: false` and the origin. Independent hosts can still be read; a new invocation has a fresh scope. A blocked index does not prove the marketplace itself requires login. Opaque JD product URLs remain unpriced discovery with an unresolved numeric SKU.
 
 The [three-product validation summary](docs/validation/README.md) links real CLI/browser checks and the resulting regressions. Guest access was blocked in these bounded searches; no current best-deal winner was verified.
+
+## Useful observations when a native page is blocked
+
+```sh
+china-deals catalog taobao 982744194230
+china-deals rank examples/deeper-candidates-2026-10-27.json \
+  --fx-from-json examples/fx-reference-2026-10-27.json --format markdown
+```
+
+`catalog` performs an optional, account-free Jadeship read for an exact Taobao item. It returns a **third-party catalog observation**, including a separate BRL product reference. Its underlying freshness, variant, stock, condition and coupon eligibility remain unknown; normal `price.amount` remains null. Jadeship coverage is not Taobao catalog coverage, and the example phone is not a verified 1 TB/new-device quote.
+
+Cached exact-product claims can also remain useful: unranked Markdown shows their source amount, separate BRL reference and crawl age when retained. Proxy, cached-product, indexed-product-block and category-card modes cannot become current-price rankings by re-importing. The [deeper validation results](docs/validation/deeper-results.md) contain two freshly rendered Goofish phone candidates, four cached Blibli candidates and external laptop price context, with condition/repair/pickup limits and dated FX. No additional coupon or checkout eligibility was established.
+
+For Goofish, `detail --from-browser-json` can import a retained primary-DOM browser capture without another network request. The requested/final item ID and bounded main-item selectors must agree; recommendations cannot supply prices. Capture authenticity and observation time remain caller-supplied. See the agent guide for the capture contract and current browser-reader limits.
 
 ## Optional filters: native submission versus local checks
 
@@ -154,7 +168,7 @@ The default executable is `/usr/bin/chromium`. To use Playwright's downloaded Ch
 python -c 'from playwright.sync_api import sync_playwright; p = sync_playwright().start(); print(p.chromium.executable_path); p.stop()'
 ```
 
-Browser search reads indexed discovery, not a native marketplace catalog. The current browser detail backend can attempt SKU-bound JD and Blibli extraction; Taobao/Goofish have no verified primary-item DOM contract and return unavailable or blocked rather than a guessed quote. The [browser backend report](docs/research/browser-guest.md) records these limits and the local smoke check that stopped at a challenge.
+Browser search reads indexed discovery, not a native marketplace catalog. The current browser detail backend can attempt SKU-bound JD/Blibli extraction and bounded Goofish primary DOM with phone-style model/storage reconciliation. Taobao has no validated primary-item detail contract. Fresh T3 capture plus CLI ingestion was verified for Goofish; live CLI browser transport remains unverified. The [browser backend report](docs/research/browser-guest.md) records these limits and the local smoke check that stopped at a challenge.
 
 ## Optional OpenCLI native sessions
 

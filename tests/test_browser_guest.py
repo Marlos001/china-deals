@@ -35,6 +35,9 @@ class Page:
             return {"title": self.title, "text": self.text, "verification": False}
         if script == bg._CARDS_JS:
             return self.cards
+        from china_deals.goofish_public import CAPTURE_JS
+        if script == CAPTURE_JS:
+            return {"url": self.url, "title": self.title, "capturedAt": "2026-10-27T16:29:23Z", "mainHtml": self.html}
         raise AssertionError("Unexpected browser script")
 
     def wait_for_function(self, script, **kwargs):
