@@ -6,7 +6,25 @@ from decimal import Decimal
 from .models import normalize_offer, utc_now
 
 
-def rank_offers(offers, require_terms=None, exclude_terms=None, limit=10, descending=False, deduplicate=True):
+def apply_product_intent(offer, query):
+    """Annotate each observation so exporting a bare array keeps its intent."""
+    if not query:
+        return offer
+    from .products import assess_product
+    offer["intent_query"] = query
+    assessment = offer["relevance"] = assess_product(offer, query)
+    offer["ranking_exclusions"] = []
+    if assessment["family"]:
+        if assessment["status"] != "match":
+            offer["ranking_exclusions"].append("product_relevance_" + assessment["status"])
+        offer["ranking_exclusions"].extend(assessment["price_scope_warnings"])
+        if assessment["price_scope_warnings"]:
+            offer["price"]["amount"] = None
+            offer["price"]["basis"] = "transaction_amount_unverified"
+    return offer
+
+
+def rank_offers(offers, require_terms=None, exclude_terms=None, limit=10, descending=False, deduplicate=True, query=None):
     if not isinstance(offers, list) or (limit is not None and not 1 <= limit <= 100):
         raise ValueError("Offers must be an array and limit must be 1..100 or None")
     required = [x.casefold() for x in (require_terms or [])]
@@ -23,6 +41,13 @@ def rank_offers(offers, require_terms=None, exclude_terms=None, limit=10, descen
             source["currency"] = prior_price.get("source_currency")
             source["price_basis"] = prior_price.get("basis")
         normalized = normalize_offer(source["marketplace"], source, source.get("observed_at"))
+        # A bare exported array may carry intent on each observation.
+        effective_query = query or source.get("intent_query")
+        if not effective_query:
+            exclusions = source.get("ranking_exclusions")
+            if isinstance(exclusions, list):
+                normalized["ranking_exclusions"] = [value[:500] for value in exclusions[:20] if isinstance(value, str)]
+        apply_product_intent(normalized, effective_query)
         title = normalized["title"].casefold()
         if not all(term in title for term in required) or any(term in title for term in excluded):
             filtered.append(normalized)
@@ -34,7 +59,10 @@ def rank_offers(offers, require_terms=None, exclude_terms=None, limit=10, descen
             if identity in seen:
                 continue
             seen.add(identity)
-        if normalized["price"]["amount"] is None or not normalized["url"]:
+        from .guest import _product_url
+        if normalized["url"] and not _product_url(normalized["marketplace"], normalized["url"]):
+            normalized.setdefault("ranking_exclusions", []).append("not_a_validated_product_route")
+        if normalized["price"]["amount"] is None or not normalized["url"] or normalized.get("ranking_exclusions"):
             unranked.append(normalized)
             continue
         groups.setdefault(normalized["price"]["currency"], []).append(normalized)
@@ -46,6 +74,8 @@ def rank_offers(offers, require_terms=None, exclude_terms=None, limit=10, descen
         "generated_at": utc_now(),
         "ranking_basis": "highest_observed_displayed_price_per_currency" if descending else "lowest_observed_displayed_price_per_currency",
         "comparability": "unverified",
+        "intent_query": query,
+        "relevance_excluded_count": sum(bool(item.get("ranking_exclusions")) for item in unranked),
         "groups": groups,
         "unranked": unranked,
         "filtered_count": len(filtered),

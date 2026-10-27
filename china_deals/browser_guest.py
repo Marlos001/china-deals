@@ -99,7 +99,7 @@ class _Navigation:
         elif not self.started and url == self.initial:
             self.started = True
         else:
-            native = guest._product_url(self.marketplace, url)
+            native = guest._discovery_url(self.marketplace, url)
             self.hops += 1
             allowed = self._same_search(url) or (native and (not self.product or native == self.product))
             if self.hops > 1 or not allowed:
@@ -147,6 +147,7 @@ def _browser_context(executable_path, deadline):
 def _navigate(context, url, marketplace, result, deadline, product=None):
     attempt = {"url": url, "source_mode": result["source_mode"], "attempted_at": utc_now(), "status": "unavailable"}
     result["access"]["attempts"].append(attempt)
+    guest._check_gate(attempt)
     page = context.new_page()
     guard = _Navigation(marketplace, url, product)
     page.route("**/*", guard.handle)
@@ -159,6 +160,7 @@ def _navigate(context, url, marketplace, result, deadline, product=None):
             raise
         if guard.failure:
             raise guard.failure
+        attempt["final_url"] = page.url
         _check_page(page, response)
         adapters._remaining(deadline)
         attempt.update(status="ok", final_url=page.url)
@@ -167,6 +169,9 @@ def _navigate(context, url, marketplace, result, deadline, product=None):
         attempt.update(status=exc.status, error_code=exc.code)
         if guard.denied_url:
             attempt["denied_url"] = guard.denied_url
+            if exc.code == "challenge":
+                attempt["challenge_url"] = guard.denied_url
+        guest._record_gate(attempt, exc)
         page.close()
         raise
     except Exception:
@@ -217,12 +222,13 @@ def search_browser_guest(marketplace, query, limit=10, timeout=30, filters=None,
                 cards = page.evaluate(_CARDS_JS)
                 index_url = page.url
                 seen, resolved = set(), set()
+                result["rejected_routes"] = {"count": 0, "reason": "not_a_supported_first_party_product_route"}
                 for card in cards[:40]:
                     adapters._remaining(deadline)
                     href, title = card.get("href", ""), card.get("title", "")
                     if not isinstance(href, str) or not isinstance(title, str) or not title.strip():
                         continue
-                    url = guest._product_url(marketplace, href)
+                    url = guest._discovery_url(marketplace, href)
                     redirect = _redirect_link(href) if not url else None
                     if redirect and redirect not in resolved:
                         resolved.add(redirect)
@@ -231,10 +237,13 @@ def search_browser_guest(marketplace, query, limit=10, timeout=30, filters=None,
                             continue
                         target = _navigate(context, redirect, marketplace, result, deadline)
                         try:
-                            url = guest._product_url(marketplace, target.url)
+                            url = guest._discovery_url(marketplace, target.url)
                         finally:
                             target.close()
-                    if not url or url in seen:
+                    if not url:
+                        result["rejected_routes"]["count"] += 1
+                        continue
+                    if url in seen:
                         continue
                     seen.add(url)
                     snippet = card.get("snippet", "")
@@ -275,6 +284,8 @@ def get_browser_guest_item(marketplace, url_or_id, timeout=30, executable_path=N
         value = {"jd": f"https://item.jd.com/{value}.html", "taobao": f"https://item.taobao.com/item.htm?id={value}",
                  "goofish": f"https://www.goofish.com/item?id={value}"}[marketplace]
     url = guest._product_url(marketplace, value)
+    if not url and guest._discovery_url(marketplace, value):
+        return guest._failure(result, _Failure("unavailable", "numeric_sku_unresolved", "Opaque product link is discovery only; numeric SKU is unresolved."))
     if not url:
         return guest._failure(result, _Failure("unavailable", "detail_url_required", "An exact native product URL or Chinese marketplace numeric item ID is required."))
     result["product_url"] = url

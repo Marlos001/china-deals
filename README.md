@@ -1,6 +1,6 @@
 # china-deals
 
-A read-only **0.2 CLI** for researching products on **Taobao, JD.com, Goofish/Xianyu and Blibli**, comparing observed configurations and prices, and estimating **Fansbuy → Brazil** freight and landed costs.
+A read-only **0.4 CLI** for researching products on **Taobao, JD.com, Goofish/Xianyu and Blibli**, comparing observed configurations and prices, and estimating **Fansbuy → Brazil** freight and landed costs.
 
 **Guest access is the default. No marketplace account or AI API credentials are required.** Your subscription-backed Codex, Claude Code, Gemini/AGY or other terminal-capable agent supplies translation, analysis and presentation. The CLI makes no LLM calls. Existing OpenCLI sessions are an explicit, optional native mode.
 
@@ -42,13 +42,32 @@ china-deals search '华硕 幻16 笔记本' --markets jd --hydrate 2 \
 china-deals detail jd 100214660452
 ```
 
-`--hydrate N` attempts guest detail for up to N discovered links per source; a failed detail read leaves the indexed lead unverified. The JD ID above is a research example with a previously masked price, not a recommended offer. `xianyu` aliases `goofish`. Blibli is **Indonesia**, distinct from Bilibili.
+`--hydrate N` attempts guest detail for up to N discovered links per source. Its `hydration` receipts retain target URLs, access attempts and failures; successful reads preserve the original discovery under `source_detail.discovery`. A failed detail read leaves the indexed lead unverified, and a challenge stops remaining detail attempts for that source. The JD ID above is a research example with a previously masked price, not a recommended offer. `xianyu` aliases `goofish`. Blibli is **Indonesia**, distinct from Bilibili.
 
 JSON is the default. `--format markdown` gives a compact report; use JSON to inspect full provenance, FX, filter plans and unknown fields. `--include-offers` retains the full fetched offer population for later offline filtering and comparison. Without it, ranked groups may be limited. Calls run serially.
 
 Results retain source links, raw displayed prices, native currencies, observation times, access attempts and warnings. Read every source status: `discovery_only`, `blocked`, `auth_required`, `unavailable`, `empty_unverified` and `error` describe evidence or access limits. An empty response does not prove no inventory. Recommendations are not verified keyword matches.
 
 **All search-index prices remain unranked**, even when a snippet contains a numeric amount. Masked, ranged, page-minimum and unbound amounts also cannot establish an exact SKU price. A retrieved product page may improve evidence; it does not by itself verify stock, checkout, seller authenticity or discounts.
+
+## Product-aware search plans and validation
+
+```sh
+china-deals plan 'iPhone 17 Pro Max'
+china-deals plan 'AirPods Max USB-C'
+china-deals plan 'ASUS ROG Zephyrus'
+china-deals search 'iPhone 17 Pro Max' --zh-query '苹果 iPhone 17 Pro Max 手机' \
+  --limit 5 --include-offers > iphone.json
+china-deals rank iphone.json --query 'iPhone 17 Pro Max'
+```
+
+`plan` is offline. It suggests bounded Chinese-market and Blibli queries for iPhone 17 Pro Max, AirPods Max and Zephyrus G14/G15/G16/M16/Duo/S17 families. Refined queries retain model, storage and connector terms; your subscription agent can improve the translations and execute selected queries. Plans do not run searches or claim exhaustive coverage.
+
+For these recognized families, ranking checks title and selected variant independently. Accessories, repair/replica/dummy listings, explicit different products and uncertain model matches stay unranked; deposit and monthly-payment amounts stay unknown. This is conservative relevance checking, not authenticity or performance verification. `intent_query` survives imported rank/coupon/compare workflows. Use `rank --query` to attach intent to a plain imported array. Read all unranked reasons instead of assuming a low displayed amount is the whole device price.
+
+Verification/login/HTTP 401/403/429 responses gate further requests to the same host during one command. `access.attempts` names the actual index or marketplace host and records `skipped_after_challenge`, `network_attempted: false` and the origin. Independent hosts can still be read; a new invocation has a fresh scope. A blocked index does not prove the marketplace itself requires login. Opaque JD product URLs remain unpriced discovery with an unresolved numeric SKU.
+
+The [three-product validation summary](docs/validation/README.md) links real CLI/browser checks and the resulting regressions. Guest access was blocked in these bounded searches; no current best-deal winner was verified.
 
 ## Optional filters: native submission versus local checks
 

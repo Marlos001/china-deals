@@ -2,6 +2,14 @@
 
 Checked 2026-10-27 in `/home/marlos/projects/china-deals`.
 
+## Version 0.4 product validation update
+
+- Three GPT-6 Astra validation agents tested iPhone 17 Pro Max, AirPods Max and broad Zephyrus searches. All bounded live CLI searches met index/API verification; the browser found no verified purchasable exact-variant winner. See the [validation summary](validation/README.md) and its source-specific reports.
+- **233 local tests pass**, including selected-variant/accessory/monthly-price classification, Product/Offer/mobile-JD identity, invocation host gates, hydration provenance, Blibli stock claims, opaque JD discovery and coupon intent round-trips. Ruff and whitespace checks pass.
+- Seven retained AirPods regressions pass on current code. Actual offline CLI replays of four retained Zephyrus fixtures yield zero accessory groups, four separate family groups plus incomplete Duo, incomplete negated TGP and one AMD alias group.
+- `plan` is offline; it neither runs searches nor establishes comprehensive inventory. Family/chassis/code/year partition comparisons; absent identities and multi-display binding remain incomplete. All masked/index prices remain unknown. Blibli freight remains excluded.
+- Astra follow-up reviews verified the three integration and four product/comparison reproductions resolved. Compilation and 0.4.0 sdist/wheel builds pass. Implementation and independent review are separate from live-access evidence. No further blocked-surface request was made to test these fixes. No marketplace write, registration or purchase occurred.
+
 ## Version 0.3 coupon and screenshot update
 
 - `python -m unittest discover -s tests -q`: **168 passed**. `uvx ruff check china_deals tests`, compilation, package build and whitespace checks passed.

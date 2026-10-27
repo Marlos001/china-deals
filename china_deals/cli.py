@@ -158,6 +158,7 @@ def build_parser():
     detail.add_argument("--browser-fallback", action="store_true", help="Required for Blibli detail; reads product JSON-LD from a native URL")
     rank = command("rank", "Rank an existing JSON search result or raw marketplace offer array")
     rank.add_argument("input", help="JSON file or - for stdin")
+    rank.add_argument("--query", help="Product intent for relevance checks; defaults to the imported search query")
     rank.add_argument("--limit", type=bounded_int, default=10)
     rank.add_argument("--require-term", action="append", default=[])
     rank.add_argument("--exclude-term", action="append", default=[])
@@ -176,6 +177,8 @@ def build_parser():
     coupon_cmd.add_argument("input", help="Offer/search JSON file or -")
     coupon_cmd.add_argument("--rules", required=True, help="JSON campaigns, eligibility context and optional as_of")
     presentation(coupon_cmd)
+    plan_cmd = command("plan", "Suggest Chinese and Blibli queries for supported product families; no network")
+    plan_cmd.add_argument("query")
     filters_cmd = command("filters", "Explain native URL/filter support and local verification scope")
     filters_cmd.add_argument("marketplace", type=marketplace_name)
     filters_cmd.add_argument("query", nargs="?", default="")
@@ -213,8 +216,13 @@ def build_parser():
 def schema():
     return {
         "schema_version": "1", "version": __version__, "marketplaces": list(MARKETPLACES),
-        "commands": ["search", "detail", "rank", "compare", "coupons", "filters", "config", "fx", "shipping", "estimate", "restrictions", "doctor", "schema"],
+        "commands": ["search", "detail", "rank", "compare", "coupons", "plan", "filters", "config", "fx", "shipping", "estimate", "restrictions", "doctor", "schema"],
         "default_access": "guest",
+        "query_planning": "Offline bounded suggestions; no AI API or automatic search",
+        "relevance": "Title and selected variant checks for iPhone 17 Pro Max, AirPods Max and ROG Zephyrus; unverified facts remain unknown",
+        "access_gate_scope": "Per invocation and actual host; skipped_after_challenge is not a network attempt",
+        "hydration": "Per-target status/error/access receipts; successful rows retain source_detail.discovery",
+        "intent_query": "Preserved through search/rank/coupons; use rank --query for imported arrays",
         "guest_engines": ["http", "browser (optional Playwright, ephemeral Chromium)"],
         "default_display_currency": "BRL",
         "default_shipping": {"taobao": "fansbuy", "jd": "fansbuy", "goofish": "fansbuy", "blibli": "excluded"},
@@ -227,7 +235,7 @@ def schema():
             "Estimate BRL landed cost with explicit current FX, ICMS and all known fees. Present source links and unresolved costs.",
         ],
         "offer_fields": ["marketplace", "item_id", "title", "url", "price", "seller", "variant", "condition",
-                         "availability", "seller_trust", "observed_at", "signals", "warnings", "source_mode", "source_detail", "brl"],
+                         "availability", "seller_trust", "observed_at", "signals", "warnings", "source_warnings", "source_mode", "source_detail", "identity_evidence", "relevance", "ranking_exclusions", "brl"],
         "price": {"amount": "positive decimal string or null", "currency": "CNY or IDR",
                   "raw": "original displayed value", "basis": "displayed"},
         "source_statuses": ["ok", "discovery_only", "empty_unverified", "blocked", "auth_required", "unavailable", "error"],
@@ -244,6 +252,15 @@ def schema():
 def requested_filters(args):
     return validate_filters({key: getattr(args, key, None) for key in
                              ("min_price", "max_price", "sort", "condition", "province", "city", "free_shipping")})
+
+
+def imported_query(payload):
+    if not isinstance(payload, dict):
+        return None
+    query = payload.get("intent_query") or payload.get("query")
+    if query is not None and not isinstance(query, str):
+        raise ValueError("Imported intent query must be text")
+    return query
 
 
 def input_offers(payload):
@@ -295,9 +312,60 @@ def guest_functions(args):
     return get_guest_item, {}
 
 
+def hydrate_leads(result, getter, market, limit, timeout, options):
+    """Retain both index and product observations, including failed detail reads."""
+    blocked = None
+    receipts = result.setdefault("hydration", [])
+    for index, row in enumerate(result.get("items", [])[:limit]):
+        target = row.get("url") or row.get("item_id")
+        if blocked:
+            detail = {"status": "skipped_after_challenge", "items": [],
+                      "error": {"code": "skipped_after_challenge", "message": "Earlier detail requested verification; no request sent."},
+                      "access": {"attempts": []}, "gate_origin": blocked}
+        else:
+            try:
+                detail = getter(market, target, timeout=timeout, **options)
+            except (OSError, ValueError, RuntimeError):
+                detail = {"status": "error", "items": [], "error": {"code": "detail_error", "message": "Detail unavailable."}}
+        receipt = {"target": target, "observed_at": utc_now(), "status": detail.get("status"),
+                   "error": detail.get("error"), "access": detail.get("access", {}),
+                   "warnings": detail.get("warnings", [])}
+        if detail.get("gate_origin"):
+            receipt["gate_origin"] = detail["gate_origin"]
+        receipts.append(receipt)
+        attempts = detail.get("access", {}).get("attempts", [])
+        result.setdefault("access", {}).setdefault("attempts", []).extend(attempts)
+        code = (detail.get("error") or {}).get("code")
+        if blocked is None and code in {"challenge", "http_401", "http_403", "http_429", "skipped_after_challenge"}:
+            blocked = detail.get("gate_origin") or next(
+                (attempt["gate_origin"] for attempt in attempts if attempt.get("gate_origin")),
+                {"target": target, "code": code})
+        if detail.get("status") == "ok" and detail.get("items"):
+            hydrated = dict(detail["items"][0])
+            source_detail = dict(hydrated.get("detail") or hydrated.get("source_detail") or {})
+            source_detail["discovery"] = dict(row)
+            hydrated["detail"] = source_detail
+            for key in ("index_source_url", "discovered_at", "index_result_href"):
+                if key in row:
+                    hydrated[key] = row[key]
+            result["items"][index] = hydrated
+        else:
+            row.setdefault("source_warnings", []).append(
+                "Guest detail " + str(detail.get("status")) + " (" + str(code) + "); indexed lead remains unverified.")
+
+
 def run(args):
+    from .guest import access_session
+    with access_session():
+        return _run(args)
+
+
+def _run(args):
     if args.command == "schema":
         return schema(), 0
+    if args.command == "plan":
+        from .products import query_plan
+        return query_plan(args.query), 0
     if args.command == "config":
         return write_default_config(args.config) if args.action == "init" else load_config(args.config), 0
     if args.command == "filters":
@@ -369,12 +437,7 @@ def run(args):
                         from .guest import search_guest
                     result = search_guest(market, query, args.limit, args.timeout, filters=filters, **options)
                     if args.hydrate:
-                        for index, row in enumerate(result.get("items", [])[:args.hydrate]):
-                            detail = getter(market, row.get("url") or row.get("item_id"), timeout=args.timeout, **options)
-                            if detail.get("items"):
-                                result["items"][index] = detail["items"][0]
-                            else:
-                                row.setdefault("warnings", []).append("Guest detail was unavailable; indexed lead remains unverified.")
+                        hydrate_leads(result, getter, market, args.hydrate, args.timeout, options)
                 else:
                     result = adapters.search_marketplace(market, query, limit=args.limit,
                                                          timeout=args.timeout, executable=args.opencli,
@@ -409,7 +472,7 @@ def run(args):
             result["query"] = query
             result["filter_plan"] = result.get("filters") or native_plan(market, query, filters)
             sources.append(result)
-        result = rank_offers(offers, args.require_term, args.exclude_term, args.limit, descending=filters.get("sort") == "price-desc")
+        result = rank_offers(offers, args.require_term, args.exclude_term, args.limit, descending=filters.get("sort") == "price-desc", query=args.query)
         result.update(query=args.query, sources=sources,
                       coverage="observed_results_only", dataset_origin="live_adapters",
                       requested_filters=filters, filter_excluded_count=len(excluded))
@@ -419,14 +482,20 @@ def run(args):
         if filters.get("sort") in {"sales", "newest"}:
             result["warnings"].append("Requested sales/newest sort is only effective if a source confirms native submission; price ranking does not establish that ordering.")
         if args.include_offers:
+            from .ranking import apply_product_intent
+            for item in offers:
+                apply_product_intent(item, args.query)
             result["offers"] = offers
         decorate_brl(result, args, config)
         return result, 0 if all(s.get("status") == "ok" for s in sources) else 3
     if args.command == "coupons":
-        payload = rank_offers(input_offers(read_json(args.input)), limit=None, deduplicate=False)
+        imported = read_json(args.input)
+        query = imported_query(imported)
+        payload = rank_offers(input_offers(imported), limit=None, deduplicate=False, query=query)
         offers = [item for group in payload["groups"].values() for item in group] + payload["unranked"]
         args.coupons_from_json = args.rules
         result = {"schema_version": "1", "dataset_origin": "caller_supplied_coupon_scenario", "offers": offers,
+                  "intent_query": query,
                   "warnings": ["Rules and eligibility are caller-supplied assertions, not independently verified live coupons. No coupon was claimed or redeemed.",
                                "Listing discounts are already in the displayed price. Cashback is separate from amount payable, and stacking is not assumed."]}
         decorate_brl(result, args, config, offers)
@@ -434,14 +503,16 @@ def run(args):
     if args.command == "rank":
         payload = read_json(args.input)
         offers = input_offers(payload)
-        result = rank_offers(offers, args.require_term, args.exclude_term, args.limit)
+        result = rank_offers(offers, args.require_term, args.exclude_term, args.limit,
+                             query=args.query or imported_query(payload))
         result["dataset_origin"] = "imported_json"
         result["warnings"].append("Imported records are caller-supplied; prices and observation timestamps are not independently verified.")
         decorate_brl(result, args, config)
         return result, 0
     if args.command == "compare":
         from .hardware import compare_laptops
-        payload = rank_offers(input_offers(read_json(args.input)), limit=None, deduplicate=False)
+        imported = read_json(args.input)
+        payload = rank_offers(input_offers(imported), limit=None, deduplicate=False, query=imported_query(imported))
         offers = [item for group in payload["groups"].values() for item in group] + payload["unranked"]
         wrapper = {"warnings": []}
         rates = decorate_brl(wrapper, args, config, offers)
@@ -519,6 +590,16 @@ def markdown(result):
                              [row["price"]["amount"], row.get("brl", {}).get("product_cost") or "unknown", row["marketplace"], row["title"],
                               row["condition"] + "; " + ", ".join(row["signals"]), row["url"]]) + " |")
             lines.append("")
+        unranked = result.get("unranked", [])
+        if unranked:
+            lines.append(f"Unranked observations: {len(unranked)}; showing up to 20 for review.")
+            for row in unranked[:20]:
+                labels = {"product_relevance_mismatch": "different product or accessory",
+                          "product_relevance_uncertain": "requested product not established",
+                          "possible_deposit_or_installment_price": "possible deposit or monthly payment",
+                          "not_a_validated_product_route": "link does not identify a validated product"}
+                reasons = [labels.get(reason, reason.replace("_", " ")) for reason in row.get("ranking_exclusions", [])] or ["price or product evidence unverified"]
+                lines.append("- " + _md_cell(row["title"]) + ": " + _md_cell(", ".join(reasons)) + " — " + _md_cell(row.get("url")))
         for source in result.get("sources", []):
             lines.append(f"{source.get('marketplace', 'unknown')}: {source.get('status', 'error')}")
     elif "quotes" in result:

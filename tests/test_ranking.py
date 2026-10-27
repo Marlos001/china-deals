@@ -47,7 +47,7 @@ class RankingTests(unittest.TestCase):
         self.assertEqual(len(result['unranked']), 1)
 
     def test_normalized_roundtrip_keeps_original_idr_and_time(self):
-        offer = normalize_offer('blibli', {'title': 'Example', 'price': 100000, 'url': '/p/example'}, '2026-01-01T00:00:00Z')
+        offer = normalize_offer('blibli', {'title': 'Example', 'price': 100000, 'url': '/p/example/ps--EXAMPLE'}, '2026-01-01T00:00:00Z')
         result = rank_offers([offer])
         self.assertEqual(result['groups']['IDR'][0]['price']['amount'], '100000')
         self.assertEqual(result['groups']['IDR'][0]['observed_at'], '2026-01-01T00:00:00Z')
@@ -60,7 +60,7 @@ class RankingTests(unittest.TestCase):
         self.assertFalse(result['groups'])
 
     def test_minimum_range_and_page_minimum_are_not_exact_prices(self):
-        offer = normalize_offer('blibli', {'title': 'Example', 'price': {'minPrice': 100000}, 'url': '/p/example'})
+        offer = normalize_offer('blibli', {'title': 'Example', 'price': {'minPrice': 100000}, 'url': '/p/example/ps--EXAMPLE'})
         self.assertIsNone(offer['price']['amount'])
         self.assertEqual(offer['price']['raw'], {'minPrice': 100000})
         offer = normalize_offer('taobao', {'title': 'Example', 'item_id': '123', 'price': '¥10',

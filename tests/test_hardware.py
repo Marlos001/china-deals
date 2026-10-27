@@ -3,6 +3,7 @@ import unittest
 
 from china_deals.hardware import COMPARISON_FIELDS, compare_laptops, extract_hardware
 from china_deals.models import normalize_offer
+from china_deals.ranking import rank_offers
 
 G16_2023 = (
     'ASUS ROG Zephyrus G16 2023 GU603VV i7-13620H RTX 4060 Laptop GPU 8GB '
@@ -28,6 +29,30 @@ def offer(candidate_id, title=G16_2024, price='¥12000', marketplace='jd', **ext
     result.update(candidate_id=candidate_id, source_mode='listing_content')
     result.update(extra)
     return result
+
+
+class ComparisonWithoutIntentTests(unittest.TestCase):
+    def test_selected_accessory_and_chinese_accessory_cannot_win(self):
+        for extra in ({'variant': 'charger only'}, {'title': 'ASUS ROG Zephyrus G16 电源适配器', 'description': G16_2024}):
+            with self.subTest(extra=extra):
+                bad = offer('accessory', price='200', **extra)
+                result = compare_laptops([bad, offer('laptop')])
+                self.assertEqual(result['groups'][0]['cheapest_candidate_ids'], ['laptop'])
+                self.assertEqual(len(result['unranked']), 1)
+                self.assertFalse(rank_offers(result['unranked'])['groups'])
+        result = compare_laptops([offer('bundle', title=G16_2024 + ' with charger')])
+        self.assertEqual(len(result['groups']), 1)
+
+    def test_monthly_scope_cannot_win_without_query(self):
+        for extra in ({'title': G16_2024 + ' 月供'}, {'title': G16_2024 + ' monthly payment'},
+                      {'variant': 'cicilan bulanan'}, {'variant': '月付 200元'}):
+            with self.subTest(extra=extra):
+                bad = offer('monthly', price='200', **extra)
+                result = compare_laptops([bad, offer('laptop')])
+                self.assertEqual(result['groups'][0]['cheapest_candidate_ids'], ['laptop'])
+                self.assertEqual(len(result['unranked']), 1)
+                self.assertFalse(rank_offers(result['unranked'])['groups'])
+
 
 
 class ExtractionTests(unittest.TestCase):
@@ -131,6 +156,66 @@ class ExtractionTests(unittest.TestCase):
         self.assertIsNone(extract_hardware('copyright 2024. GU605MI')['model_year'])
         self.assertIsNone(extract_hardware('GU605MI')['model_code'])
         self.assertEqual(extract_hardware('2025 ASUS Zephyrus G16')['model_year'], 2025)
+
+    def test_negated_numeric_facts_retain_unresolved_spans(self):
+        cases = [('TGP 105W', 'gpu_tgp_w'), ('105W TGP', 'gpu_tgp_w'),
+                 ('VRAM 8GB', 'vram_gb'), ('8GB VRAM', 'vram_gb'),
+                 ('2560x1600', 'display_resolution'), ('2.5K', 'display_resolution'),
+                 ('240Hz', 'display_refresh_hz'), ('16-inch', 'display_size_inches')]
+        for literal, field in cases:
+            for prefix in ('not ', 'without ', '非'):
+                text = prefix + literal
+                with self.subTest(text=text):
+                    result = extract_hardware(text)
+                    self.assertIsNone(result[field])
+                    self.assertTrue(result['evidence'][field])
+                    self.assertTrue(all(r['value'] is None for r in result['evidence'][field]))
+                    for record in result['evidence'][field]:
+                        self.assertEqual(text[record['start']:record['end']], record['excerpt'])
+                        self.assertIn(prefix, record['excerpt'])
+        result = extract_hardware('TGP 105W; not TGP 120W')
+        self.assertIsNone(result['gpu_tgp_w'])
+        self.assertEqual(result['conflicts']['gpu_tgp_w'], [105, None])
+
+    def test_literal_aliases_typography_and_chinese_boundaries(self):
+        for text in ('Radeon RX 6700S', 'AMD Radeon RX 6700S', 'RX6700S'):
+            self.assertEqual(extract_hardware(text)['gpu'], 'RADEON RX 6700S')
+        text = ('华硕ROG幻14GA402RJ笔记本 R9-6900HS RX6700S 8G显存 内存16GB 固态1TB '
+                '14-inch 2560x1600 IPS 120Hz')
+        result = extract_hardware(text)
+        for field, expected in {'cpu': 'Ryzen 9 6900HS', 'gpu': 'RADEON RX 6700S',
+                                'vram_gb': 8, 'model_code': 'GA402RJ',
+                                'ram_gb': 16, 'ssd_gb': 1024}.items():
+            self.assertEqual(result[field], expected, field)
+        text = 'ASUS® ROG Zephyrus G14 Intel® Core™ Ultra 9 Processor 386H RTX™ 5060'
+        result = extract_hardware(text)
+        self.assertEqual(result['cpu'], 'Core Ultra 9 386H')
+        self.assertEqual(result['gpu'], 'RTX 5060')
+        for records in result['evidence'].values():
+            for record in records:
+                self.assertEqual(text[record['start']:record['end']], record['excerpt'])
+
+    def test_broader_literal_years_and_bounded_legacy_code(self):
+        for family, year in [('G14', 2022), ('G15', 2021), ('M16', 2023), ('S17', 2021)]:
+            self.assertEqual(extract_hardware(f'ASUS ROG Zephyrus {family} ({year})')['model_year'], year)
+        result = extract_hardware('ASUS ROG Zephyrus M GM501GS')
+        self.assertEqual(result['model_code'], 'GM501GS')
+        for field in ('cpu', 'gpu', 'ram_gb', 'ssd_gb', 'model_year', 'display_size_inches'):
+            self.assertIsNone(result[field])
+        self.assertIsNone(extract_hardware('ASUS GM999ZZ')['model_code'])
+
+    def test_parenthetical_alias_is_local_to_explicit_pixels(self):
+        text = '2.5K (2560 x 1600, WQXGA)'
+        result = extract_hardware(text)
+        self.assertEqual(result['display_resolution'], '2560x1600')
+        self.assertNotIn('display_resolution', result['conflicts'])
+        self.assertTrue(result['evidence']['display_resolution'])
+        for record in result['evidence']['display_resolution']:
+            self.assertEqual(text[record['start']:record['end']], record['excerpt'])
+        self.assertEqual(extract_hardware('2.5K')['display_resolution'], '2.5K')
+        for text in ('2.5K 2560x1600', '2.5K (2560x1600) or 1920x1200',
+                     '2.5K (2560x1600 or 1920x1200)', 'not 2.5K (2560x1600, WQXGA)'):
+            self.assertIsNone(extract_hardware(text)['display_resolution'], text)
 
     def test_condition_and_negation(self):
         self.assertEqual(extract_hardware('like new Zephyrus G16')['condition'], 'used')
@@ -237,6 +322,52 @@ class ComparisonTests(unittest.TestCase):
         result = compare_laptops(cases)
         self.assertFalse(result['groups'])
         self.assertEqual(len(result['unranked']), 6)
+
+    def test_explicit_families_chassis_and_identifiers_partition_groups(self):
+        titles = ['ROG Zephyrus G16', 'ROG Strix G16', 'ROG Flow X16', 'ASUS TUF Gaming F16']
+        specs = G16_2024[G16_2024.index('Intel'):]
+        rows = [offer(str(i), title + ' ' + specs) for i, title in enumerate(titles)]
+        result = compare_laptops(rows)
+        self.assertEqual(len(result['groups']), 4)
+        self.assertTrue(all(len(g['candidates']) == 1 for g in result['groups']))
+        self.assertTrue(all(g['product_identity']['product_family'] for g in result['groups']))
+        rows = [offer('base'), offer('different-code', G16_2024.replace('GU605MI', 'GU605CR')),
+                offer('unknown-code', G16_2024.replace('GU605MI ', '')),
+                offer('different-year', G16_2024.replace('(2024)', '(2025)'))]
+        self.assertEqual(len(compare_laptops(rows)['groups']), 4)
+        result = compare_laptops([offer('generic-1', specs), offer('generic-2', specs),
+                                  offer('family-only', 'Zephyrus ' + specs)])
+        self.assertFalse(result['groups'])
+        self.assertEqual(len(result['incomplete']), 3)
+
+    def test_duo_and_unbound_multiple_displays_stay_incomplete(self):
+        for text in (G16_2024.replace('G16', 'Duo 16'),
+                     G16_2024 + ' dual-screen', G16_2024 + ' secondary display 14-inch'):
+            result = compare_laptops([offer('one', text), offer('two', text)])
+            self.assertFalse(result['groups'])
+            self.assertEqual(len(result['incomplete']), 2)
+            self.assertIn('multi_display_binding_unresolved', result['incomplete'][0]['reasons'])
+
+    def test_accessory_with_copied_hardware_and_root_exclusions_never_group(self):
+        result = compare_laptops([offer('charger', 'Replacement charger compatible with ' + G16_2024)])
+        self.assertFalse(result['groups'])
+        self.assertEqual(len(result['unranked']), 1)
+        result = compare_laptops([offer('laptop', G16_2024 + ' with charger and backlit keyboard')])
+        self.assertEqual(len(result['groups']), 1)
+        result = compare_laptops([offer('blocked', ranking_exclusions=['requested_family_mismatch'])])
+        self.assertFalse(result['groups'])
+        self.assertEqual(result['unranked'][0]['reasons'], ['requested_family_mismatch'])
+
+    def test_amd_aliases_merge_but_negated_specs_do_not(self):
+        title = G16_2024.replace('RTX 4070', 'Radeon RX 6700S')
+        result = compare_laptops([offer('plain', title), offer('vendor', title.replace('Radeon', 'AMD Radeon'))])
+        self.assertEqual(len(result['groups']), 1)
+        for before, after in [('TGP 105W', 'not TGP 105W'), ('8GB', 'not VRAM 8GB'),
+                              ('2560x1600', 'not 2560x1600'), ('240Hz', 'not 240Hz'),
+                              ('16-inch', 'not 16-inch')]:
+            result = compare_laptops([offer('negative', G16_2024.replace(before, after))])
+            self.assertFalse(result['groups'], after)
+            self.assertEqual(len(result['incomplete']), 1)
 
     def test_inputs_validated(self):
         for bad in (None, {}, [None]):

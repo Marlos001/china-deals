@@ -1,4 +1,4 @@
-# Using china-deals 0.2 from a subscription-backed agent
+# Using china-deals 0.4 from a subscription-backed agent
 
 Run `china-deals schema` and `china-deals config show` first. **Guest access is the default; no marketplace account or AI API credentials are required.** Your existing subscription agent handles translation, product reasoning and presentation. The CLI makes no LLM calls. `doctor` checks the optional OpenCLI backend, so a missing native session is not a guest prerequisite failure.
 
@@ -21,6 +21,14 @@ china-deals detail jd 100214660452
 ```
 
 The detail ID is a retained research example, not an available deal. Guest mode does not imply every marketplace is currently searchable: live research found **masked JD prices**, **Blibli HTTP 403 / verification**, and **Goofish native search with no verified target results plus readable delisted items**. Keep these bounded observations distinct from current inventory claims. Consult [guest access](research/guest-access.md), [G16 findings](research/zephyrus-g16-blibli.md) and [verification notes](research/zephyrus-g16-test.md).
+
+Use `plan QUERY` for offline starting queries. Broad `ASUS ROG Zephyrus` covers bounded G14/G15/G16/M16/Duo/S17 suggestions; a specific G14, storage or connector request retains that scope. Check and improve Chinese aliases before executing. A plan is neither a search result nor exhaustive model coverage.
+
+Search/rank attach `intent_query` and title/selected-variant relevance for iPhone 17 Pro Max, AirPods Max and Zephyrus. Explicit other selections, accessories, repairs, replicas, dummy models and uncertain matches cannot win. Deposit/monthly-payment amounts remain null. Use `rank --query QUERY` for imported arrays. Keep envelope intent when processing results through coupons or compare; do not discard it when flattening offers.
+
+One command shares a host-level challenge gate. Inspect `access.attempts` for the actual challenged URL, `network_attempted` and `gate_origin`; `skipped_after_challenge` means no request was sent. An index challenge is not evidence about native marketplace login requirements. Hydration receipts preserve product-detail failures and original index provenance. Opaque JD product URLs remain discovery-only with no guessed numeric SKU or price. Blibli JSON-LD out-of-stock/sold/discontinued claims suppress prices; InStock is only a source claim.
+
+See [three-product validation](validation/README.md) for the bounded live results and offline regression coverage.
 
 ## Use filters without overstating native support
 

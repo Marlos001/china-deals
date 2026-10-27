@@ -13,6 +13,8 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+from contextlib import contextmanager
+from contextvars import ContextVar
 from html.parser import HTMLParser
 
 from . import adapters
@@ -22,6 +24,44 @@ MAX_RESPONSE_BYTES = 2 * 1024 * 1024
 _DOMAINS = {"jd": "item.jd.com", "taobao": "item.taobao.com", "goofish": "www.goofish.com",
             "blibli": "www.blibli.com/p/"}
 _Failure = adapters._Failure
+_ACCESS_GATES = ContextVar("china_deals_access_gates", default=None)
+_GATE_CODES = {"challenge", "http_401", "http_403", "http_429"}
+
+
+@contextmanager
+def access_session():
+    """Share host gates within one command only; never persist credentials or bans."""
+    token = _ACCESS_GATES.set({})
+    try:
+        yield
+    finally:
+        _ACCESS_GATES.reset(token)
+
+
+def _gate_key(url):
+    return urllib.parse.urlsplit(url).hostname
+
+
+def _check_gate(attempt):
+    gates = _ACCESS_GATES.get()
+    origin = gates.get(_gate_key(attempt["url"])) if gates is not None else None
+    if origin:
+        attempt.update(status="skipped_after_challenge", error_code="skipped_after_challenge",
+                       network_attempted=False, gate_origin=dict(origin))
+        raise _Failure("blocked", "skipped_after_challenge", "This host already requested verification in this invocation; no new request was sent.")
+    attempt["network_attempted"] = True
+
+
+def _record_gate(attempt, exc):
+    if exc.code not in _GATE_CODES:
+        return
+    url = getattr(exc, "challenge_url", None) or attempt.get("challenge_url") or attempt.get("final_url") or attempt["url"]
+    attempt["challenge_url"] = url
+    gates = _ACCESS_GATES.get()
+    if gates is not None:
+        origin = {"url": url, "request_url": attempt["url"], "code": exc.code, "observed_at": utc_now()}
+        gates.setdefault(_gate_key(url), origin)
+
 
 
 def _valid_url(value, hosts):
@@ -61,12 +101,28 @@ def _product_url(marketplace, value):
         return None
 
 
+def _discovery_url(marketplace, value):
+    """Opaque JD links are leads only; they never establish a numeric SKU."""
+    native = _product_url(marketplace, value)
+    if native:
+        return native
+    if marketplace == "jd" and _valid_url(value, {"item.jd.com"}):
+        path = urllib.parse.urlsplit(value).path
+        if re.fullmatch(r"/product/[A-Za-z0-9_-]{1,128}\.html", path):
+            return "https://item.jd.com" + path
+    return None
+
+
 def _item_id(marketplace, url):
     p = urllib.parse.urlsplit(url)
     if marketplace in {"taobao", "goofish"}:
         return urllib.parse.parse_qs(p.query)["id"][0]
     if marketplace == "jd":
-        return p.path[1:-5]
+        native = _product_url(marketplace, url)
+        if not native:
+            return None
+        match = re.fullmatch(r"/([0-9]+)\.html", urllib.parse.urlsplit(native).path)
+        return match[1] if match else None
     return p.path.rstrip("/").split("--")[-1]
 
 
@@ -81,7 +137,9 @@ class _Redirects(urllib.request.HTTPRedirectHandler):
                 raise _Failure("blocked", "redirect_denied", "Guest redirect left the allowed HTTPS host; stopped.")
             if re.search(r"/(?:login|signin|captcha|challenge|verify)(?:[/?]|$)", newurl, re.I):
                 raise _Failure("blocked", "challenge", "Guest request reached login or verification; stopped.")
-        except _Failure:
+        except _Failure as exc:
+            if exc.code == "challenge":
+                exc.challenge_url = newurl
             if fp is not None:
                 fp.close()
             raise
@@ -125,7 +183,9 @@ def _fetch(url, hosts, deadline):
     except urllib.error.HTTPError as exc:
         exc.close()
         status = "auth_required" if exc.code == 401 else "blocked" if exc.code in {403, 429} else "unavailable"
-        raise _Failure(status, f"http_{exc.code}", f"Guest request returned HTTP {exc.code}; no retry was made.") from None
+        failure = _Failure(status, f"http_{exc.code}", f"Guest request returned HTTP {exc.code}; no retry was made.")
+        failure.challenge_url = exc.url
+        raise failure from None
     except (urllib.error.URLError, OSError, TimeoutError, http.client.HTTPException):
         raise _Failure("unavailable", "network_error", "Guest request failed or timed out; no retry was made.") from None
 
@@ -205,6 +265,10 @@ def _envelope(marketplace, filters=None):
 
 
 def _failure(result, exc):
+    attempts = result.get("access", {}).get("attempts", [])
+    if attempts and exc.code in _GATE_CODES:
+        attempts[-1].update(status=exc.status, error_code=exc.code)
+        _record_gate(attempts[-1], exc)
     result.update(status=exc.status, items=[], error={"code": exc.code, "message": exc.message})
     return result
 
@@ -212,13 +276,16 @@ def _failure(result, exc):
 def _read(result, url, hosts, deadline, mode):
     attempt = {"url": url, "source_mode": mode, "attempted_at": utc_now(), "status": "unavailable"}
     result["access"]["attempts"].append(attempt)
+    _check_gate(attempt)
     try:
         body, final_url = _fetch(url, hosts, deadline)
+        attempt["final_url"] = final_url
         _html(body)  # Also reject HTTP-200 challenge bodies before JSON parsing.
         attempt.update(status="ok", final_url=final_url)
         return body, final_url
     except _Failure as exc:
         attempt.update(status=exc.status, error_code=exc.code)
+        _record_gate(attempt, exc)
         raise
 
 
@@ -245,7 +312,9 @@ def search_guest(marketplace, query, limit=10, timeout=30, filters=None) -> dict
             return result
         except (_Failure, ValueError, RecursionError) as exc:
             code = exc.code if isinstance(exc, _Failure) else "invalid_json"
-            result["access"]["attempts"][-1].update(status=getattr(exc, "status", "error"), error_code=code)
+            attempt = result["access"]["attempts"][-1]
+            if attempt["status"] != "skipped_after_challenge":
+                attempt.update(status=getattr(exc, "status", "error"), error_code=code)
             result["warnings"].append(f"Public Blibli API unavailable ({code}); index discovery is separate evidence.")
     result.update(source_mode="search_index", coverage="discovery_only")
     result["warnings"].append("Discovery only: search-index text may be stale; it proves neither current prices nor full inventory. Native filters were not applied.")
@@ -254,9 +323,13 @@ def search_guest(marketplace, query, limit=10, timeout=30, filters=None) -> dict
         body, final_url = _read(result, search_url, {"html.duckduckgo.com"}, deadline, "search_index")
         parser = _html(body)
         seen = set()
+        result["rejected_routes"] = {"count": 0, "reason": "not_a_supported_first_party_product_route"}
         for entry in parser.results:
-            url = _product_url(marketplace, _unwrap(entry["href"]))
-            if not url or url in seen or not entry["title"]:
+            url = _discovery_url(marketplace, _unwrap(entry["href"]))
+            if not url:
+                result["rejected_routes"]["count"] += 1
+                continue
+            if url in seen or not entry["title"]:
                 continue
             seen.add(url)
             result["items"].append({"title": entry["title"], "snippet": entry["snippet"],
@@ -381,6 +454,28 @@ def _jsonld_nodes(value):
         yield from _jsonld_nodes(value.get("@graph"))
 
 
+def _stock_claims(product, offer):
+    def enum(value):
+        return value.rsplit("/", 1)[-1].rsplit("#", 1)[-1] if isinstance(value, str) else None
+    values = [enum(obj.get("availability")) for obj in (product, offer) if obj.get("availability") is not None]
+    unavailable = {"OutOfStock", "SoldOut", "Discontinued"}
+    warnings = []
+    if any(v in unavailable for v in values):
+        availability = "unavailable"
+    elif values and all(v == "InStock" for v in values):
+        availability = "source_claimed_available"
+    else:
+        availability = "unknown"
+    if len(set(values)) > 1:
+        warnings.append("Product and Offer availability claims conflict; checkout stock is unresolved.")
+    conditions = [enum(obj.get("itemCondition")) for obj in (product, offer) if obj.get("itemCondition") is not None]
+    mapping = {"NewCondition": "new", "UsedCondition": "used", "RefurbishedCondition": "refurbished", "DamagedCondition": "damaged"}
+    condition = mapping.get(conditions[0], "unknown") if conditions and len(set(conditions)) == 1 else "unknown"
+    if len(set(conditions)) > 1:
+        warnings.append("Product and Offer condition claims conflict.")
+    return availability, condition, warnings
+
+
 def _blibli_detail(parser, url):
     matches = []
     for kind, script in parser.scripts:
@@ -405,10 +500,12 @@ def _blibli_detail(parser, url):
             if offer.get("url") is not None and _product_url("blibli", offer["url"]) != url:
                 continue
             price = _amount(offer.get("price")) if offer.get("priceCurrency") == "IDR" else None
-            matches.append({"title": product["name"], "description": product.get("description", ""),
+            availability, condition, stock_warnings = _stock_claims(product, offer)
+            matches.append({"availability": availability, "condition": condition, "source_warnings": stock_warnings,
+                            "title": product["name"], "description": product.get("description", ""),
                             "item_id": _item_id("blibli", url), "url": url, "nativeURL": url,
                             "currency": "IDR", "price": price, "source_mode": "guest_product_page",
-                            "observed_at": utc_now(), "detail": {"product": {k: product[k] for k in ("name", "description", "sku", "url") if k in product}, "offer": offer}})
+                            "observed_at": utc_now(), "detail": {"product": {k: product[k] for k in ("name", "description", "sku", "url", "availability", "itemCondition") if k in product}, "offer": offer}})
     if len(matches) != 1:
         raise _Failure("unavailable", "item_schema_unverified", "No unique URL-bound Blibli Product and Offer JSON-LD was validated.")
     return matches
@@ -429,6 +526,8 @@ def get_guest_item(marketplace, item_id, timeout=30) -> dict:
     else:
         if not re.fullmatch(r"[0-9]+", item_id):
             native_url = _product_url(marketplace, item_id)
+            if not native_url and _discovery_url(marketplace, item_id):
+                return _failure(result, _Failure("unavailable", "numeric_sku_unresolved", "Opaque product link retained as discovery; a numeric SKU is not verified."))
             if not native_url:
                 raise ValueError("Supply an ASCII numeric item ID or an exact native product URL")
             item_id = _item_id(marketplace, native_url)
