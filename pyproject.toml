@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "china-deals"
-version = "0.9.0"
-description = "Read-only marketplace research and Fansbuy-to-Brazil cost estimates for AI agents"
+version = "0.9.1"
+description = "Research marketplace listings and estimate shipping and import costs to Brazil"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"

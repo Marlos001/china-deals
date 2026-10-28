@@ -36,6 +36,10 @@ def query_plan(query):
     family = intent_family(query)
     if not query.strip() or len(query) > 500 or any(ord(c) < 32 for c in query):
         raise ValueError("Query must be 1..500 characters without controls")
+    from .automotive import parts_query_plan
+    automotive = parts_query_plan(query)
+    if automotive is not None:
+        return automotive
     compact = _compact(query)
     broad_zephyrus = re.fullmatch(r"(?:all|todos|全部|所有)?(?:asus)?(?:rog)?zephyrus(?:all|todos|全部|所有)?", compact)
     if family == "iphone-17-pro-max" and compact in {

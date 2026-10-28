@@ -2,6 +2,19 @@
 
 Checked 2026-10-27 in `/home/marlos/projects/china-deals`.
 
+## Version 0.9.1 automotive discovery planning
+
+- Added an offline B9 A4 parts planner with 11 bounded categories, preserved
+  caller refinements and explicit fitment/seller evidence requirements. It does
+  not infer vehicle specifications or admit automotive offers to price ranking.
+- Six new regressions plus the full **562-test** suite pass with sockets/DNS
+  blocked. Source-linked [Ambiente research](research/audi-a4-b9-ambiente-2018-2019-buying-guide.md)
+  distinguishes fresh DOM reads, cached seller reviews, unavailable parts and
+  assumed freight/tax arithmetic. No delivered quote or purchasing winner is claimed.
+- The guest search canary challenged once; two shared-index follow-ups were
+  skipped. A native AliExpress item returned page-not-found/recommendations;
+  recommendation prices were excluded. The owned browser tab was closed.
+
 ## Version 0.9 international marketplace expansion
 
 - Added distinct Alibaba.com and AliExpress guest discovery, exact-identity
