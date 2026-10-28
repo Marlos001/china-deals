@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>A4 B9 · The OEM+ build guide</title>
+<style>
+:root{color-scheme:light;--ink:#172c38;--soft:#506675;--paper:#f4f7f7;--line:#d6e0e2;--blue:#224d64;--blue2:#376e84;--red:#a83f42;--gold:#876a35;--white:#fff;--pale:#e7eff0;--shadow:0 12px 30px #2540520c}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);background:var(--paper);font-family:"Avenir Next","Segoe UI",Arial,sans-serif;font-size:15px;line-height:1.55}button,input,select{font:inherit}a{color:var(--blue);text-underline-offset:3px}button,a,input,select,summary{outline-offset:3px}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #bd5f4a}button{cursor:pointer}.wrap{max-width:1320px;margin:auto;padding:0 42px}.topbar{background:#fff;border-bottom:1px solid var(--line)}.topbar .wrap{height:70px;display:flex;align-items:center;gap:28px}.brand{font-weight:750;letter-spacing:-.05em;font-size:21px;text-decoration:none;color:var(--ink)}.brand small{font-size:11px;letter-spacing:.06em;font-weight:600;color:var(--soft);margin-left:12px}.toplinks{margin-left:auto;display:flex;gap:24px}.toplinks a{text-decoration:none;font-size:13px;font-weight:650;color:var(--soft)}.hero{background:#dce8eb;overflow:hidden}.hero .wrap{display:grid;grid-template-columns:1fr 1.1fr;min-height:330px;align-items:center;gap:30px}.hero-copy{padding:42px 0;position:relative;z-index:1}.hero-note{font-size:13px;font-weight:700;color:var(--blue);margin:0 0 14px}.hero h1{font-size:clamp(40px,5vw,70px);line-height:1.02;letter-spacing:-.055em;font-weight:650;margin:0 0 18px;max-width:580px}.hero p{max-width:520px;color:#405b69;margin:0;font-size:16px}.hero-visual{position:relative;align-self:stretch;display:flex;align-items:center}.hero-visual svg{width:110%;max-width:690px;overflow:visible}.specbar{background:#fff;border-bottom:1px solid var(--line)}.specbar .wrap{display:flex;align-items:center;gap:0;flex-wrap:wrap}.spec{padding:18px 28px 18px 0;margin-right:28px;border-right:1px solid var(--line);font-size:12px;color:var(--soft)}.spec strong{display:block;color:var(--ink);font-size:14px}.spec:last-child{border:0}.content{padding-top:44px;padding-bottom:80px}.section-head{display:flex;gap:20px;align-items:end;justify-content:space-between;margin:0 0 20px}.section-head h2{margin:0;font-size:29px;letter-spacing:-.035em;line-height:1.1}.section-head p{margin:5px 0 0;color:var(--soft);max-width:660px}.micro{font-size:12px;color:var(--soft)}.insights{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:1px;background:#c5d6da;border:1px solid #c5d6da;border-radius:8px;overflow:hidden;margin-bottom:52px}.insight{background:#edf3f4;padding:23px 25px;min-height:154px}.insight strong{display:block;font-size:18px;line-height:1.3;letter-spacing:-.02em}.insight p{color:var(--soft);font-size:13px;margin:8px 0 0}.insight .eyebrow{display:block;font-size:12px;color:#587482;font-weight:700;margin-bottom:8px}.layout{display:grid;grid-template-columns:245px minmax(0,1fr);gap:33px;align-items:start}.sidebar{position:sticky;top:18px}.side-title{font-size:12px;color:var(--soft);font-weight:700;margin:0 0 9px}.categories{display:flex;flex-direction:column;gap:4px}.cat{display:flex;justify-content:space-between;align-items:center;width:100%;border:0;background:transparent;text-align:left;color:var(--soft);border-radius:6px;padding:10px 12px;font-weight:600}.cat:hover{background:#e6eff0}.cat.active{background:#dce9ec;color:var(--blue)}.cat span{font-size:12px;color:#78909a}.side-note{border-top:1px solid var(--line);margin-top:24px;padding:18px 12px 0;color:var(--soft);font-size:12px}.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}.search{position:relative;flex:1;min-width:220px}.search input{width:100%;border:1px solid #cbdadd;border-radius:6px;background:#fff;color:var(--ink);padding:11px 13px 11px 37px}.search svg{position:absolute;left:12px;top:12px;stroke:#78909a}.sort{border:1px solid #cbdadd;border-radius:6px;background:#fff;padding:11px;color:var(--ink)}.toggle{border:1px solid #cbdadd;border-radius:6px;background:#fff;padding:11px 13px;color:var(--soft);font-weight:600}.toggle[aria-pressed=true]{background:var(--blue);color:#fff;border-color:var(--blue)}.results-line{display:flex;justify-content:space-between;color:var(--soft);font-size:12px;margin:0 0 11px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.card{background:#fff;border:1px solid var(--line);border-radius:8px;overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow)}.card-top{padding:19px 20px 10px;display:flex;gap:8px;align-items:center}.badge{font-size:11px;font-weight:700;color:var(--blue);background:#e9f1f2;border-radius:4px;padding:4px 8px}.badge.hold{color:#815039;background:#f8eee5}.badge.reference{color:#75643d;background:#f5f0e3}.badge.pick{color:#28604c;background:#e9f3ed}.save{margin-left:auto;background:transparent;border:0;color:#7b9199;padding:1px 5px;font-size:23px;line-height:1}.save[aria-pressed=true]{color:#a83f42}.card-body{padding:0 20px 18px;flex:1}.card h3{font-size:19px;letter-spacing:-.025em;line-height:1.22;margin:4px 0 7px}.card .subtitle{color:var(--soft);font-size:13px;min-height:40px;margin:0}.card .price{font-size:20px;font-weight:700;letter-spacing:-.02em;margin:15px 0 0}.card .price small{display:block;font-weight:500;letter-spacing:0;color:var(--soft);font-size:12px}.card dl{display:grid;grid-template-columns:65px 1fr;gap:4px 8px;margin:15px 0 0;font-size:12px}.card dt{color:#6a7e87}.card dd{margin:0;color:var(--ink)}.card-foot{border-top:1px solid #edf1f1;padding:12px 20px;display:flex;align-items:center;gap:14px}.card-foot a{font-weight:700;text-decoration:none;font-size:12px}.card-foot button{border:0;background:none;color:var(--blue);font-size:12px;font-weight:700;padding:2px;margin-left:auto}.empty{grid-column:1/-1;background:#fff;border:1px solid var(--line);padding:35px;border-radius:8px;color:var(--soft)}.wheel-guide,.calculator,.seller-section,.research{margin-top:65px}.wheel-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#cbdadd;border:1px solid #cbdadd;border-radius:8px;overflow:hidden}.wheel{background:#fff;padding:22px}.wheel strong{font-size:22px;letter-spacing:-.04em}.wheel p{color:var(--soft);font-size:13px;margin-bottom:0}.spec-explainer{color:var(--soft);font-size:13px;margin-top:14px}.calc-panel{background:#254e62;color:#fff;border-radius:9px;padding:30px;display:grid;grid-template-columns:1.2fr 1fr;gap:35px}.calc-panel h2{font-size:28px;line-height:1.12;letter-spacing:-.035em;margin:0 0 10px}.calc-panel p{color:#d2e1e5;max-width:490px;font-size:13px}.calc-form{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field label{display:block;font-size:12px;color:#d9e7e9;margin-bottom:5px}.field input,.field select{width:100%;padding:10px;border:1px solid #91aeb9;background:#fff;color:var(--ink);border-radius:5px}.calc-result{grid-column:1/-1;border-top:1px solid #6b8b99;padding-top:13px;color:#dbe9eb}.calc-result strong{display:block;font-size:30px;letter-spacing:-.04em;color:#fff}.calc-result .detail{font-size:12px}.seller-list{border-top:1px solid var(--line)}.seller{display:grid;grid-template-columns:1fr 1fr 1.7fr;gap:20px;padding:17px 0;border-bottom:1px solid var(--line);font-size:13px}.seller strong{font-size:14px}.seller p{margin:0;color:var(--soft)}.disclaimer{padding:14px 16px;background:#f7eee4;color:#765033;border-left:3px solid #c78f5a;border-radius:3px;font-size:13px}.research details{background:#fff;border:1px solid var(--line);border-radius:7px}.research summary{padding:20px 22px;cursor:pointer;font-weight:700}.source-content{padding:0 22px 25px;overflow-wrap:anywhere}.source-content h1{font-size:25px}.source-content h2{font-size:22px;margin-top:40px}.source-content h3{font-size:17px}.source-content p,.source-content li{max-width:1000px}.source-content table{border-collapse:collapse;width:100%;font-size:13px}.source-content th,.source-content td{border:1px solid var(--line);padding:9px;text-align:left;vertical-align:top}.source-content pre{white-space:pre-wrap;background:#edf3f4;padding:14px}.table-scroll{overflow:auto}.footer{border-top:1px solid var(--line);padding:25px 0;color:var(--soft);font-size:12px}.dialog{border:0;border-radius:10px;box-shadow:0 15px 70px #12354a55;max-width:620px;width:calc(100% - 30px);padding:0;color:var(--ink)}.dialog::backdrop{background:#122d3dbb}.dialog-inner{padding:28px}.dialog h2{font-size:27px;letter-spacing:-.035em;line-height:1.15;margin:8px 30px 10px 0}.dialog p{color:var(--soft)}.dialog-close{float:right;background:#edf3f4;border:0;border-radius:5px;font-size:20px;padding:3px 10px}.dialog h3{font-size:13px;margin:20px 0 4px}.dialog ul{padding-left:20px;color:var(--soft)}.dialog .link{display:inline-block;background:var(--blue);color:#fff;text-decoration:none;padding:10px 16px;border-radius:5px;font-weight:650;margin-top:5px}.compare-bar{position:fixed;bottom:20px;right:22px;background:#fff;border:1px solid #b7cdd2;box-shadow:0 8px 35px #284a5d33;border-radius:8px;padding:12px 16px;z-index:5;display:flex;align-items:center;gap:12px}.compare-bar[hidden]{display:none}.compare-bar button{border:0;background:var(--blue);color:#fff;border-radius:5px;padding:8px 12px;font-weight:700}.compare-row{border-bottom:1px solid var(--line);padding:13px 0}.compare-row strong{display:block}.compare-row p{margin:3px 0;font-size:13px}.no-js{padding:14px;background:#f6e9da}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}@media(max-width:900px){.wrap{padding:0 24px}.hero .wrap{grid-template-columns:1fr 0.8fr}.hero-visual svg{width:135%}.layout{grid-template-columns:minmax(0,1fr)}.sidebar{position:static;min-width:0}.categories{flex-direction:row;overflow:auto;padding-bottom:5px}.cat{white-space:nowrap;width:auto;gap:10px}.side-title,.side-note{display:none}.insights{grid-template-columns:repeat(3,1fr)}.insight{padding:18px}.seller{grid-template-columns:1fr 1fr}.seller p{grid-column:1/-1}}@media(max-width:600px){.wrap{padding:0 18px}.topbar .wrap{height:62px}.brand small{display:none}.toplinks{gap:14px}.toplinks a{font-size:12px}.toplinks a:last-child{display:none}.hero .wrap{display:flex;flex-direction:column;align-items:stretch;min-height:0;gap:0}.hero-copy{padding:36px 0 0}.hero h1{font-size:42px}.hero-visual{height:150px;overflow:hidden}.hero-visual svg{width:100%;transform:translateY(-7px)}.spec{padding:12px 16px 12px 0;margin-right:16px}.content{padding-top:32px}.insights{grid-template-columns:1fr;gap:1px;margin-bottom:40px}.insight{min-height:0}.grid{grid-template-columns:minmax(0,1fr)}.wheel-grid{grid-template-columns:minmax(0,1fr)}.calc-panel{grid-template-columns:1fr;padding:22px;gap:15px}.section-head{display:block}.section-head .micro{margin-top:9px}.seller{grid-template-columns:1fr;gap:3px}.seller p{grid-column:auto}.compare-bar{left:12px;right:12px;bottom:10px;justify-content:space-between}.source-content{padding:0 15px 20px}.toolbar .search{min-width:100%}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style></head><body>
+<noscript><div class="no-js">Enable JavaScript to use filters and the calculator. The complete research remains available below.</div></noscript>
+<header class="topbar"><div class="wrap"><a class="brand" href="#top">A4 / B9 <small>THE PARTS GUIDE</small></a><nav class="toplinks" aria-label="Page navigation"><a href="#options">Options</a><a href="#wheel-guide">Wheel fitment</a><a href="#costs">Import costs</a><a href="#research">Full research</a></nav></div></header>
+<main id="top"><section class="hero"><div class="wrap"><div class="hero-copy"><p class="hero-note">A considered build for your daily drive</p><h1>Make it yours.<br>Keep it an Audi.</h1><p>Chinese-marketplace listings for a refined, responsive A4, with seller context and conditional landed-cost scenarios.</p></div><div class="hero-visual" aria-hidden="true"><svg viewBox="0 0 700 310" fill="none"><path d="M39 194c27-2 51-14 86-26l45-14c22-25 46-52 85-64 36-11 127-13 170-7 28 4 60 30 91 51l85 17c23 4 41 16 51 37l10 14-7 19h-33m-47 0H213m-78 0H66l-25-8-2-19Z" fill="#b7cfd5" stroke="#3e6879" stroke-width="3"/><path d="M182 154c27-25 48-42 78-50 33-8 69-9 100-9v59H182Zm190-59c24 0 40 0 54 3 22 5 45 26 67 46l-121 8V95Z" fill="#e1edef" stroke="#678c9b" stroke-width="2"/><path d="M362 95v60m-192 0h341m-207 0v59m143-60v59M37 200h41m537-30 30 7M104 184h40m405-14h51" stroke="#688b99" stroke-width="2"/><circle cx="174" cy="217" r="50" fill="#345a6a" stroke="#244d60" stroke-width="4"/><circle cx="174" cy="217" r="31" fill="#c9dce0" stroke="#edf5f6" stroke-width="3"/><circle cx="574" cy="217" r="50" fill="#345a6a" stroke="#244d60" stroke-width="4"/><circle cx="574" cy="217" r="31" fill="#c9dce0" stroke="#edf5f6" stroke-width="3"/><path d="m174 188 7 23 21-11-15 20 19 15-24-5-8 20-7-23-21 11 15-20-19-15 24 5 8-20Zm400 0 7 23 21-11-15 20 19 15-24-5-8 20-7-23-21 11 15-20-19-15 24 5 8-20Z" fill="#7898a5"/><path d="M45 261h605" stroke="#96b4be" stroke-width="2"/><text x="435" y="275" fill="#648996" font-size="11" font-family="sans-serif">B9 sedan · illustrative profile</text></svg></div></div></section>
+<div class="specbar"><div class="wrap"><div class="spec"><strong>2018–2019</strong>Model years</div><div class="spec"><strong>Ambiente sedan</strong>Standard bumper</div><div class="spec"><strong>2.0T · FWD</strong>Engine code to confirm</div><div class="spec"><strong>São Paulo</strong>CEP 12242-160 / 05531-040</div><div class="spec"><strong>28 Oct 2026</strong>Research snapshot</div></div></div>
+<div class="wrap content"><section aria-labelledby="approach"><div class="section-head"><div><h2 id="approach">The build, in a sentence</h2><p>Comfortable enough for every day, with a little more presence and response.</p></div></div><div class="insights"><div class="insight"><span class="eyebrow">Start with the stance</span><strong>Genuine 18s, good tyres.</strong><p>8J×18 ET40 with 245/40 R18 is the preferred OE direction. Confirm the exact wheel and placard.</p></div><div class="insight"><span class="eyebrow">Keep the details restrained</span><strong>Spoiler, then splitter.</strong><p>The Dongsai spoiler is the strongest Chinese listing found; verify fit and freight.</p></div><div class="insight"><span class="eyebrow">Build for your engine</span><strong>Local, conservative tune.</strong><p>Keep the stock turbo initially. Match the engine and ECU codes before ordering.</p></div></div></section>
+<section id="options" aria-labelledby="options-title"><div class="section-head"><div><h2 id="options-title">Explore the options</h2><p>Alibaba listing leads from the Chinese-marketplace search. Save options and inspect fitment, seller evidence and uncertainties.</p></div><div class="micro">Alibaba observations · 28 Oct 2026</div></div><div class="layout"><aside class="sidebar"><p class="side-title">Parts</p><div id="categories" class="categories" role="group" aria-label="Filter by part category"></div><p class="side-note">A good fit and a credible seller matter more than the lowest displayed price.</p></aside><div><div class="toolbar"><label class="search"><span class="sr-only">Search options</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="10" cy="10" r="7"/><path d="m15 15 6 6"/></svg><input id="search" type="search" placeholder="Search parts, seller or model"></label><label><span class="sr-only">Sort options</span><select class="sort" id="sort"><option value="priority">Recommended order</option><option value="price">Estimated landed cost</option><option value="name">Name A–Z</option></select></label><button class="toggle" id="savedOnly" aria-pressed="false">Saved <span id="savedCount">0</span></button></div><div class="results-line"><span id="resultCount" aria-live="polite"></span><span>Use ♡ to save</span></div><div id="cards" class="grid"></div></div></div></section>
+<section id="wheel-guide" class="wheel-guide"><div class="section-head"><div><h2>Wheel fitment, made clear</h2><p>Start with the actual wheel stamp, tyre placard and brake clearance on your car.</p></div></div><div class="wheel-grid"><div class="wheel"><span class="micro">Keep what you have</span><br><strong>17 inch</strong><p>Michelin lists 225/50 R17 94Y for the 2019 Ambiente. Your car's placard is the final starting point.</p></div><div class="wheel"><span class="micro">Daily choice</span><br><strong>18 inch</strong><p>OE B9 8J×18 ET40 with 245/40 R18 is the preferred balance. Confirm the exact part number.</p></div><div class="wheel"><span class="micro">More visual impact</span><br><strong>19 inch</strong><p>A larger wheel needs a confirmed load rating, tyre size, clearance and offset. No Chinese wheel listing was verified in this search.</p></div></div><p class="spec-explainer">PCD 5×112 · bore commonly described as 66.5/66.6 mm · verify bore drawing, load rating, brake clearance and bolt seat. <a href="https://apexwheels.com/fitment-guides/audi/a4/audi-b9-a4-wheel-and-tire-fitment-guide" target="_blank" rel="noopener noreferrer">APEX fitment guide</a></p></section>
+<section id="costs" class="calculator"><div class="calc-panel"><div><h2>What might it cost<br>to land in Brazil?</h2><p>Two illustrative scenarios assume the displayed Alibaba price is goods-only and taxes have not already been collected. Enter your own freight assumption; this uses 60% import duty and ICMS gross-up only if the shipment qualifies for this treatment.</p><p>Freight is hypothetical for both CEPs; insurance, IOF, fees and installation are excluded. Alibaba mentions possible upfront charges: check checkout to avoid double-counting. Oversize exhausts are excluded because shipping eligibility is unknown.</p><a href="https://www.gov.br/receitafederal/pt-br/assuntos/aduana-e-comercio-exterior/manuais/remessas-postal-e-expressa/preciso-pagar-impostos-nas-compras-internacionais/quais-sao-os-impostos-devidos" target="_blank" rel="noopener noreferrer" style="color:#fff;font-size:12px">Read the Receita rules</a></div><div class="calc-form"><div class="field" style="grid-column:1/-1"><label for="calcItem">Part and reference price</label><select id="calcItem"></select></div><div class="field"><label for="freight">Assumed freight <span id="freightCurrency"></span></label><input type="number" id="freight" min="0" step="0.01" inputmode="decimal"></div><div class="field"><label for="icms">ICMS assumption</label><select id="icms"><option value="0.17">17% · São Paulo RTS scenario</option><option value="0.20">20% · sensitivity</option></select></div><div class="calc-result" aria-live="polite"><span class="detail">Estimated total, before additional costs</span><strong id="total">—</strong><span class="detail" id="breakdown"></span></div></div></div></section>
+<section class="seller-section" id="sellers"><div class="section-head"><div><h2>What the marketplace search found</h2><p>Ratings below are store-level Alibaba observations, not product ratings. No product reviews were visible on the shortlisted listings.</p></div></div><div class="seller-list"><div class="seller"><strong>Dongsai</strong><span>5.0 / 5 · 104 store reviews</span><p>The spoiler title names the B9 sedan for 2017–2020; exact deck fit and landed cost still need confirmation.</p></div><div class="seller"><strong>JTLD</strong><span>4.7 / 5 · 737 store reviews</span><p>Intake listing has conflicting vehicle compatibility information. Confirm your engine and MAF before ordering.</p></div><div class="seller"><strong>Other Chinese marketplaces</strong><span>Search coverage is incomplete</span><p>Taobao, Tmall, 1688, Weidian, JD, Goofish and AliExpress were searched, but no comparable exact candidate was verified. A shared search-index challenge stopped CLI dispatch after the first request; it does not prove the individual stores were blocked.</p></div><div class="seller"><strong>Still to find</strong><span>Wheels · lighting · turbo</span><p>No exact Chinese wheel, headlight, taillight or turbo offer with credible fitment and seller evidence was established. Blibli is Indonesian and was outside this China-focused pass.</p></div></div></section>
+<section id="research" class="research"><div class="section-head"><div><h2>The complete research</h2><p>Open the full source guide for every fitment note, excluded option, seller detail and citation.</p></div></div><p><a href="audi-a4-b9-china-marketplace-picks.md">Read the Chinese-marketplace research and coverage ledger</a></p><p class="disclaimer">The collapsed original guide below predates the Chinese sourcing pass and contains US and European references. This guide is a 28 October 2026 snapshot. Product availability, prices, reviews and import rules may have changed. No completed checkout or delivered quote was verified.</p><details><summary>Read the complete original guide</summary><div class="source-content"><h1>Audi A4 B9 Ambiente 2018–2019: OEM+ parts shortlist</h1>
+<p><strong>Researched 28 October 2026. Target: Brazilian Ambiente sedan, 2.0 TFSI, FWD; standard bumper unless the car has already been converted. Delivery references: CEP 12242-160 or 05531-040, São Paulo.</strong> Style: comfortable daily driver with a moderately sporty appearance and response.</p>
+<p><strong>My build choice:</strong> genuine 18-inch wheels with good tyres, a small gloss-black boot spoiler, a subtle splitter for the <strong>standard</strong> bumper, and a conservative locally supported tune only after identifying the engine/ECU. Keep the factory turbo and working original lights. Buy the grille on verified fit rather than the lowest advertised price. A full bumper conversion, unknown-brand wheels and a big turbo are poor first purchases for this brief.</p>
+<p>This is a prioritized buying/research shortlist, <strong>not a cart of fully verified delivered offers</strong>. Prices below distinguish fresh visible pages from cached references; sellers' stock claims are not checkout verification. No complete Brazil-delivered quote was obtained for either CEP. Unknown seller metrics and fitment remain explicit. No sellers were contacted, accounts used or purchases made.</p>
+<h2>1. Wheel sizes first</h2>
+<h3>The sizes I would investigate</h3>
+<table>
+<thead>
+<tr>
+<th>Route</th>
+<th>Wheel / tyre target</th>
+<th>Choice for this car</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Keep current wheels</td>
+<td>Confirm actual wheel stamp and door placard. Michelin's Ambiente 2019 selector lists <strong>225/50 R17 94Y</strong>.</td>
+<td>Cheapest route if current wheels/tyres are good. The selector does not prove your particular car has 17s.</td>
+</tr>
+<tr>
+<td><strong>Best daily OEM+</strong></td>
+<td>Genuine B9 <strong>8J×18 ET40</strong>, <strong>5×112</strong>; investigate <strong>245/40 R18</strong> with correct load/speed rating.</td>
+<td>My first choice: restrained factory appearance and more tyre sidewall than 19s. Obtain exact Audi part number and VIN/PR compatibility.</td>
+</tr>
+<tr>
+<td>More visual impact</td>
+<td>APEX VS-5 <strong>19×9 ET32</strong>, <strong>245/35 R19</strong>, square setup.</td>
+<td>Manufacturer-documented B9 A4 fitment; more expensive, less forgiving on rough roads. APEX also lists 255/35 R19, but I would start with its 245 option for this brief.</td>
+</tr>
+<tr>
+<td>20-inch / extreme width</td>
+<td>No default recommendation.</td>
+<td>Adds cost and compromises comfort; not my pick for your stated balance.</td>
+</tr>
+</tbody>
+</table>
+<p>Sources: <a href="https://www.michelin.com.br/auto/fabricantes/audi/a4-sedan/2-dot-0-tfsi-ambiente-s-tronic/2019">Michelin's exact Ambiente sedan selector</a>, <a href="https://www.audi.ge/files/a4.pdf">Audi brochure listing 18/19-inch tyre combinations</a>, <a href="https://apexwheels.com/fitment-guides/audi/a4/audi-b9-a4-wheel-and-tire-fitment-guide">APEX B9 A4 guide</a>, and the <a href="https://www.ebay.de/itm/318047871250">exact OE 8J×18 ET40 wheel listing</a>. The Audi PDF was discoverable in the index but its opening failed; it is supplementary evidence. APEX's full fitment text was read in a fresh browser capture.</p>
+<h3>Measurements that cannot be skipped</h3>
+<ul>
+<li><strong>PCD: 5×112.</strong> B9 big-bore applications are commonly described as <strong>66.5/66.6 mm</strong>; obtain the wheel manufacturer's exact centre-bore drawing and compatibility. Do not round a physically undersized bore up. A3-style <strong>57.1 mm</strong> wheels are not a direct B9 hub fit simply because they share 5×112. See <a href="https://lf-ind.com/pages/audi-a4-s4-rs4-allroad-b9-fitment-guide">LFI's B8/B9 fitment guide</a>.</li>
+<li>Confirm width, offset, wheel load rating, brake clearance, valve/TPMS arrangement, bolt thread, bolt-seat profile and bolt length. APEX specifies <strong>OEM R13 ball-seat hardware for its documented VS-5 application</strong>; that does not apply to every aftermarket wheel.</li>
+<li>Use four compatible rolling diameters and the required tyre ratings. Relative to 225/50 R17, nominal 245/40 R18 diameter changes about <strong>−0.55%</strong> and 245/35 R19 about <strong>−0.41%</strong> (geometry only; not a regulatory or clearance approval).</li>
+<li>Do not import a generic forged-wheel listing without a drawing, per-wheel load evidence and test documentation tied to the exact specification. For used OE wheels, request inner-barrel photos, runout inspection and repair/weld history.</li>
+</ul>
+<h3>Actual wheel leads</h3>
+<table>
+<thead>
+<tr>
+<th>Pick</th>
+<th>Source-listed price and seller evidence</th>
+<th>Decision</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>B9 OE 18-inch wheels</strong>, locally sourced as a matched set</td>
+<td>Search target: 8J×18 ET40, exact 8W-series part number. No adequately verified Brazilian set price obtained.</td>
+<td><strong>Best specification/value direction.</strong> Local inspection and returns are more useful here than importing an unverified bargain.</td>
+</tr>
+<tr>
+<td><a href="https://www.ebay.de/itm/318047871250">OE example: 8W0601025EB</a></td>
+<td><strong>€300 for ONE used wheel</strong>, not a set. eBay page: <strong>CLS Auto Parts, 99.9% positive, feedback number 1,659</strong> at the retained page opening.</td>
+<td>Useful identity/size reference. Not a four-wheel deal; no verified Brazil freight or structural inspection.</td>
+</tr>
+<tr>
+<td><a href="https://martiniworks.com/products/wheels-tires/wheels/apex-wheels-vs-5-19x9-32-5x112-race-silver">APEX VS-5 19×9 ET32, Race Silver</a></td>
+<td>Retail page shows <strong>US$2,056/set of four</strong>, US$514 each, SKU <strong>VS5199ET32-5112-666-RS</strong>, zero product reviews. <strong>Returned content was crawled 1.1 years ago.</strong></td>
+<td>Good manufacturer-backed fitment direction; <strong>stale price reference only</strong>. Refresh exact stock/finish and seller terms before any decision.</td>
+</tr>
+</tbody>
+</table>
+<p>Do not take a universal “fits A3/A4/A5/Q3/RS…” headline as proof. A local <a href="https://www.pneusmalibu.com.br/jogo-de-rodas/aro-18/audi/jogo-de-4-rodas-aro-18-original-audi-a3-a4-a5-a6-a7-a8-q2-q3-q4-q5-q7-q8-r8-rs-rs3-rs4-rs5-rs6-rs7-s3-s4-s5-s6-s7-s8-tt-16043">Pneus Malibu 18-inch set lead</a> names an 8T-series part; exact offset/bore, condition and seller reputation were not established, so it is <strong>not an approved pick</strong>.</p>
+<h2>2. Styling: restrained OEM+, matched to Ambiente</h2>
+<table>
+<thead>
+<tr>
+<th>Priority</th>
+<th>Part and exact source</th>
+<th>Price/evidence</th>
+<th>My assessment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1</strong></td>
+<td><a href="https://www.ctcarbon.co/products/audi-a4-s4-b9-2016-gloss-black-saloon-spoiler-v1">CT Carbon gloss-black saloon spoiler V1, CT834</a></td>
+<td>Fresh browser: <strong>£49</strong>, <strong>IN STOCK</strong> claim; <strong>5.00/5 from four product reviews</strong>. ABS, sedan application.</td>
+<td><strong>Strongest small styling candidate.</strong> Subtle, inexpensive before import costs, no bumper swap. Verify dry fit and mounting preparation with the installer.</td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td><a href="https://maxtondesign.com/products/front-splitter-v-2-suitable-for-audi-a4-b9">Maxton standard-bumper splitter V2, AU-A4-B9-FD2G</a></td>
+<td>Fresh manufacturer browser: <strong>US$180 excluding tax</strong>, estimated production <strong>20 days</strong>. Product description lists B9 sedan/Avant 2015–2019.</td>
+<td>Good design match, conditional on standard bumper/photo confirmation and speed-bump clearance. Production estimate is not ready stock.</td>
+</tr>
+<tr>
+<td>Alternative seller for same splitter</td>
+<td><a href="https://www.maxtondesign.co.uk/body-kits/audi/audi-a4/audi-a4-b9/audi-a4-b9-pre-face/audi-a4-b9-pre-face-avant/front-splitter-v.2-audi-a4-b9">Maxton Design UK, same AU-A4-B9-FD2G</a></td>
+<td>Fresh browser: <strong>£174</strong>, <strong>pre-order 4–6 weeks</strong>.</td>
+<td>Better review signal than the .com Trustpilot profile, but higher indicative cost and a long lead time. Compare written export quote and returns.</td>
+</tr>
+<tr>
+<td><strong>3</strong></td>
+<td>Black-optic horizontal grille or restrained RS-style grille for <strong>2015–2019 pre-facelift standard bumper</strong></td>
+<td>Chinese leads found; no exact selected seller/price/reviews combination verified.</td>
+<td>Prefer horizontal/slatted black optics for the most factory-like look; honeycomb if you want more sport. Keep badge choice restrained. <strong>No buy-ready Chinese winner.</strong></td>
+</tr>
+<tr>
+<td><strong>4</strong></td>
+<td>Standard-bumper lower side grilles; diffuser matched to intended exhaust outlets</td>
+<td>Listings frequently mix standard and S-line or B9/B9.5.</td>
+<td>Buy after checking current bumper photos, mounts and sensor locations. A diffuser and exhaust must be chosen together.</td>
+</tr>
+<tr>
+<td>Later</td>
+<td>Complete OE S-line-style front/rear bumper conversion</td>
+<td>No complete compatible package with reliable delivered cost established.</td>
+<td>Low value as a first mod. Budget paint, brackets, lower grilles, undertray interface and sensor mounts—not just the bumper skin.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Keep the Ambiente bumper initially.</strong> A good spoiler and correctly fitting lip accomplish much of the visual goal. Avoid buying an S4/S-line splitter for the standard bumper, a facelift B9.5 grille for the 2018 front end, or an Avant spoiler for the sedan.</p>
+<p>Discount observations: CT advertises a newsletter <strong>10%</strong> offer; Maxton UK a <strong>5%</strong> signup offer. No signup, code, exclusions or redemption was verified, so <strong>no discount is subtracted</strong>. A site's crossed-out price does not establish historical savings.</p>
+<h2>3. Headlights, taillights and small lighting upgrades</h2>
+<table>
+<thead>
+<tr>
+<th>Part</th>
+<th>Candidate / evidence</th>
+<th>Recommendation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Working factory headlights</strong></td>
+<td>First determine present type: xenon/LED/Matrix, modules, OE number and PR codes.</td>
+<td><strong>Keep/restore them first.</strong> A newer-looking housing is not automatically a better beam or a compatible retrofit.</td>
+</tr>
+<tr>
+<td>Aftermarket headlight research candidate</td>
+<td><a href="https://www.akdlight.com/AKD-headlight-assembly-modification-for-2017-2020-Audi-A4-models-featuring-new-RS-LED-daytime-running-lights-and-dynamic-turn-signals-with-projector-lenses-pd582636738.html">AKD A4 2017–2020 RS-DRL headlight pair</a></td>
+<td>Fresh browser advertises <strong>$599/pair</strong> against $1,799; currency ISO and selected configuration not confirmed. <strong>Hold.</strong> No exact Ambiente wiring/module match, right-hand-traffic beam evidence, independent seller rating or current delivered quote.</td>
+</tr>
+<tr>
+<td><strong>OE LED dynamic rear-light retrofit</strong></td>
+<td><a href="https://www.cars-equipment.com/en/shop/a4-b9-8w/complete-set-of-led-taillights-with-2/">Sedan, up to MY2019, right-hand-traffic KUFATEC-system retailer lead</a> and <a href="https://audiupgrades.co.uk/retrofit/a4-s4-rs4-b9-genuine-dynamic-rear-tail-light-upgrade/">genuine B9 retrofit explanation</a></td>
+<td>More coherent OEM+ direction than animation-heavy replacement lights. Retail reference <strong>€1,784.50</strong>; stock and export quote unverified. Check comfort-module hardware, lamps, loom and coding as one package. Confirm Brazilian rear-fog arrangement.</td>
+</tr>
+<tr>
+<td>Coding component</td>
+<td><a href="https://kufatec.com/en/kufatec-coding-dongle-for-mlb-led-rear-lights/41505">KUFATEC MLB LED rear-light dongle 41505</a></td>
+<td>Manufacturer lists <strong>€150</strong>, one review. <strong>It is a coding component, not a complete set of lamps</strong>, and does not itself establish a compatible retrofit.</td>
+</tr>
+<tr>
+<td><strong>Small optional upgrade</strong></td>
+<td><a href="https://www.osram.com/ecat/LEDriving%20DMI%20for%20Audi%20A4%2C%20A5-LED%20Dynamic%20Mirror%20Indicator-Car%20lighting-Automotive/com/en/GPS01_3366238/">OSRAM LEDriving dynamic mirror indicators for A4 B9</a></td>
+<td>Manufacturer lists A4 B9 application. An easier OEM+ direction to investigate than full headlamp replacement. Exact part/finish, local seller, approval and price still required.</td>
+</tr>
+</tbody>
+</table>
+<p>AKD review evidence needs particular care: the live page says <strong>“3 Reviews”</strong> near the product but its detailed review area displays <strong>zero comments/no qualified record</strong>, alongside a 5/5 display. I did <strong>not</strong> treat that as three verified five-star purchases. Its “67% off” claim is not a verified discount history.</p>
+<p>One Alibaba headlight search result called an <strong>8K0941753/754, 2013–2016</strong> application “B9.” That is a generation/part-number conflict, not a bargain for this B9. Conversely, not every 8K-prefix service part is automatically incompatible with a B9: cross-generation shared components exist. Check the exact assembly, not just the prefix.</p>
+<p>Brazil uses left-hand-drive cars on <strong>right-hand-traffic</strong> roads. This is different from “left-hand traffic” in a British lighting selector. Confirm the actual beam pattern, applicable approval, levelling, coding and all included modules; do not infer these from a headlight photograph.</p>
+<h2>4. Performance: suited to the 190 hp FWD application</h2>
+<p>Your description matches the Brazilian 190 cv application, but the <strong>engine code, ECU box code, transmission and existing intake sensor must be read from this car</strong>. A Brazilian <a href="https://avgd.com.br/AVGD/project/audi-a4-2-0-b9-reprogramacao-remap-chip/">CVKB-specific workshop page</a> and the <a href="https://www.onlyrevo.com/product-details/software/audi/a4-b9-2015/410/stage-1">manufacturer's Revo DEMA/DLVA 190 PS listing</a> show why “B9 2.0T” alone is insufficient. Revo's latter opening encountered a redirect loop; its exact-engine listing is index evidence.</p>
+<table>
+<thead>
+<tr>
+<th>Order</th>
+<th>Upgrade</th>
+<th>Exact lead and assessment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>0</strong></td>
+<td>Baseline health and tyres</td>
+<td>Diagnose faults, intake/boost leaks and cooling condition; service according to the actual engine/transmission. A sound car and good tyres come before more torque.</td>
+</tr>
+<tr>
+<td><strong>1</strong></td>
+<td>Conservative, locally supported ECU calibration</td>
+<td>Start with a <strong>CVKB/190/FWD-compatible</strong> provider after scanning the car. <a href="https://avgd.com.br/AVGD/project/audi-a4-2-0-b9-reprogramacao-remap-chip/">AvantGarde's CVKB page</a> advertises 190→235 HP; this is a provider claim, not a tested result on your car. Seller reviews, price and diagnostic process still need assessment. No workshop is endorsed solely from horsepower advertising.</td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td>OEM airbox / MAF-compatible intake</td>
+<td><strong>Best value: retain the airbox initially.</strong> Optional <a href="https://www.akstuning.co.uk/shop/home/1635-revo-audi-b9-20tfsi-190ps-oem-intake-system-ra841m200100.html">Revo OEM+ RA841M200100</a>, supported by the <a href="https://www.onlyrevo.com/fitting-instructions-pdf/Air%20Intake%20Systems/OEM%20Plus%20Systems/Revo%20OEM%2B%20Intake%20Upgrade%20Kit%202.0%20TFSI%20B9%20A4-A5%20%288W-F5%29_RA841M200100.pdf">Revo fitting instructions</a>. Retail reference <strong>£219 VAT excluded, no stock/no ETA</strong>. Confirm the MAF arrangement; this is not an available bargain.</td>
+</tr>
+<tr>
+<td><strong>3</strong></td>
+<td>Intercooler if logs/use justify it</td>
+<td><a href="https://www.wagner-tuningshop.de/en/Comp-Intercooler-Kit-for-Audi-A4-B9-A5-F5-2-0TFSI-200001126">Wagner 200001126, B9 A4/A5 2.0 TFSI</a>: <strong>€1,040</strong>, out-of-stock claim in returned page. Exact country/engine/hoses still need confirmation; a separate USA variant exists. At estimated imported cost, compare local alternatives before ordering.</td>
+</tr>
+<tr>
+<td><strong>4</strong></td>
+<td>Quiet/resonated cat-back</td>
+<td>Premium reference: <a href="https://www.awe-tuning.com/products/audi-b9-a4-2-0t-exhaust-suite">AWE Touring, chrome 3015-32078 / black 3015-33078</a>. Fresh browser <strong>US$2,045</strong> each complete system. Prefer Touring over Track for a daily. Exact 190 hp Brazilian FWD fitment, rear valance and delivered quote unverified. <strong>Poor value imported at this price.</strong> Compare a documented local resonated system retaining emissions equipment.</td>
+</tr>
+<tr>
+<td><strong>Last / hold</strong></td>
+<td>Turbo replacement or hybrid turbo</td>
+<td><strong>Keep the stock turbo for this build.</strong> No suitable complete CVKB/190/FWD turbo package with credible seller and calibration/support evidence was verified. Do not order MQB IS38/GTI hardware or a B9 S4 3.0T kit just because a listing says EA888/B9.</td>
+</tr>
+</tbody>
+</table>
+<h3>Tempting options I removed</h3>
+<ul>
+<li><a href="https://performancebyie.com/products/ie-audi-b9-a4-a5-performance-ecu-tune">IE B9 A4/A5 tuning</a> explicitly excludes FWD models. Its attractive output figures do not make it suitable for your Ambiente.</li>
+<li><a href="https://www.goapr.com/products/engine_hardware/intake/intakes_and_airboxes/parts/CI100044">APR PEX CI100044</a> is not a default intake recommendation for the MAF-equipped 190 hp application; verify the exclusion/application and sensor arrangement before substituting it for the Revo kit.</li>
+<li><a href="https://www.goapr.com/products/software/ecu_upgrade/gasoline/4/20t_ea888_g3b/parts/ECU-20T-EA888-3B-B9">APR Gen 3B B9 software</a> is a <strong>conditional reference</strong>, not a confirmed Brazilian fit. Fresh page: <strong>US$446.95 software</strong>, NAR market, Bosch MG1, with installation/device charges separate and box-code dependence. Its 242–267 HP marketing range is not a promise for CVKB or Brazilian fuel. Match ECU, market and calibration first; APR Plus's US warranty wording is not Brazilian coverage.</li>
+<li>AWE calls the included pipe a downpipe but describes its system as <strong>cat-back preserving emissions equipment</strong>. Do not confuse this with a catalyst-delete downpipe or a complete ECU “stage” requirement.</li>
+</ul>
+<h2>5. Seller assessment: the part brand is only half the decision</h2>
+<p><strong>These are source-specific observations, not a blended score.</strong> Review-platform pages can be cached and have selection bias; counts change. They cannot certify your exact part. A fresh browser attempt to Trustpilot encountered a verification page, so the table's review-platform metrics are the separately returned web-page evidence, not fresh authenticated checks.</p>
+<table>
+<thead>
+<tr>
+<th>Exact seller/domain</th>
+<th>Retained evidence</th>
+<th>How I use it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ctcarbon.co</strong></td>
+<td><a href="https://www.trustpilot.com/review/ctcarbon.co">Trustpilot</a>: <strong>4.7/5, 425 reviews</strong>, returned crawl one day old. CT834 product page: fresh <strong>5/5, 4 reviews</strong>.</td>
+<td>Best measured reputation signal among the small styling leads checked. Product sample is tiny; keep returns/dry-fit conditions in writing.</td>
+</tr>
+<tr>
+<td><strong>maxtondesign.co.uk</strong></td>
+<td><a href="https://www.trustpilot.com/review/maxtondesign.co.uk">Trustpilot</a>: <strong>4.5/5, 748 reviews</strong>, returned crawl one week old. Other cross-links displayed 756–758 and 4.5–4.6; do not merge snapshots.</td>
+<td>Prefer obtaining this storefront's quote over assuming all Maxton domains have the same service record. Pre-order delay remains material.</td>
+</tr>
+<tr>
+<td><strong>maxtondesign.com</strong></td>
+<td><a href="https://www.trustpilot.com/review/maxtondesign.com">Trustpilot</a>: <strong>2.1/5, 41 reviews</strong>. <a href="https://www.trustedshops.co.uk/buyerrating/info_X050E49423E3123AA4D52C83A7954BE2E.html">Trusted Shops</a>: <strong>4.53/5, 2,806 total reviews</strong>; fresh merchant widget showed 4.54/2.8k.</td>
+<td>Material disagreement across platforms. Do not average it away or transfer the UK's score. Lower advertised price alone does not resolve fulfilment/return risk.</td>
+</tr>
+<tr>
+<td><strong>urotuning.com</strong></td>
+<td><a href="https://www.trustpilot.com/review/urotuning.com">Trustpilot</a>: <strong>1.7/5, 17 reviews</strong>, crawl two days old; unclaimed profile/no invitation history.</td>
+<td>Small, negatively selected sample, not proof of fraud. Enough concern to avoid making it the default seller simply because its catalogue has the right Revo part.</td>
+</tr>
+<tr>
+<td><strong>CLS Auto Parts, eBay</strong></td>
+<td><a href="https://www.ebay.de/itm/318047871250">Exact used-wheel listing</a>: <strong>99.9% positive, feedback number 1,659</strong>.</td>
+<td>Useful seller signal for that seller, not structural proof for a used wheel, nor evidence that four identical wheels are available.</td>
+</tr>
+<tr>
+<td><strong>akdlight.com</strong></td>
+<td>Fresh product page has inconsistent review counters; no independently established seller score.</td>
+<td><strong>Hold headlight purchase.</strong> Product existence and an advertised pair price do not clear seller quality or fitment.</td>
+</tr>
+<tr>
+<td><strong>APEX / AWE / Wagner / Revo / local tuners</strong></td>
+<td>Primary technical/catalogue evidence found. Comparable current seller-review counts were <strong>not independently established</strong>.</td>
+<td>Technical shortlist only. Buy direct/authorized with invoice and written applicability; no invented stars or “verified seller” designation.</td>
+</tr>
+<tr>
+<td><strong>Chinese marketplace grille/wheel sellers</strong></td>
+<td>Cached ratings/ranges appeared on category/advertorial pages without a reliable selected-item/seller binding.</td>
+<td><strong>Insufficient to recommend a winner.</strong> Do not attach a category-page 4.8 score to whichever listing happens to be cheapest.</td>
+</tr>
+</tbody>
+</table>
+<p>Before paying, obtain: exact company/store link; recent reviews for <strong>the same part/application</strong>; defect/fitment complaint handling; installed customer photos; warranty and return freight; whether paint/dry-fitting affects returns; protected payment terms; itemised quote for one complete assembly/set; and destination-specific transport/insurance. For wheels, lights and turbos, add the technical evidence specific to that component.</p>
+<h2>6. RoyblingE90 / FactoryPlug: useful leads, screened for this car</h2>
+<p>The <a href="https://linktr.ee/RoyblingE90">RoyblingE90 Linktree</a> links sourcing categories. <a href="https://thefactoryplug.com/garage/b9/">FactoryPlug's B9 directory</a> lists <strong>28 items</strong>, grouping <strong>A4/A5/S4/S5/RS4/RS5 together</strong> and discloses affiliate commission. Its B9 label is not compatibility with your 2.0T FWD sedan.</p>
+<table>
+<thead>
+<tr>
+<th>Lead actually inspected</th>
+<th>Result for your build</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://thefactoryplug.com/engine/2015-audi-a4-b9-2-0t-short-for-ram-air-intake-system-aluminu.html">B9 2.0T short-ram intake</a></td>
+<td><strong>Hold:</strong> no usable price/seller identity/MAF binding in the directory entry.</td>
+</tr>
+<tr>
+<td><a href="https://thefactoryplug.com/suspension/billet-aluminum-front-strut-brace-for-audi-b9-a4-a5-s4-s5-rs.html">Billet front strut brace</a></td>
+<td>Later research lead; no verified seller, delivered price or measurable benefit for this car.</td>
+</tr>
+<tr>
+<td><a href="https://thefactoryplug.com/carbon/high-quality-carbon-fiber-engine-hood-vent-car-bonnet-for-au.html">Carbon bonnet across A4/S4/RS4 B9/B9.5</a></td>
+<td>Skip for this brief: broad fitment, unknown seller/cost, large freight/installation commitment.</td>
+</tr>
+<tr>
+<td>S4/S5 3.0T exhausts, charge pipes and turbo entries in the B9 directory</td>
+<td><strong>Reject for this A4.</strong> Shared chassis language is not shared engine fitment.</td>
+</tr>
+</tbody>
+</table>
+<p>Several Linktree supplier redirects ended at generic Alibaba surfaces inaccessible to the web tool. No seller metrics were promoted from those redirects. Influencer claims that two brands use the same factory are not independent proof of the same material, tooling, quality control, warranty or finished part.</p>
+<h2>7. BRL, freight and taxes for the two São Paulo CEPs</h2>
+<h3>Reference rates and tax basis</h3>
+<p>Freshly retrieved <a href="https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml">ECB daily reference feed</a>, <strong>rate date 27 October 2026</strong>: <strong>US$1 = R$5.34744; £1 = R$7.12711; €1 = R$5.96240; ¥1 = R$0.80201</strong>. These exclude payment spread/IOF and are not customs PTAX.</p>
+<p>São Paulo's <a href="https://legislacao.fazenda.sp.gov.br/Paginas/RICMS---Anexo-II---Redu%C3%A7%C3%B5es-de-Base-de-C%C3%A1lculo---Artigo-80.aspx">RICMS Annex II, Article 80</a> provides an effective <strong>17%</strong> burden for qualifying RTS postal/express imports, with the retained provision effective through <strong>31 December 2026</strong>. Both supplied CEPs are treated as São Paulo destinations; actual last-mile freight differs and was not quoted.</p>
+<p>For <strong>non-PRC qualifying RTS</strong> purchases, the <a href="https://www.gov.br/receitafederal/pt-br/assuntos/aduana-e-comercio-exterior/manuais/remessas-postal-e-expressa/preciso-pagar-impostos-nas-compras-internacionais/quais-sao-os-impostos-devidos">Receita manual</a> specifies <strong>60% import duty</strong>, then ICMS gross-up. Goods + freight + insurance form the customs base. Thus an indicative 17% scenario is <code>(goods + freight + insurance in BRL) × 1.60 / 0.83</code>, before separate fees. Applicability is not verified by this calculation.</p>
+<p>For eligible <strong>PRC</strong> transactions, current Receita text instead gives <strong>0% federal duty up to US$50</strong>, and <strong>60% less US$30 above US$50</strong>. The transaction must actually qualify. Do not automatically treat Alibaba, an agent-forwarded parcel, or an AliExpress link without a tax-confirmed checkout as PRC. RTS's US$3,000 customs-value limit and shipment eligibility still apply. See <a href="https://www.gov.br/receitafederal/pt-br/assuntos/aduana-e-comercio-exterior/manuais/remessas-postal-e-expressa/preciso-pagar-impostos-nas-compras-internacionais/quanto-pagarei-de-imposto">Receita's worked examples</a>.</p>
+<h3>Planning scenarios — freight is assumed, NOT quoted</h3>
+<p>These are sensitivity calculations for deciding what to request locally. They are <strong>not totals promised to either CEP</strong>. Insurance is assumed zero solely for arithmetic; carrier/clearance fees, payment spread/IOF, local installation/painting/alignment and any unconfirmed taxes remain extra. Foreign VAT is not removed without an export quote. No coupon is used.</p>
+<table>
+<thead>
+<tr>
+<th>Part</th>
+<th style="text-align: right;">Source product amount</th>
+<th style="text-align: right;">Assumed international freight</th>
+<th style="text-align: right;">Product only in BRL</th>
+<th style="text-align: right;">Indicative non-PRC RTS total, SP 17%</th>
+<th style="text-align: right;">20% ICMS sensitivity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CT834 spoiler</td>
+<td style="text-align: right;">£49</td>
+<td style="text-align: right;">£25</td>
+<td style="text-align: right;">R$349.23</td>
+<td style="text-align: right;"><strong>R$1,016.69</strong></td>
+<td style="text-align: right;">R$1,054.81</td>
+</tr>
+<tr>
+<td>Maxton .com splitter</td>
+<td style="text-align: right;">US$180</td>
+<td style="text-align: right;">US$80</td>
+<td style="text-align: right;">R$962.54</td>
+<td style="text-align: right;"><strong>R$2,680.16</strong></td>
+<td style="text-align: right;">R$2,780.67</td>
+</tr>
+<tr>
+<td>Maxton UK same splitter</td>
+<td style="text-align: right;">£174</td>
+<td style="text-align: right;">£60</td>
+<td style="text-align: right;">R$1,240.12</td>
+<td style="text-align: right;"><strong>R$3,214.93</strong></td>
+<td style="text-align: right;">R$3,335.49</td>
+</tr>
+<tr>
+<td>Revo intake, unavailable reference</td>
+<td style="text-align: right;">£219</td>
+<td style="text-align: right;">£40</td>
+<td style="text-align: right;">R$1,560.84</td>
+<td style="text-align: right;">R$3,558.40</td>
+<td style="text-align: right;">R$3,691.84</td>
+</tr>
+<tr>
+<td>AKD headlight pair, <strong>USD assumed</strong></td>
+<td style="text-align: right;">$599</td>
+<td style="text-align: right;">US$100</td>
+<td style="text-align: right;">R$3,203.12</td>
+<td style="text-align: right;">R$7,205.52</td>
+<td style="text-align: right;">R$7,475.73</td>
+</tr>
+<tr>
+<td>AWE Touring exhaust</td>
+<td style="text-align: right;">US$2,045</td>
+<td style="text-align: right;">US$250</td>
+<td style="text-align: right;">R$10,935.52</td>
+<td style="text-align: right;">R$23,657.61</td>
+<td style="text-align: right;">R$24,544.77</td>
+</tr>
+<tr>
+<td>APEX four-wheel set, <strong>stale price</strong></td>
+<td style="text-align: right;">US$2,056</td>
+<td style="text-align: right;">US$300</td>
+<td style="text-align: right;">R$10,994.34</td>
+<td style="text-align: right;">R$24,286.42</td>
+<td style="text-align: right;">R$25,197.16</td>
+</tr>
+<tr>
+<td>Wagner intercooler, unavailable reference</td>
+<td style="text-align: right;">€1,040</td>
+<td style="text-align: right;">€150</td>
+<td style="text-align: right;">R$6,200.90</td>
+<td style="text-align: right;">R$13,677.60</td>
+<td style="text-align: right;">R$14,190.51</td>
+</tr>
+</tbody>
+</table>
+<p><strong>What looks worth buying:</strong> small, specific styling parts can justify an import; use about <strong>R$1,017 + fees/installation</strong> as the spoiler comparison point and <strong>R$2,680–3,215 + fees/installation</strong> for the exact Maxton lip under these assumptions. A locally available identical genuine part below that delivered threshold deserves priority. These are break-even references, <strong>not savings versus a verified Brazilian offer</strong>.</p>
+<p><strong>What looks poor value:</strong> imported AWE/APEX at these reference prices; a large bumper conversion before local quotations; unknown-brand structural wheels; an imported intercooler before temperature logs show the need. Do not mistake a ¥/$ low unit amount for the price of four wheels, both headlights, a complete turbo kit or a painted bumper package.</p>
+<p>No like-for-like, reviewed Brazilian offer with all costs was confirmed, so there is <strong>no verified import-versus-Brazil savings winner</strong>. A local workshop and a returnable seller may justify a higher price for fit-sensitive parts.</p>
+<h2>8. Three research iterations and the code improvement</h2>
+<ol>
+<li><strong>Broad discovery / baseline:</strong> tested the installed CLI on Alibaba, AliExpress and 1688. The shared DuckDuckGo index challenged once; the other two searches were safely skipped without another request. Broad “B9” results mixed generations, engines, single parts and sets.</li>
+<li><strong>Vehicle-specific refinement:</strong> narrowed to Ambiente 2018–2019 sedan/standard bumper/190 hp FWD; read manufacturer fitment, MAF-specific intake instructions and exclusions. Used fresh browser reads for APEX, CT Carbon, both Maxton storefronts, APR, AKD and AWE. A discovered AliExpress standard-grille link returned <strong>page not found plus unrelated recommendations</strong>; none of those prices or reviews were used.</li>
+<li><strong>Seller and cost reconciliation:</strong> kept product/store ratings separate, checked conflicting Maxton review sources, rejected AKD's inconsistent review display as proof, screened Roybling's actual B9 list, verified current federal/SP tax sources, and calculated explicit freight scenarios.</li>
+</ol>
+<p>The code now supplies a <strong>B9 A4 parts planning profile</strong> through <code>plan</code>, with 11 bounded categories, Chinese/Indonesian category translations and unchanged English/localized international queries. It preserves every caller refinement and lists fitment/seller evidence needed. It <strong>does not invent compatibility, ratings or shipping</strong>. Automotive results remain uncertain for automatic relevance ranking. Six new regression tests cover scope preservation, no inferred drivetrain/body/engine, category aliases, long-query fallback, other-generation exclusion and four JSON ranking passes.</p>
+<pre><code class="language-sh">china-deals plan 'Audi A4 B9 2018-2019 Ambiente sedan 2.0T FWD standard bumper OEM+ wheels intake'
+</code></pre>
+<p><strong>Verification:</strong> 562 full-suite tests passed with outbound sockets and DNS blocked; scoped Ruff passed. Raw web receipts, fresh DOM captures, the CLI failure/skip receipt, dated FX, cost arithmetic and hashes are retained privately under <code>.local/audi-b9-2026-10-28/</code>. Web-tool retrieval/crawl evidence and fresh browser reads are distinguished above. The guide does not claim exhaustive inventory or any completed checkout.</p>
+<h2>9. Purchase order I would follow</h2>
+<ol>
+<li>Confirm the actual wheel stamps, tyre placard, bumper and engine/ECU codes; establish the maintenance baseline.</li>
+<li>Find a genuine, inspected <strong>18-inch OE set</strong> locally; choose tyres for wet-road grip and comfort.</li>
+<li>Add <strong>CT834 spoiler</strong> if its all-in quote remains attractive; then the <strong>AU-A4-B9-FD2G</strong> splitter if clearance and return terms work.</li>
+<li>Refinish or replace the grille only with a verified standard-bumper, pre-facelift fit; retain factory lights unless there is a fault or a properly scoped retrofit.</li>
+<li>Get a written, engine-specific local calibration proposal with before/after logging and aftercare. Keep the airbox/turbo initially.</li>
+<li>Revisit intake, cooling and quiet exhaust based on actual use and quotes. A hybrid turbo and a full body conversion stay outside the first round.</li>
+</ol></div></details></section>
+</div></main><footer class="footer"><div class="wrap">Prepared for the Audi A4 B9 Ambiente · Research dated 28 October 2026 · Opens offline; external sources require internet.</div></footer>
+<div id="compareBar" class="compare-bar" hidden><span><strong id="compareCount">0</strong> saved to compare</span><button id="compareButton">Compare saved</button></div><dialog id="detailDialog" class="dialog"><div class="dialog-inner"><button class="dialog-close" data-close aria-label="Close details">×</button><div id="detailContent"></div></div></dialog><dialog id="compareDialog" class="dialog"><div class="dialog-inner"><button class="dialog-close" data-close aria-label="Close comparison">×</button><h2>Saved options</h2><p>Compare the original evidence and estimates before making a decision.</p><div id="compareContent"></div></div></dialog>
+<script>
+const products=[{"id": "dongsai", "cat": "Styling", "status": "Best styling lead", "tone": "pick", "name": "Dongsai · PSM trunk spoiler", "subtitle": "Carbon-fiber claim · A4 B9 sedan 2017–2020", "price": "R$767.20 · 1–4 pieces", "seller": "Alibaba store 5.0/5 · 104 store reviews · 8 years; no product reviews", "fit": "Confirm sedan trunk shape, finish and adhesive before ordering", "why": "Strongest fitment wording and seller signal in this sample; understated if the PSM profile suits your taste.", "notes": ["Captured 28 October 2026. Price is a listing observation, not a checkout quote.", "Seller claims 136 × 10 × 30 cm and 4 kg gross. Confirm delivery and taxes."], "url": "https://www.alibaba.com/product-detail/PSM-Style-Carbon-Fiber-Rear-Spoiler_1600056004723.html", "calc": "dongsai"}, {"id": "soyin", "cat": "Styling", "status": "Fitment hold", "tone": "hold", "name": "Soyin · C-style trunk spoiler", "subtitle": "Carbon claim · listing says B9 sedan 2017+", "price": "R$531.71 · 1–9 sets", "seller": "Alibaba store 4.6/5 · 687 store reviews · 10 years; no product reviews", "fit": "Title and attributes conflict: trunk spoiler vs rear bumper; table says 2017 only", "why": "A lower-cost lead with a substantial store-review sample, but scope and 2018–2019 fit need written confirmation.", "notes": ["Package claim 132 × 32 × 12 cm / 3 kg.", "Do not assume the price includes freight or import charges."], "url": "https://www.alibaba.com/product-detail/A4-2017-Carbon-Fiber-Boot-Trim_1600262108323.html"}, {"id": "jtld", "cat": "Performance", "status": "Fitment hold", "tone": "hold", "name": "JTLD · 2.0T air intake", "subtitle": "Listing names A4 B9 40 TFS", "price": "R$548.04 · 1–9 sets", "seller": "Alibaba store 4.7/5 · 737 store reviews · 10 years; no product reviews", "fit": "Table says quattro 2004–2024; FWD, engine code and MAF provision are unverified", "why": "Worth investigating for the moderate build only after identifying the engine and the required MAF connection.", "notes": ["This product is an intake, despite the title mentioning exhaust and turbo.", "Seller claims 43 × 33 × 26 cm / 4 kg."], "url": "https://www.alibaba.com/product-detail/JTLD-Exhaust-System-Turbo-Cold-Air_1601205166740.html", "calc": "jtld"}, {"id": "grille-cn", "cat": "Styling", "status": "Contents unclear", "tone": "hold", "name": "Hongbai · RS-style front grille?", "subtitle": "Bumper assembly in title; grille in attributes", "price": "R$876.86 · 1–4 pieces", "seller": "Alibaba store 5.0/5 · 45 store reviews · 4 years; no product reviews", "fit": "Confirm actual contents, standard bumper, pre-facelift, radar and sensors", "why": "Potential visual upgrade, but the contradictory listing makes the exact item uncertain.", "notes": ["Package claim 104 × 56 × 19 cm / 4.8 kg.", "Ask about quattro branding and mounting hardware."], "url": "https://www.alibaba.com/product-detail/RS4-Style-Bodykit-for-Audi-A4_11000008209402.html"}, {"id": "jiazhixin", "cat": "Performance", "status": "Freight and fit hold", "tone": "hold", "name": "Jiazhixin · 304 catback", "subtitle": "Seller claims 304 stainless steel", "price": "R$3,397.83 · 1–4 sets", "seller": "Alibaba top-level store rating 4.5/5 · 63; detailed review count conflicts; no product reviews", "fit": "FWD, engine, rear valance, emissions layout and sound unverified", "why": "A possible exhaust lead, but its size and 45 kg claimed gross weight make a parcel estimate inappropriate.", "notes": ["Seller claims 137 × 60 × 30 cm / 45 kg. Request shipment-specific freight and import treatment.", "Confirm full kit, warranty, sound, returns and local legal requirements."], "url": "https://www.alibaba.com/product-detail/304-Stainless-Steel-Catback-Exhaust-For_1601359606199.html"}, {"id": "jichi", "cat": "Performance", "status": "Freight and fit hold", "tone": "hold", "name": "Jichi · valved catback", "subtitle": "Listing says 2017–2024; attributes say universal", "price": "R$4,274.69 · 1–2 sets", "seller": "Alibaba store 4.1/5 · 20 store reviews · 3 years; no product reviews", "fit": "Written FWD/engine fit, inclusions and valve operation needed", "why": "Weaker seller signal and higher displayed price than the other catback; compare only after complete freight and fitment quotes.", "notes": ["Seller claims 120 × 50 × 30 cm / 34 kg.", "No delivery or tax estimate established."], "url": "https://www.alibaba.com/product-detail/Cat-Back-Exhaust-for-Audi-A4_1601620082573.html"}, {"id": "bumper-cn", "cat": "Bodywork", "status": "Wholesale hold", "tone": "hold", "name": "Xing Lun · RS4 front conversion", "subtitle": "Advertised 2017–2019 bumper and grille", "price": "R$931.67 each · 5–9 pieces; sample R$5,480.37", "seller": "Alibaba store 4.7/5 · 609 store reviews · 7 years; no product reviews", "fit": "Vehicle table says 2017; sensor layout, inclusions and actual MOQ conflict", "why": "The wholesale tier is not a one-piece consumer quote. Obtain a complete quote before considering it.", "notes": ["Other attributes say MOQ 2. Shipping is negotiated.", "Paint, brackets, sensors and installation are not included in the observed tier."], "url": "https://www.alibaba.com/product-detail/Car-bumper-conversion-facelift-For-Audi_1600924165623.html"}];
+const scenarios={"dongsai": {"name": "Dongsai spoiler · R$767.20", "currency": "BRL", "amount": 767.2, "shipping": 250, "rate": 1}, "jtld": {"name": "JTLD intake · R$548.04", "currency": "BRL", "amount": 548.04, "shipping": 150, "rate": 1}};
+const $=s=>document.querySelector(s), money=v=>new Intl.NumberFormat('en-US',{style:'currency',currency:'BRL'}).format(v).replace('BRL','R$');
+let selected='All',onlySaved=false,saved=[];try{saved=JSON.parse(localStorage.getItem('a4-b9-saved-v1')||'[]');if(!Array.isArray(saved))saved=[]}catch(e){saved=[]}saved=saved.filter(id=>products.some(p=>p.id===id));
+function persist(){try{localStorage.setItem('a4-b9-saved-v1',JSON.stringify(saved))}catch(e){}}
+function render(){let query=$('#search').value.trim().toLowerCase();let rows=products.filter(p=>(selected==='All'||p.cat===selected)&&(!onlySaved||saved.includes(p.id))&&[p.name,p.subtitle,p.seller,p.fit,p.why,p.status].join(' ').toLowerCase().includes(query));let sort=$('#sort').value;if(sort==='name')rows.sort((a,b)=>a.name.localeCompare(b.name));if(sort==='price')rows.sort((a,b)=>(a.calc?scenarios[a.calc]?(scenarios[a.calc].amount+scenarios[a.calc].shipping)*scenarios[a.calc].rate*1.6/.83:Infinity:Infinity)-(b.calc?scenarios[b.calc]?(scenarios[b.calc].amount+scenarios[b.calc].shipping)*scenarios[b.calc].rate*1.6/.83:Infinity:Infinity));$('#categories').innerHTML=['All','Wheels','Styling','Lighting','Performance','Bodywork'].map(c=>`<button class="cat ${selected===c?'active':''}" aria-pressed="${selected===c}" data-cat="${c}">${c}<span>${c==='All'?products.length:products.filter(p=>p.cat===c).length}</span></button>`).join('');$('#resultCount').textContent=`${rows.length} option${rows.length===1?'':'s'} shown`;$('#savedCount').textContent=saved.length;$('#compareCount').textContent=saved.length;$('#compareBar').hidden=saved.length<2;$('#cards').innerHTML=rows.length?rows.map(p=>`<article class="card"><div class="card-top"><span class="badge ${p.tone}">${p.status}</span><span class="micro">${p.cat}</span><button class="save" data-save="${p.id}" aria-label="${saved.includes(p.id)?'Remove '+p.name+' from saved':'Save '+p.name}" aria-pressed="${saved.includes(p.id)}">${saved.includes(p.id)?'♥':'♡'}</button></div><div class="card-body"><h3>${p.name}</h3><p class="subtitle">${p.subtitle}</p><p class="price">${p.price}<small>${p.calc?'Freight, tax and fees extra':'See details for evidence and conditions'}</small></p><dl><dt>Seller</dt><dd>${p.seller}</dd><dt>Fitment</dt><dd>${p.fit}</dd></dl></div><div class="card-foot"><a href="${p.url}" target="_blank" rel="noopener noreferrer">${p.urlLabel||'View source'}</a><button data-detail="${p.id}">View details</button></div></article>`).join(''):'<div class="empty">No matching options. Try another category or clear your search.</div>';}
+function detail(id){const p=products.find(x=>x.id===id);if(!p)return;$('#detailContent').innerHTML=`<span class="badge ${p.tone}">${p.status}</span><h2>${p.name}</h2><p>${p.why}</p><h3>Fitment</h3><p>${p.fit}</p><h3>Seller and price</h3><p>${p.seller}<br><strong>${p.price}</strong></p><h3>What to check</h3><ul>${p.notes.map(n=>`<li>${n}</li>`).join('')}</ul><a class="link" href="${p.url}" target="_blank" rel="noopener noreferrer">${p.urlLabel||'View source listing'}</a>${p.source?` <a href="${p.source}" target="_blank" rel="noopener noreferrer">Supporting source</a>`:''}${p.calc?`<p><button class="toggle" data-calc="${p.calc}">Explore cost scenario</button></p>`:''}`;$('#detailDialog').showModal()}
+function compare(){const list=products.filter(p=>saved.includes(p.id));$('#compareContent').innerHTML=list.length?list.map(p=>`<div class="compare-row"><strong>${p.name}</strong><p>${p.price} · ${p.status}</p><p>Fitment: ${p.fit}</p><p>Seller: ${p.seller}</p><a href="${p.url}" target="_blank" rel="noopener noreferrer">View source</a></div>`).join(''):'<p>Save options to compare them here.</p>';$('#compareDialog').showModal()}
+function cost(){let p=scenarios[$('#calcItem').value],f=Number($('#freight').value),icms=Number($('#icms').value);$('#freightCurrency').textContent=`(${p.currency})`;if(!Number.isFinite(f)||f<0||$('#freight').value===''){$('#total').textContent='Enter a freight amount';$('#breakdown').textContent='Use zero only as an explicit assumption.';return}let customs=(p.amount+f)*p.rate;if(customs/5.347443946188>3000){$('#total').textContent='Outside the RTS limit';$('#breakdown').textContent='The assumed customs value exceeds US$3,000. Seek a shipment-specific quote.';return}let duty=customs*.60,total=(customs+duty)/(1-icms);$('#total').textContent=money(total);$('#breakdown').textContent=`Product ${money(p.amount*p.rate)} + assumed freight ${money(f*p.rate)}; 60% import duty, ${(icms*100).toFixed(0)}% ICMS. Excludes other fees.`}
+$('#calcItem').innerHTML=Object.entries(scenarios).map(([id,p])=>`<option value="${id}">${p.name}</option>`).join('');function loadCost(id){$('#calcItem').value=id;$('#freight').value=scenarios[id].shipping;cost()};loadCost('dongsai');
+document.addEventListener('click',e=>{let c=e.target.closest('[data-cat]'),s=e.target.closest('[data-save]'),d=e.target.closest('[data-detail]'),close=e.target.closest('[data-close]'),calc=e.target.closest('[data-calc]');if(c){selected=c.dataset.cat;render()}if(s){const id=s.dataset.save;saved=saved.includes(id)?saved.filter(x=>x!==id):[...saved,id];persist();render()}if(d)detail(d.dataset.detail);if(close)close.closest('dialog').close();if(calc){$('#detailDialog').close();loadCost(calc.dataset.calc);$('#costs').scrollIntoView({behavior:'smooth'})}});
+$('#search').addEventListener('input',render);$('#sort').addEventListener('change',render);$('#savedOnly').addEventListener('click',e=>{onlySaved=!onlySaved;e.currentTarget.setAttribute('aria-pressed',onlySaved);render()});$('#compareButton').addEventListener('click',compare);$('#calcItem').addEventListener('change',e=>loadCost(e.target.value));$('#freight').addEventListener('input',cost);$('#icms').addEventListener('change',cost);document.querySelectorAll('.source-content table').forEach(t=>{const d=document.createElement('div');d.className='table-scroll';t.parentNode.insertBefore(d,t);d.appendChild(t)});render();
+</script></body></html>

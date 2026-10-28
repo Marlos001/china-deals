@@ -374,13 +374,20 @@ def compare_laptops(offers: list[dict], require=None) -> dict:
         candidate["hardware"] = hardware
         candidate["requirement_check"] = _check_requirements(hardware, require)
         candidate["reasons"] = []
+        policy = candidate.get("price_freshness_policy")
+        if isinstance(policy, dict) and policy.get("required") is True:
+            from .freshness import annotate_price_freshness
+            try:
+                annotate_price_freshness(candidate, required=True, max_age_hours=policy.get("max_age_hours", 24))
+            except (ValueError, TypeError):
+                candidate.setdefault("ranking_exclusions", []).append("price_freshness_invalid_policy")
         mode = offer.get("source_mode")
         if mode not in ("listing_content", "product_detail", "listing", "detail", "guest_product_page", "guest_api"):
             candidate["reasons"].append("search_index_discovery" if mode == "search_index" else "listing_content_unverified")
             result["discoveries"].append(candidate)
             continue
-        if offer.get("ranking_exclusions"):
-            candidate["reasons"].extend(offer["ranking_exclusions"])
+        if candidate.get("ranking_exclusions"):
+            candidate["reasons"].extend(candidate["ranking_exclusions"])
             result["unranked"].append(candidate)
             continue
         # Role and transaction scope apply even to a plain imported array.
@@ -424,10 +431,6 @@ def compare_laptops(offers: list[dict], require=None) -> dict:
         # price and refusing a normalized amount that disagrees with its raw.
         source = dict(offer, url=candidate["source_url"])
         price = offer.get("price")
-        if isinstance(price, dict):
-            source["price"] = price.get("raw")
-            source["currency"] = price.get("source_currency") or price.get("currency")
-            source["price_basis"] = price.get("basis", "displayed")
         try:
             normalized = normalize_offer(source.get("marketplace"), source, source.get("observed_at"))
         except ValueError:

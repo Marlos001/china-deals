@@ -35,7 +35,7 @@ To run a single test file while working, for example:
 python -m unittest discover -s tests -p 'test_brazil.py' -v
 ```
 
-CI runs these checks on Python 3.11, 3.13 and 3.14. If you have [uv](https://docs.astral.sh/uv/) installed, you can also run `uvx ruff check china_deals tests` for linting. Tests should not require live network access or credentials. Some tests use optional private captures and may skip when those captures are unavailable; report skips and any checks you could not run.
+CI tests the installed artifacts on Linux with Python 3.11, 3.12, 3.13 and 3.14. Run `ruff check china_deals tests scripts --per-file-ignores tests/test_marketplaces.py:F401` for the current lint gate. Tests should not require live network access or credentials. Some tests use optional private captures and may skip when those captures are unavailable; report skips and any checks you could not run.
 
 ## Marketplace and price changes
 
@@ -56,3 +56,30 @@ For a bug report, include the command, expected and actual behavior, Python and 
 For a pull request, describe the problem and your change, list the checks you ran and note any known limitations. Link the relevant issue if there is one. Update the documentation when behavior or setup changes. Maintainers can then review the change and discuss any adjustments.
 
 Contributions are made under the project's [MIT License](LICENSE).
+
+## Release verification
+
+CI builds a wheel and sdist from the exact Git commit, records their SHA-256
+hashes, and installs each separately before running the test bundle outside the
+source checkout. The uploaded evidence includes the commit, artifact hashes and
+installation/test logs; it is evidence of that run, not a claim that independent
+builds produce identical bytes or that a release was published. To prepare the
+same artifacts locally, install `build` and run:
+
+```sh
+python scripts/release_artifacts.py --commit HEAD --output /tmp/china-deals-release
+```
+
+The output directory must not already exist. Use the patch-only versioning
+procedure in AGENTS.md; artifact generation does not change versions. CI compares
+the committed project version with the installed package, distribution metadata,
+console command and module command. It prints every skipped test and its reason.
+Private retained-capture tests remain unavailable without those private inputs;
+the checked-in sanitized fixtures cover different, limited cases and are not a
+replacement for them.
+
+The Linux CI tests run in a Docker container with `--network none`, including
+subprocesses (loopback remains available). Dependency/image downloads and the
+build happen before that offline boundary. This is not an offline guarantee for
+ordinary local test runs or for arbitrary privileged code. Ruff is a CI gate; one
+existing unused import in `tests/test_marketplaces.py` is temporarily excepted.

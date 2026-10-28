@@ -243,6 +243,14 @@ class DetailTests(unittest.TestCase):
         self.assertEqual(result["error"]["code"], "detail_url_required")
         browser.assert_not_called()
 
+    def test_ambiguous_identity_never_launches_browser(self):
+        for market, url in (("jd", JD_URL + "?id=999"),
+                            ("goofish", GOOFISH_URL + "&item_id=999")):
+            with self.subTest(market=market), patch.object(bg, "_browser_context") as browser:
+                result = bg.get_browser_guest_item(market, url)
+                self.assertEqual(result["error"]["code"], "detail_url_required")
+                browser.assert_not_called()
+
 
 class OptionalDependencyTests(unittest.TestCase):
     def test_missing_dependency_structured_unavailable(self):

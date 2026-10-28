@@ -13,6 +13,22 @@ from china_deals.product_profiles import (
 
 
 class ProductProfileTests(unittest.TestCase):
+    def test_direct_requested_exclusions_do_not_cross_unrelated_exclusions(self):
+        cases = [("RTX 5070", "RTX 5070 without GPU"),
+                 ("RTX 5070", "RTX 5070 不含显卡"),
+                 ("Ryzen 9800X3D", "Ryzen 9800X3D tanpa CPU"),
+                 ("Steam Deck OLED", "not Steam Deck OLED"),
+                 ("Nintendo Switch 2", "Nintendo Switch 2 没有游戏机")]
+        for query, title in cases:
+            with self.subTest(title=title):
+                self.check(query, title, "mismatch")
+        for query, title in [("RTX 5070", "RTX 5070 without cooler"),
+                             ("Ryzen 9800X3D", "Ryzen 9800X3D tanpa motherboard"),
+                             ("Steam Deck OLED", "Steam Deck OLED 不含充电器")]:
+            with self.subTest(title=title):
+                self.check(query, title)
+        self.check("RTX 5070", "RTX 5070", "mismatch", variant="no graphics card")
+
     def check(self, query, title, status="match", variant="", **extra):
         offer = {"title": title, "variant": variant, **extra}
         original = dict(offer)

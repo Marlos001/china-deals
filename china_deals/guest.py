@@ -20,6 +20,7 @@ from html.parser import HTMLParser
 
 from . import adapters
 from .marketplaces import (
+    _QUERY_ID_KEYS,
     DISCOVERY_DOMAINS,
     PRODUCT_HOSTS,
     PUBLIC_METADATA_MARKETPLACES,
@@ -86,26 +87,10 @@ def _valid_url(value, hosts):
 
 def _product_url(marketplace, value):
     """Exact first-party product routes only; drop tracking and fragments."""
-    if marketplace in PUBLIC_METADATA_MARKETPLACES:
+    if marketplace != "blibli":
         return canonical_product_url(marketplace, value)
-    hosts = {"jd": {"item.jd.com", "item.m.jd.com"},
-             "taobao": {"item.taobao.com", "detail.tmall.com"},
-             "goofish": {"www.goofish.com", "goofish.com"},
-             "blibli": {"www.blibli.com"}}[marketplace]
-    if not _valid_url(value, hosts):
+    if not _valid_url(value, {"www.blibli.com"}):
         return None
-    p = urllib.parse.urlsplit(value)
-    if marketplace == "jd":
-        pattern = r"/([0-9]+)\.html" if p.hostname == "item.jd.com" else r"/product/([0-9]+)\.html"
-        match = re.fullmatch(pattern, p.path)
-        return f"https://item.jd.com/{match[1]}.html" if match else None
-    if marketplace in {"taobao", "goofish"}:
-        path = "/item.htm" if marketplace == "taobao" else "/item"
-        ids = urllib.parse.parse_qs(p.query).get("id", [])
-        if p.path != path or len(ids) != 1 or not re.fullmatch(r"[0-9]+", ids[0]):
-            return None
-        host = p.hostname if marketplace == "taobao" else "www.goofish.com"
-        return f"https://{host}{path}?id={ids[0]}"
     try:
         return adapters._blibli_product_url(value)
     except _Failure:
@@ -118,7 +103,10 @@ def _discovery_url(marketplace, value):
     if native:
         return native
     if marketplace == "jd" and _valid_url(value, {"item.jd.com"}):
-        path = urllib.parse.urlsplit(value).path
+        parsed = urllib.parse.urlsplit(value)
+        if any(key.casefold() in _QUERY_ID_KEYS for key, _ in urllib.parse.parse_qsl(parsed.query, keep_blank_values=True)):
+            return None
+        path = parsed.path
         if re.fullmatch(r"/product/[A-Za-z0-9_-]{1,128}\.html", path):
             return "https://item.jd.com" + path
     return None

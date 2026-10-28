@@ -82,6 +82,27 @@ def bounded_int(value):
     return result
 
 
+def history_limit(value):
+    result = bounded_int(value)
+    if result > 50:
+        raise argparse.ArgumentTypeError("must be between 1 and 50")
+    return result
+
+
+def ram_gb(value):
+    result = int(value)
+    if not 1 <= result <= 4096:
+        raise argparse.ArgumentTypeError("must be between 1 and 4096 GiB")
+    return result
+
+
+def validated_query(value):
+    if (not value.strip() or len(value.strip()) > 500 or value.lstrip().startswith("-")
+            or any(ord(c) < 32 or ord(c) == 127 for c in value)):
+        raise ValueError("Query must be 1..500 characters without controls or a leading hyphen")
+    return value.strip()
+
+
 def positive_timeout(value):
     result = float(value)
     if not math.isfinite(result) or not 0 < result <= 300:
@@ -196,7 +217,7 @@ def build_parser():
     history_cmd.add_argument("--store", required=True)
     history_cmd.add_argument("--market", type=marketplace_name)
     history_cmd.add_argument("--item-id")
-    history_cmd.add_argument("--limit", type=bounded_int, default=50)
+    history_cmd.add_argument("--limit", type=history_limit, default=50, help="Maximum observations (1-50; default 50)")
     brazil_cmd = command("brazil-compare", "Compare explicit all-in import scenarios with equivalent Brazil offers; offline")
     brazil_cmd.add_argument("input", help="Comparison cases JSON or -; missing costs remain unknown")
     preferences(brazil_cmd)
@@ -213,7 +234,7 @@ def build_parser():
     compare = command("compare", "Compare laptop configurations without assuming different G16 variants are equivalent")
     compare.add_argument("input", help="Offer/search JSON file, or -")
     presentation(compare)
-    compare.add_argument("--min-ram-gb", type=bounded_int)
+    compare.add_argument("--min-ram-gb", type=ram_gb)
     compare.add_argument("--min-ssd-gb", type=int)
     compare.add_argument("--cpu")
     compare.add_argument("--gpu")
@@ -435,7 +456,7 @@ def _run(args):
     if args.command == "fx":
         from .fx import fetch_rates
         return fetch_rates(args.timeout), 0
-    config = load_config(getattr(args, "config", None))
+    config = load_config(args.config) if hasattr(args, "config") else None
     if args.command == "promotions":
         from .promotions import parse_capture, read_promotions
         if args.from_browser_json:
@@ -541,14 +562,14 @@ def _run(args):
             from .freshness import annotate_price_freshness
             for item in result["items"]:
                 annotate_price_freshness(item, args.fresh_only, args.max_age_hours, args.as_of)
+            if args.fresh_only:
+                result["freshness_excluded_items"] = [item for item in result["items"] if not item["price_freshness"]["recent_observation"]]
+                result["items"] = [item for item in result["items"] if item["price_freshness"]["recent_observation"]]
             result["schema_version"] = "1"
             result["access_mode"] = access
             decorate_brl(result, args, config, offline_fx=bool(args.from_browser_json))
             return result, 0 if result.get("status") == "ok" else 3
-        args.query = args.query.strip()
-        if (not args.query or len(args.query) > 500 or args.query.startswith("-")
-                or any(ord(c) < 32 or ord(c) == 127 for c in args.query)):
-            raise ValueError("Query must be 1..500 characters and cannot begin with a hyphen")
+        args.query = validated_query(args.query)
         from .capabilities import resolve_markets
         markets = resolve_markets(args.markets)
         query_overrides = {}
@@ -556,15 +577,16 @@ def _run(args):
             key, sep, value = value.partition("=")
             if not sep or not value.strip():
                 raise ValueError("--query-for needs MARKET=QUERY")
-            query_overrides[marketplace_name(key)] = value.strip()
+            query_overrides[marketplace_name(key)] = value
+        queries = {market: validated_query(query_overrides.get(
+            market, args.zh_query if market in CHINESE_MARKETPLACES and args.zh_query else args.query))
+            for market in markets}
         sources, offers, excluded = [], [], []
         filters = requested_filters(args)
         # The browser bridge controls a session: serialize calls to avoid racing a user's login state.
         for market in markets:
             access = args.access or config["marketplaces"][market]["access"]
-            query = query_overrides.get(market, args.zh_query if market in CHINESE_MARKETPLACES and args.zh_query else args.query)
-            if not query.strip() or len(query) > 500 or query.lstrip().startswith("-") or any(ord(c) < 32 for c in query):
-                raise ValueError("Per-market query must be 1..500 characters without controls or a leading hyphen")
+            query = queries[market]
             if market in CHINESE_MARKETPLACES and not re.search(r"[\u3400-\u9fff]", query):
                 sources.append({"marketplace": market, "status": "unavailable", "item_count": 0, "access": access,
                                 "query": None, "error": {"code": "chinese_query_required", "message": "Supply --zh-query or --query-for with a Chinese search query; no English request was sent."}, "warnings": []})
@@ -587,9 +609,12 @@ def _run(args):
                 result = {"marketplace": market, "status": "error", "items": [], "warnings": [],
                           "error": {"code": "adapter_error", "message": "Source request failed; other sources may still be available."}}
             observed = utc_now()
-            valid, malformed = [], 0
+            valid, malformed, filtered_count = [], 0, 0
+            acquired_count = len(result.get("items", []))
             for row in result.get("items", []):
                 try:
+                    if not isinstance(row, dict):
+                        raise ValueError("Source row must be an object")
                     mode = result.get("source_mode")
                     if access == "native":
                         mode = "listing_content"
@@ -597,6 +622,7 @@ def _run(args):
                     item["filter_evaluation"] = evaluate_offer(item, filters)
                     if item["filter_evaluation"]["status"] == "excluded" or args.strict_filters and item["filter_evaluation"]["status"] == "unknown":
                         excluded.append(item)
+                        filtered_count += 1
                         continue
                     offers.append(item)
                     valid.append(item)
@@ -605,10 +631,9 @@ def _run(args):
             result["items"] = valid
             if malformed:
                 result.setdefault("warnings", []).append(f"Skipped {malformed} malformed source rows; coverage is partial.")
-                result["status"] = "error"
-            if not valid and result.get("status") == "ok":
-                result["status"] = "empty_unverified"
             result["item_count"] = len(result.pop("items", []))
+            result.update(acquired_item_count=acquired_count, filter_excluded_count=filtered_count,
+                          malformed_item_count=malformed)
             result["access_mode"] = access
             result["query"] = query
             result["filter_plan"] = result.get("filters") or native_plan(market, query, filters)
@@ -636,7 +661,7 @@ def _run(args):
                 item.setdefault('ranking_exclusions', []).append(reason)
             result['filter_excluded_offers'] = excluded
         decorate_brl(result, args, config)
-        return result, 0 if all(s.get("status") == "ok" for s in sources) else 3
+        return result, 0 if all(s.get("status") == "ok" and not s.get("malformed_item_count") for s in sources) else 3
     if args.command == "coupons":
         imported = read_json(args.input)
         query = imported_query(imported)
@@ -672,20 +697,30 @@ def _run(args):
                 raise ValueError("Landed-cost scenario requires --icms-rate and BRL FX")
             from .shipping import estimate_landed_cost
             for offer in offers:
-                if config["marketplaces"][offer["marketplace"]]["shipping"] == "fansbuy" and offer["price"]["amount"]:
-                    offer["landed_scenario"] = estimate_landed_cost(offer["price"]["amount"], args.freight_cny,
-                        rates["brl_per_unit"]["CNY"], rates["brl_per_unit"]["USD"], args.icms_rate)
+                if config["marketplaces"][offer["marketplace"]]["shipping"] == "fansbuy":
+                    price = offer["price"]
+                    if price["amount"] is not None and price["currency"] == "CNY" and price.get("currency_basis") != "unverified_international_currency":
+                        scenario = estimate_landed_cost(price["amount"], args.freight_cny,
+                            rates["brl_per_unit"]["CNY"], rates["brl_per_unit"]["USD"], args.icms_rate)
+                        scenario["fx_provenance"] = {"source": rates.get("source"), "rate_date": rates["rate_date"]}
+                        offer["landed_scenario"] = scenario
+                    else:
+                        offer["landed_scenario"] = {"status": "unknown", "total_brl": None,
+                            "reason": "verified_cny_goods_amount_required"}
         result = compare_laptops(offers, require={k: v for k, v in {
             "min_ram_gb": args.min_ram_gb, "min_ssd_gb": args.min_ssd_gb, "cpu": args.cpu,
             "gpu": args.gpu, "new_only": args.new_only}.items() if v is not None and v is not False})
         result["fx"] = rates
+        if args.freight_cny is not None:
+            result["warnings"] = [warning.replace("Freight, tax and forwarding are excluded;", "The displayed-price comparison excludes freight, tax and forwarding; separate landed scenarios are indicative;")
+                                  for warning in result["warnings"]]
         result.setdefault("warnings", []).extend(wrapper["warnings"])
         return result, 0
     from . import shipping
     if args.command == "shipping":
         if args.market and config["marketplaces"][args.market]["shipping"] != "fansbuy":
             return {"marketplace": args.market, "status": "excluded_by_market_policy", "shipping_policy": config["marketplaces"][args.market]["shipping"],
-                    "quotes": [], "rejected": [], "warnings": ["No Fansbuy freight requested for this marketplace; user handles transport."]}, 0
+                    "quotes": [], "rejected": [], "warnings": ["No Fansbuy freight quote was requested for this marketplace under its shipping policy."]}, 0
         if args.weight_g is None:
             raise ValueError("--weight-g is required for Fansbuy freight")
         cats = [] if args.ordinary_goods else args.category
@@ -752,14 +787,30 @@ def markdown(result):
         lines.extend(reviews)
     elif isinstance(result.get("groups"), list):
         lines.append("Laptop comparison: complete configurations only; missing facts remain unresolved.\n")
+        def landed(row):
+            scenario = row.get("landed_scenario")
+            if not scenario:
+                return
+            if scenario.get("total_brl") is None:
+                lines.append("  Landed scenario: unknown; " + _md_cell(scenario.get("reason")))
+            else:
+                lines.append("  Landed scenario: BRL " + _md_cell(scenario["total_brl"]) + "; indicative estimate, shipment eligibility unverified.")
+                lines.append("  Assumptions: " + _md_cell(json.dumps(scenario["assumptions"], ensure_ascii=False)) + "; FX: " + _md_cell(json.dumps(scenario.get("fx_provenance"), ensure_ascii=False)))
+                for warning in scenario.get("warnings", []):
+                    lines.append("  " + _md_cell(warning))
         for group in result["groups"]:
             lines.append("Configuration: " + _md_cell(json.dumps(group["configuration"], ensure_ascii=False)))
             for row in group["candidates"]:
                 brl = row.get("brl", {}).get("product_cost")
                 reference = f"; BRL reference {brl}" if brl else ""
                 lines.append("- " + _md_cell(row["title"]) + ": " + _md_cell(row["price"]["amount"]) + " " + _md_cell(group["currency"]) + _md_cell(reference) + " — " + _md_cell(row.get("source_url")))
+                landed(row)
         for key in ("incomplete", "unranked", "filtered", "requirement_unknown", "discoveries"):
             lines.append(f"{key}: {len(result.get(key, []))}")
+            for row in result.get(key, []):
+                if row.get("landed_scenario"):
+                    lines.append("- " + _md_cell(row.get("title")) + " (" + key + ")")
+                    landed(row)
     elif "groups" in result:
         lines.append("Observed displayed prices; model, variant and condition still need verification.\n")
         for currency, items in result["groups"].items():
@@ -789,7 +840,12 @@ def markdown(result):
                                  "; BRL reference " + _md_cell(row.get("brl", {}).get("source_observation_cost", "unknown")) +
                                  "; crawl age " + _md_cell(observation.get("crawl_age", "unknown")) + ". Current price/variant/stock unverified.")
         for source in result.get("sources", []):
-            lines.append(f"{source.get('marketplace', 'unknown')}: {source.get('status', 'error')}")
+            lines.append(_md_cell(source.get('marketplace', 'unknown')) + ": " + _md_cell(source.get('status', 'error')))
+            error = source.get("error")
+            if isinstance(error, dict):
+                lines.append("  Error " + _md_cell(error.get("code", "unknown")) + ": " + _md_cell(error.get("message", "")))
+            for warning in source.get("warnings", []):
+                lines.append("  Warning: " + _md_cell(warning))
     elif "catalog_observations" in result:
         lines.append("Third-party catalog observations; variant, stock and underlying freshness remain unknown.")
         for observation in result["catalog_observations"]:
@@ -799,16 +855,19 @@ def markdown(result):
             lines.append("  Catalog: " + _md_cell(observation["source_url"]) + "; marketplace link: " + _md_cell(observation["native_url"]))
         lines.append("Status: " + _md_cell(result.get("status")))
     elif "quotes" in result:
-        lines.extend(["Fansbuy → Brazil base freight estimates, before import tax.\n",
+        if result.get("status") == "excluded_by_market_policy":
+            lines.append("Shipping: " + _md_cell(result.get("shipping_policy")) + "; no Fansbuy freight quote requested for " + _md_cell(result.get("marketplace")) + ".")
+        else:
+            lines.extend(["Fansbuy → Brazil base freight estimates, before import tax.\n",
                       "| Route | CNY | Advertised days |", "|---|---:|---|"])
-        for row in result["quotes"]:
-            lines.append("| " + " | ".join(_md_cell(row.get(k, "unknown")) for k in
+            for row in result["quotes"]:
+                lines.append("| " + " | ".join(_md_cell(row.get(k, "unknown")) for k in
                                           ("shipping_name", "total_fee", "travel_time")) + " |")
-        lines.append(f"\n{len(result.get('rejected', []))} routes rejected by package/category checks.")
+            lines.append(f"\n{len(result.get('rejected', []))} routes rejected by package/category checks.")
     else:
         lines.append("```json\n" + json.dumps(result, ensure_ascii=False, indent=2) + "\n```")
     for warning in result.get("warnings", []):
-        lines.append("\n" + warning)
+        lines.append("\n" + _md_cell(warning))
     return "\n".join(lines)
 
 

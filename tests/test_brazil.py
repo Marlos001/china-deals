@@ -149,10 +149,10 @@ class BrazilTests(unittest.TestCase):
         self.case['imported']['costs']['taxes'] = None
         result = self.compare()
         self.assertEqual(result['imported']['excluded_costs'], ['international_freight'])
-        self.assertEqual(result['missing_costs']['imported'], ['taxes'])
+        self.assertEqual(result['missing_costs']['imported'], ['international_freight', 'taxes'])
         self.assertIsNone(result['imported']['landed_total_brl'])
         self.case['imported']['costs']['taxes'] = money('10')
-        self.assertEqual(self.compare()['imported']['landed_total_brl'], '40.00')
+        self.assertIsNone(self.compare()['imported']['landed_total_brl'])
         config = copy.deepcopy(DEFAULT_CONFIG)
         config['marketplaces']['blibli']['shipping'] = 'manual'
         result = compare_brazil(self.data, config=config)['cases'][0]

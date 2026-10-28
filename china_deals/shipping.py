@@ -5,7 +5,9 @@ import re
 from datetime import datetime, timezone
 from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from urllib.error import URLError
-from urllib.request import Request, urlopen
+from urllib.request import HTTPRedirectHandler, Request, build_opener
+
+from .decimal_math import bounded_decimal, monetary_calculation
 
 _API = 'https://fansbuy.com/apiv2/'
 _SOURCE = _API + 'estimatesTest'
@@ -175,11 +177,18 @@ def _reject_constant(value):
     raise ValueError('invalid JSON constant')
 
 
+class _NoRedirects(HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        if fp is not None:
+            fp.close()
+        raise ValueError('Fansbuy redirect denied')
+
+
 def _post(path, body, timeout):
     request = Request(_API + path, data=json.dumps(body).encode(),
                       headers={'Content-Type': 'application/json', 'User-Agent': 'Mozilla/5.0'}, method='POST')
     try:
-        with urlopen(request, timeout=timeout) as response:
+        with build_opener(_NoRedirects()).open(request, timeout=timeout) as response:
             raw = response.read(2 * 1024 * 1024 + 1)
             if len(raw) > 2 * 1024 * 1024:
                 raise ValueError('response too large')
@@ -191,6 +200,8 @@ def _post(path, body, timeout):
 def fansbuy_quotes(weight_g, dimensions_cm=None, categories=None, timeout=30):
     weight, dims, categories = _inputs(weight_g, dimensions_cm, categories)
     timeout = float(_decimal(timeout, 'timeout', positive=True))
+    if not math.isfinite(timeout) or timeout <= 0:
+        raise ValueError('timeout must be a finite positive number')
     areas = _post('web/cart/checkarea', {'serch': 'hot'}, timeout)
     try:
         if areas['code'] != 0:
@@ -211,9 +222,11 @@ def fansbuy_quotes(weight_g, dimensions_cm=None, categories=None, timeout=30):
     return result
 
 
+@monetary_calculation
 def estimate_landed_cost(goods_cny, freight_cny, cny_brl, usd_brl, icms_rate,
                          domestic_cny='0', agent_fee_cny='0', insurance_cny='0',
                          remessa_conforme=False):
+    """Estimate using inputs with at most 18 integer and 12 meaningful fractional digits."""
     goods = _decimal(goods_cny, 'goods_cny', positive=True)
     freight = _decimal(freight_cny, 'freight_cny')
     domestic = _decimal(domestic_cny, 'domestic_cny')
@@ -222,6 +235,10 @@ def estimate_landed_cost(goods_cny, freight_cny, cny_brl, usd_brl, icms_rate,
     cny = _decimal(cny_brl, 'cny_brl', positive=True)
     usd = _decimal(usd_brl, 'usd_brl', positive=True)
     rate = _decimal(icms_rate, 'icms_rate')
+    for name, value in (('goods_cny', goods), ('freight_cny', freight), ('domestic_cny', domestic),
+                        ('agent_fee_cny', agent), ('insurance_cny', insurance), ('cny_brl', cny),
+                        ('usd_brl', usd), ('icms_rate', rate)):
+        bounded_decimal(value, name)
     if rate >= 1:
         raise ValueError('icms_rate must be a fraction from 0 inclusive to 1 exclusive')
     if not isinstance(remessa_conforme, bool):
