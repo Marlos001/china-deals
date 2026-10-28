@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import sqlite3
 import time
 from contextlib import nullcontext
@@ -43,7 +44,7 @@ _PRIVATE = {"cookie", "cookies", "setcookie", "authorization", "headers", "reque
             "token", "accesstoken", "refreshtoken", "password", "secret"}
 _OBSERVATION_FIELDS = (
     "marketplace", "item_id", "title", "url", "url_basis", "identity_evidence", "offers", "price",
-    "seller", "description", "source_mode", "model", "variant_evidence", "hardware", "source_detail", "index_source_url",
+    "seller", "description", "source_mode", "model", "variant_evidence", "variant_observations", "hardware", "source_detail", "index_source_url",
     "discovered_at", "location", "domestic_free_shipping", "variant", "condition", "availability",
     "seller_trust", "observed_at", "signals", "warnings", "source_warnings", "selected_variant",
     "conditions", "payment", "discount_claims", "transaction_evidence", "ranking_exclusions", "price_freshness_policy",
@@ -326,6 +327,14 @@ def _delta(current, previous, max_age_hours, now):
         reason = "selected_variant_unknown"
     elif current["selected_variant"] != previous["selected_variant"]:
         reason = "different_selected_variant"
+    elif any(len(offer.get("variant_observations") or []) > 1 for offer in (current, previous)):
+        reason = "material_variant_ambiguous"
+    elif any(current.get(key) != previous.get(key) for key in ("variant", "variant_evidence", "hardware", "variant_observations")):
+        reason = "different_or_unknown_material_variant"
+    elif any(re.fullmatch(r"(?:black|white|blue|red|green|silver|gray|grey|gold|pink|purple|"
+                          r"preto|preta|branco|branca|azul|黑色|白色)", offer["selected_variant"].strip(), re.I)
+             and not (offer.get("hardware") or offer.get("variant_evidence")) for offer in (current, previous)):
+        reason = "material_variant_ambiguous"
     elif (current.get("condition") in (None, "", "unknown") or previous.get("condition") in (None, "", "unknown")
           or any(not offer.get("payment") or offer["payment"] in ("unknown", "unspecified", "unverified")
                  for offer in (current, previous))):
@@ -371,7 +380,7 @@ def history(store_path, marketplace=None, item_id=None, limit=50):
     """Read newest inserted receipts first; 1..50 rows, no file creation/writes.
 
     Each row contains observation_hash, recorded_at, observation and refresh.
-    A missing store returns []; corrupt/incompatible stores raise sqlite errors.
+    A missing store raises FileNotFoundError; corrupt/incompatible stores raise sqlite errors.
     """
     if isinstance(limit, bool) or not isinstance(limit, int) or not 1 <= limit <= MAX_ITEMS:
         raise ValueError("history limit must be an integer from 1 to 50")
@@ -380,7 +389,7 @@ def history(store_path, marketplace=None, item_id=None, limit=50):
         raise ValueError("item_id must be a nonempty string of at most 256 characters")
     path = _path(store_path)
     if not path.exists():
-        return []
+        raise FileNotFoundError(f"History store does not exist: {path}")
     clauses, params = [], []
     for field, value in (("marketplace", market), ("item_id", item_id)):
         if value is not None:
@@ -471,6 +480,9 @@ def refresh_offers(payload, backend="http", timeout=30, max_age_hours=24, as_of=
                         continue
                 if dated:
                     prior = max(dated, key=lambda pair: pair[0])[1]
+            except FileNotFoundError:
+                # A first refresh can create the store after acquisition.
+                pass
             except (OSError, sqlite3.Error, ValueError, KeyError, TypeError):
                 if not storage["errors"]:
                     storage["errors"].append({"operation": "read", "code": "history_read_failed"})

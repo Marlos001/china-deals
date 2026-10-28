@@ -181,6 +181,24 @@ def _accessories(value, family):
     return kinds
 
 
+def _negates_requested(value, family, wanted_accessories):
+    """Detect direct exclusions, without carrying negation across other items."""
+    targets = [_PROFILES[family].identity]
+    targets += {
+        "amd-ryzen-cpu": [r"\b(?:cpu|processor)\b|处理器|处理芯片"],
+        "nvidia-rtx-gpu": [r"\b(?:gpu|graphics\s+card|video\s+card)\b|显卡"],
+        "steam-deck": [r"\b(?:console|handheld)\b|掌机"],
+        "nintendo-switch": [r"\bconsole\b|游戏机|主机"],
+        "dji-mini": [r"\bdrone\b|无人机"],
+        "sony-wh": [r"\bheadphones?\b|耳机"],
+    }.get(family, [])
+    if wanted_accessories:
+        targets = [pattern for kind, pattern in _COMMON + _PROFILES[family].accessories
+                   if kind in wanted_accessories]
+    prefix = r"(?:\b(?:no|not|without|excluding|tanpa|bukan)\s+(?:(?:a|an|the)\s+)?|不含|没有|无|非)\s*"
+    return any(_has(prefix + r"(?:" + target + r")", value) for target in targets)
+
+
 _CAPACITY = _LEFT + r"(\d+(?:\.\d+)?)\s*(gb|tb)" + _RIGHT
 _RAM_LABEL = _LEFT + r"(?:ram|memory|(?:lp)?ddr[345]x?)" + _RIGHT + r"|内存"
 _STORAGE_LABEL = _LEFT + r"(?:ssd|storage|nvme|emmc)" + _RIGHT + r"|固态(?:硬盘)?|存储"
@@ -350,6 +368,8 @@ def assess_profile(offer, query, *, selected_observations=None):
     wanted_accessories = _accessories(query_text, family)
     observed_accessories = []
     for source, value in fields:
+        if _negates_requested(value, family, wanted_accessories):
+            return finish("mismatch", f"{source}: requested_product_explicitly_excluded", "other_product")
         explicit_families = explicit_identity_families(value)
         if explicit_families - {family}:
             return finish("mismatch", f"{source}: different_explicit_product_family", "other_product")

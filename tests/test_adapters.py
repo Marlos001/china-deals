@@ -10,7 +10,7 @@ import time
 import unittest
 import urllib.error
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from china_deals import adapters
 
@@ -168,36 +168,37 @@ class BlibliTests(unittest.TestCase):
     def response(payload, content_type="application/json"):
         response = io.BytesIO(json.dumps(payload).encode())
         response.headers = {"Content-Type": content_type}
+        response.geturl = lambda: "https://www.blibli.com/backend/search/products"
         return response
 
     def test_real_endpoint_contract_parsing_is_synthetic(self):
         product = {"id": "SYN-00001-00001", "name": "Synthetic fixture", "price": {"minPrice": "100000"}, "url": "/p/synthetic/ps--SYN-00001-00001"}
-        with patch.object(adapters.urllib.request, "urlopen", return_value=self.response({"code": 200, "status": "OK", "data": {"products": [product]}})) as open_url:
+        with patch.object(adapters.urllib.request, "build_opener", return_value=Mock(open=Mock(return_value=self.response({"code": 200, "status": "OK", "data": {"products": [product]}})))) as build:
             result = adapters.search_marketplace("blibli", "a & b", limit=3)
         self.assertEqual(result["items"], [product])
         self.assertEqual(result["status"], "ok")
-        self.assertEqual(open_url.call_args.args[0].full_url, "https://www.blibli.com/backend/search/products?searchTerm=a+%26+b&start=0&itemPerPage=3")
+        self.assertEqual(build.return_value.open.call_args.args[0].full_url, "https://www.blibli.com/backend/search/products?searchTerm=a+%26+b&start=0&itemPerPage=3")
         self.assertTrue(any("IDR" in w for w in result["warnings"]))
 
     def test_http_failures_never_become_zero_results(self):
         for code, expected in ((401, "auth_required"), (403, "blocked"), (429, "blocked"), (503, "unavailable")):
             error = urllib.error.HTTPError("https://www.blibli.com", code, "private server message", {}, io.BytesIO())
-            with self.subTest(code=code), patch.object(adapters.urllib.request, "urlopen", side_effect=error):
+            with self.subTest(code=code), patch.object(adapters.urllib.request, "build_opener", return_value=Mock(open=Mock(side_effect=error))):
                 result = adapters.search_marketplace("blibli", "x")
             self.assertEqual(result["status"], expected)
             self.assertEqual(result["error"]["code"], f"http_{code}")
 
     def test_html_and_missing_products_do_not_prove_empty(self):
         for payload, content_type, expected in (({}, "text/html", "blocked"), ({"code": 200, "data": {}}, "application/json", "error"), ({"code": 403}, "application/json", "blocked"), ({"code": 200, "data": {"products": []}}, "application/json", "empty_unverified")):
-            with self.subTest(payload=payload), patch.object(adapters.urllib.request, "urlopen", return_value=self.response(payload, content_type)):
+            with self.subTest(payload=payload), patch.object(adapters.urllib.request, "build_opener", return_value=Mock(open=Mock(return_value=self.response(payload, content_type)))):
                 self.assertEqual(adapters.search_marketplace("blibli", "x")["status"], expected)
 
     def test_network_and_output_limit(self):
-        with patch.object(adapters.urllib.request, "urlopen", side_effect=urllib.error.URLError("PRIVATE")):
+        with patch.object(adapters.urllib.request, "build_opener", return_value=Mock(open=Mock(side_effect=urllib.error.URLError("PRIVATE")))):
             result = adapters.search_marketplace("blibli", "x")
         self.assertEqual(result["status"], "unavailable")
         self.assertNotIn("PRIVATE", json.dumps(result))
-        with patch.object(adapters, "MAX_OUTPUT_BYTES", 10), patch.object(adapters.urllib.request, "urlopen", return_value=self.response({"code": 200, "data": {"products": []}})):
+        with patch.object(adapters, "MAX_OUTPUT_BYTES", 10), patch.object(adapters.urllib.request, "build_opener", return_value=Mock(open=Mock(return_value=self.response({"code": 200, "data": {"products": []}})))):
             self.assertEqual(adapters.search_marketplace("blibli", "x")["error"]["code"], "output_limit")
 
     def test_browser_is_opt_in_and_direct_block_survives_missing_bridge(self):
@@ -207,7 +208,41 @@ class BlibliTests(unittest.TestCase):
             browser.assert_not_called()
             result = adapters.search_marketplace("blibli", "x", browser_fallback=True)
         self.assertEqual(result["status"], "blocked")
-        self.assertTrue(any("BROWSER_CONNECT" in warning for warning in result["warnings"]))
+        browser.assert_not_called()
+
+    def test_gates_never_trigger_browser_fallback(self):
+        for status, code in (("auth_required", "http_401"), ("blocked", "http_403"),
+                             ("blocked", "http_429"), ("blocked", "non_json_response"),
+                             ("blocked", "challenge"), ("blocked", "redirect_denied"),
+                             ("unavailable", "http_503")):
+            with self.subTest(code=code), patch.object(adapters, "_blibli_http", side_effect=adapters._Failure(status, code, "denied")), patch.object(adapters, "_blibli_browser", return_value=[{"id": "wrong"}]) as browser:
+                result = adapters.search_marketplace("blibli", "x", browser_fallback=True)
+                self.assertEqual((result["status"], result["error"]["code"], result["items"]), (status, code, []))
+                browser.assert_not_called()
+
+    def test_eligible_unavailable_failure_allows_opt_in_fallback(self):
+        for code in ("network_error",):
+            with self.subTest(code=code), patch.object(adapters, "_blibli_http", side_effect=adapters._Failure("unavailable", code, "unavailable")), patch.object(adapters, "_blibli_browser", return_value=[{"id": "synthetic"}]) as browser:
+                result = adapters.search_marketplace("blibli", "x", browser_fallback=True)
+                self.assertEqual(result["status"], "ok")
+                self.assertTrue(any(code in warning for warning in result["warnings"]))
+                browser.assert_called_once()
+
+    def test_redirects_are_bounded_and_restricted_before_following(self):
+        handler = adapters._BlibliRedirects()
+        self.assertEqual(handler.max_redirections, 5)
+        request = adapters.urllib.request.Request("https://www.blibli.com/backend/search/products?q=secret")
+        for target in ("https://evil.test/?q=secret", "http://www.blibli.com/?q=secret",
+                       "https://www.blibli.com:443/", "https://www.blibli.com@evil.test/",
+                       "https://www.blibli.com/login"):
+            with self.subTest(target=target), self.assertRaises(adapters._Failure):
+                handler.redirect_request(request, None, 302, "Found", {}, target)
+        self.assertIsNotNone(handler.redirect_request(request, None, 302, "Found", {}, "https://www.blibli.com/backend/search/products"))
+        response = self.response({"code": 200, "data": {"products": [{"id": "wrong"}]}})
+        response.geturl = lambda: "https://evil.test/"
+        with patch.object(adapters.urllib.request, "build_opener", return_value=Mock(open=Mock(return_value=response))):
+            result = adapters.search_marketplace("blibli", "x", browser_fallback=True)
+        self.assertEqual(result["error"]["code"], "redirect_denied")
 
     def test_detail_rejects_non_native_urls_and_does_not_guess_sku_route(self):
         for url in ("SKU-00001-00001", "https://evil.test/p/x/ps--123", "https://www.blibli.com@evil.test/p/x/ps--123", "http://www.blibli.com/p/x/ps--123", "https://www.blibli.com/p/../ps--123", "https://www.blibli.com/p/%2E%2E/ps--123", "https://www.blibli.com/p/%2Fadmin/ps--123"):
@@ -220,7 +255,7 @@ class BlibliTests(unittest.TestCase):
         url = "https://www.blibli.com/p/synthetic/ps--SYN-00001-00001"
         related = {"@type": "Product", "url": "https://www.blibli.com/p/other/ps--SYN-00001-00002", "name": "Other"}
         product = {"@type": "Product", "url": url, "name": "Synthetic fixture", "offers": {"price": "100000", "priceCurrency": "IDR"}}
-        with patch.object(adapters, "_version"), patch.object(adapters, "_wire", side_effect=[{"targetId": "synthetic"}, {"state": "ok", "products": [related, product]}, None]) as wire:
+        with patch.object(adapters, "_version"), patch.object(adapters, "_wire", side_effect=[{"targetId": "synthetic"}, {"state": "ok", "url": url, "products": [related, product]}, None]) as wire:
             result = adapters.get_item("blibli", url, browser_fallback=True)
         self.assertEqual(result["items"], [product])
         calls = [c.args[0] for c in wire.call_args_list]
@@ -229,8 +264,23 @@ class BlibliTests(unittest.TestCase):
         self.assertEqual([c[4] for c in calls], ["open", "eval", "close"])
         self.assertIn("application/ld+json", calls[1][5])
 
+    def test_browser_detail_pickup_identity_must_match_on_both_sides(self):
+        base = "https://www.blibli.com/p/synthetic/ps--SYN-00001-00001"
+        a, b = base + "?pickupPointCode=PP-A", base + "?pickupPointCode=PP-B"
+        for requested, candidate, matches in ((a, a, True), (a, base, False), (base, a, False),
+                                               (a, b, False), (base, base, True),
+                                               (a, a + "&pickupPointCode=PP-A", False)):
+            product = {"url": candidate, "name": "Synthetic"}
+            with self.subTest(requested=requested, candidate=candidate), patch.object(adapters, "_version"), patch.object(adapters, "_wire", side_effect=[{}, {"state": "ok", "url": requested, "products": [product]}, None]):
+                result = adapters.get_item("blibli", requested, browser_fallback=True)
+                self.assertEqual(result["items"], [product] if matches else [])
+        for final, product in ((b, {"url": a}), (a, {"url": a, "offers": {"url": b}})):
+            with self.subTest(final=final, product=product), patch.object(adapters, "_version"), patch.object(adapters, "_wire", side_effect=[{}, {"state": "ok", "url": final, "products": [product]}, None]):
+                result = adapters.get_item("blibli", a, browser_fallback=True)
+                self.assertEqual(result["items"], [])
+
     def test_browser_challenge_is_not_bypassed_and_cleanup_failure_is_disclosed(self):
-        blocked = adapters._Failure("blocked", "http_403", "Blocked")
+        blocked = adapters._Failure("unavailable", "network_error", "Network")
         with patch.object(adapters, "_blibli_http", side_effect=blocked), patch.object(adapters, "_version"), patch.object(adapters, "_wire", side_effect=[{}, {"state": "blocked"}, adapters._Failure("unavailable", "timeout", "Timeout")]) as wire:
             result = adapters.search_marketplace("blibli", "x", browser_fallback=True)
         self.assertEqual(result["status"], "blocked")

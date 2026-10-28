@@ -75,7 +75,7 @@ china-deals schema
 china-deals config show
 ```
 
-Start with the [agent guide](AGENT_GUIDE.md). For example, ask your agent:
+Start with the [offline-first onboarding walkthrough](ONBOARDING.md) or the [agent guide](AGENT_GUIDE.md). For example, ask your agent:
 
 > Use china-deals in guest mode to research a ROG Zephyrus G16. Translate Chinese marketplace queries, inspect exact source listings and separate configurations, missing evidence and blocked sources. Show dated BRL product estimates, exclude Blibli freight, and estimate China-origin Fansbuy costs only with suitable parcel and import assumptions. Do not select a winner from search snippets. Ask before any purchase.
 
@@ -229,7 +229,7 @@ The default executable is `/usr/bin/chromium`. To use Playwright's downloaded Ch
 python -c 'from playwright.sync_api import sync_playwright; p = sync_playwright().start(); print(p.chromium.executable_path); p.stop()'
 ```
 
-Browser search reads indexed discovery, not a native marketplace catalog. The current browser detail backend can attempt SKU-bound JD/Blibli extraction and bounded Goofish primary DOM with phone-style model/storage reconciliation. Taobao has no validated primary-item detail contract. Fresh T3 capture plus CLI ingestion was verified for Goofish; live CLI browser transport remains unverified. The [browser backend report](research/browser-guest.md) records these limits and the local smoke check that stopped at a challenge.
+Browser search sends the query to Google for indexed discovery, not a native marketplace catalog. Browser navigation can also load ordinary page subresources, including third-party resources; main-frame navigation restrictions are not a network isolation boundary. Avoid sensitive queries or captures. The current browser detail backend can attempt SKU-bound JD/Blibli extraction and bounded Goofish primary DOM with phone-style model/storage reconciliation. Taobao has no validated primary-item detail contract. Fresh T3 capture plus CLI ingestion was verified for Goofish; live CLI browser transport remains unverified. The [browser backend report](research/browser-guest.md) records these limits and the local smoke check that stopped at a challenge.
 
 ## Optional OpenCLI native sessions
 
@@ -247,7 +247,7 @@ china-deals search '华硕 幻16' --markets jd --access native --limit 5
 
 `--ignore-scripts` skips upstream automatic setup/adapter refresh. Install the bridge yourself and manage any login/verification in your browser. `doctor` diagnoses this optional backend; missing native setup does not prevent HTTP guest use. `--opencli /path/to/opencli` overrides the executable, otherwise the CLI checks the environment, PATH and default XDG data location.
 
-Blibli native search can explicitly permit session reuse after public API denial with `--access native --browser-fallback`; native Blibli detail also needs that fallback flag and a validated product URL. This is separate from the fresh guest browser engine. Live Blibli product extraction remains unverified. Taobao/JD native detail retains raw source fields while unverified page amounts stay unranked. No CLI mode imports user cookies, solves CAPTCHAs or installs extensions.
+The CLI exposes `--browser-fallback` for Blibli native session use; native Blibli detail also requires the flag and a validated product URL. Native search permits fallback for eligible network failures and stops on HTTP 401, 403 or 429 and other access gates. **Do not use a browser or another transport to continue against that host after a login, CAPTCHA or verification challenge.** Older installed versions may behave differently. Session reuse is separate from the fresh guest browser engine and can expose the logged-in session to the site. Live Blibli product extraction remains unverified. Taobao/JD native detail retains raw source fields while unverified page amounts stay unranked. No CLI mode imports user cookies, solves CAPTCHAs or installs extensions.
 
 ## Fansbuy → Brazil and truthful declarations
 

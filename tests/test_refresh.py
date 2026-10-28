@@ -10,6 +10,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from china_deals import adapters, browser_guest, guest, refresh
+from china_deals.ranking import rank_offers
 
 NOW = "2026-10-27T12:00:00+00:00"
 BEFORE = "2026-10-27T10:00:00+00:00"
@@ -114,6 +115,21 @@ class RefreshTests(unittest.TestCase):
             with self.subTest(changes=changes):
                 result, _ = self.run_refresh(response=receipt(quote(**changes)))
                 self.assertEqual(result["items"][0]["price_delta"]["reason"], reason)
+
+    def test_material_configuration_must_match_for_delta(self):
+        prior = quote(observed_at=BEFORE, variant="black", hardware={"ram_gb": 16})
+        for changes, expected in [
+            ({"hardware": {"ram_gb": 16}}, "comparable_observed_change"),
+            ({"hardware": {"ram_gb": 32}}, "different_or_unknown_material_variant"),
+            ({"hardware": None}, "different_or_unknown_material_variant"),
+            ({"hardware": {"ram_gb": 16}, "variant_observations": ["black", "32 GB"]}, "material_variant_ambiguous"),
+        ]:
+            with self.subTest(changes=changes):
+                result, _ = self.run_refresh(prior, receipt(quote(variant="black", **changes)))
+                delta = result["items"][0]["price_delta"]
+                self.assertEqual(delta["status"] if expected == "comparable_observed_change" else delta["reason"], expected)
+        result, _ = self.run_refresh(quote(observed_at=BEFORE, variant="black"), receipt(quote(variant="black")))
+        self.assertEqual(result["items"][0]["price_delta"]["reason"], "material_variant_ambiguous")
 
     def test_old_or_nonprimary_previous_and_same_time_do_not_compare(self):
         for prior, reason in [(quote(observed_at="2026-10-20T10:00:00Z"), "requires_recent_primary_observations"),
@@ -298,8 +314,21 @@ class HistoryTests(unittest.TestCase):
         self.assertEqual(entries[0]["observation"]["price"]["amount"], "100")
         self.assertEqual(refresh.history(self.path, marketplace="goofish"), [])
 
+    def test_conflicting_selection_survives_history_and_ranking(self):
+        row = quote(title="iPhone 17 Pro Max", variant="iPhone 17 Pro Max",
+                    variant_observations=["iPhone 16 Pro Max"])
+        result = self.refresh(receipt(row), payload=[quote(intent_query="iPhone 17 Pro Max")])
+        item = result["items"][0]
+        observation = refresh.history(self.path)[0]["observation"]
+        self.assertIn("iPhone 16 Pro Max", item["variant_observations"])
+        self.assertEqual(observation["variant_observations"], item["variant_observations"])
+        ranked = rank_offers([item], query="iPhone 17 Pro Max", as_of=NOW)
+        self.assertFalse(ranked["groups"])
+        self.assertEqual(len(ranked["unranked"]), 1)
+
     def test_history_read_is_bounded_and_does_not_create_missing_store(self):
-        self.assertEqual(refresh.history(self.path), [])
+        with self.assertRaises(FileNotFoundError):
+            refresh.history(self.path)
         self.assertFalse(self.path.exists())
         for limit in (0, 51, True, 1.5, "2"):
             with self.assertRaises(ValueError):

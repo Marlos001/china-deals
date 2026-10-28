@@ -1,5 +1,7 @@
 import copy
 import unittest
+from datetime import datetime, timezone
+from unittest.mock import patch
 
 from china_deals.hardware import COMPARISON_FIELDS, compare_laptops, extract_hardware
 from china_deals.models import normalize_offer
@@ -32,6 +34,27 @@ def offer(candidate_id, title=G16_2024, price='¥12000', marketplace='jd', **ext
 
 
 class ComparisonWithoutIntentTests(unittest.TestCase):
+    def test_required_freshness_is_reassessed_after_export(self):
+        original = offer('fresh')
+        exported = rank_offers([original], fresh_only=True, max_age_hours=48,
+                               as_of='2026-10-27T13:00:00Z')['groups']['CNY'][0]
+        from china_deals.freshness import _clock
+        def clock(value):
+            return datetime(2026, 10, 30, 12, tzinfo=timezone.utc) if value is None else _clock(value)
+        with patch('china_deals.freshness._clock', side_effect=clock):
+            result = compare_laptops([exported, original])
+        self.assertEqual(result['groups'][0]['cheapest_candidate_ids'], ['fresh'])
+        self.assertIn('price_freshness_older_than_limit', result['unranked'][0]['reasons'])
+        self.assertEqual(result['unranked'][0]['price_freshness']['max_age_hours'], '48')
+        self.assertFalse(original.get('ranking_exclusions'))
+
+    def test_comparison_retains_outer_and_price_envelope_currency(self):
+        item = offer('conflict')
+        item['currency'] = 'USD'
+        result = compare_laptops([item])
+        self.assertFalse(result['groups'])
+        self.assertIn('invalid_or_unverified_exact_price_or_url', result['unranked'][0]['reasons'])
+
     def test_selected_accessory_and_chinese_accessory_cannot_win(self):
         for extra in ({'variant': 'charger only'}, {'title': 'ASUS ROG Zephyrus G16 电源适配器', 'description': G16_2024}):
             with self.subTest(extra=extra):

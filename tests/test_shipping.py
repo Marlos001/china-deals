@@ -1,6 +1,6 @@
 import json
 import unittest
-from decimal import Decimal
+from decimal import Decimal, localcontext
 from io import BytesIO
 from pathlib import Path
 from unittest.mock import patch
@@ -95,6 +95,19 @@ class ShippingTests(unittest.TestCase):
                 estimate_landed_cost(**args)
         self.assertEqual(estimate_landed_cost('15000', '0', '1', '5', '.2')['customs_value_usd'], '3000.00')
 
+    def test_landed_decimal_boundaries_and_context(self):
+        with localcontext() as context:
+            context.prec = 4
+            result = estimate_landed_cost('100', '0', '1', '5', '.999999999999')
+            self.assertEqual(result['icms_brl'], '159999999999840.00')
+            self.assertEqual(estimate_landed_cost('1.005', '0', '1', '5', '.2')['customs_value_brl'], '1.01')
+        for overrides in ({'icms_rate': '.9999999999999999999999999999'},
+                          {'agent_fee_cny': '1e30'}, {'usd_brl': '1e-13'}):
+            args = dict(goods_cny='100', freight_cny='0', cny_brl='1', usd_brl='5', icms_rate='.2')
+            args.update(overrides)
+            with self.subTest(overrides=overrides), self.assertRaisesRegex(ValueError, 'calculation bounds'):
+                estimate_landed_cost(**args)
+
     def test_current_prc_threshold_and_deduction_are_conditional(self):
         low = estimate_landed_cost('250', '0', '1', '5', '.2', remessa_conforme=True)
         self.assertEqual(Decimal(low['import_duty_brl']), Decimal('0'))
@@ -132,9 +145,10 @@ class ShippingTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             normalize(route(shipping_id=float('nan')), categories=[])
 
-    @patch('china_deals.shipping.urlopen')
-    def test_network_json_is_bounded_and_strict(self, urlopen):
+    @patch('china_deals.shipping.build_opener')
+    def test_network_json_is_bounded_and_strict(self, build_opener):
         from china_deals.shipping import _post
+        urlopen = build_opener.return_value.open
         for body in (b'{"x":NaN}', b'{"x":Infinity}', b' ' * (2 * 1024 * 1024 + 1)):
             urlopen.return_value.__enter__.return_value = BytesIO(body)
             with self.assertRaises(ValueError):

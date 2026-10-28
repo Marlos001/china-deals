@@ -13,10 +13,11 @@ from decimal import ROUND_HALF_UP, Decimal
 from urllib.parse import urlsplit
 
 from .config import load_config
+from .decimal_math import bounded_decimal, monetary_calculation
 from .freshness import CACHED_MODES, assess_fx_freshness, assess_price_freshness
 from .fx import convert_brl, validate_snapshot
 from .marketplaces import MONEY_SCALES
-from .models import decimal_value, normalize_offer
+from .models import _offer_unavailable, decimal_value, normalize_offer
 
 IMPORT_COSTS = ('domestic_freight', 'international_freight', 'insurance', 'taxes',
                 'agent_fees', 'payment_fees', 'other_fees')
@@ -34,7 +35,7 @@ def _object(value, label):
 def _amount(value, label, positive=False):
     if isinstance(value, bool) or not re.fullmatch(r'(?:0|[1-9][0-9]*)(?:\.[0-9]+)?', str(value)):
         raise ValueError(f'{label} must be a canonical decimal amount')
-    return decimal_value(value, label, positive=positive)
+    return bounded_decimal(decimal_value(value, label, positive=positive), label)
 
 
 def _money(value, label, snapshot):
@@ -51,8 +52,9 @@ def _money(value, label, snapshot):
 def _convert(amount, currency, snapshot):
     if amount is None:
         return None
+    amount = bounded_decimal(Decimal(amount), 'amount')
     if currency == 'BRL':
-        return Decimal(amount).quantize(Decimal('.01'), rounding=ROUND_HALF_UP)
+        return amount.quantize(Decimal('.01'), rounding=ROUND_HALF_UP)
     if snapshot is None:
         return None
     if currency not in snapshot['brl_per_unit']:
@@ -122,6 +124,21 @@ def _identity(imported, brazil, equivalence):
                 for key in explicit.keys() & variant.keys():
                     if not _same(explicit[key], variant[key]):
                         reasons.append(f'{label}.offer_{key}_conflict')
+        # Textual selections are independent evidence, not proof that the
+        # asserted structured identity covers every material attribute. This
+        # also applies to product families without a relevance profile.
+        from .products import selected_variant_texts
+        if any(isinstance(offer.get(key), str) and offer[key].strip()
+               for key in ('variant', 'selected_variant', 'variant_evidence')) or offer.get('variant_observations'):
+            if selected_variant_texts(offer):
+                reasons.append(f'{label}.textual_variant_unverified')
+        # Explicit configurations in a title also require review; never infer
+        # an equivalence from unlabeled capacities or a product-family guess.
+        title = offer.get('title')
+        if isinstance(title, str) and re.search(
+                r'\b(?:ram|memory|ssd|storage|rtx|gtx)\s*[:\-]?\s*\d|'
+                r'\b\d+(?:\.\d+)?\s*(?:gb|tb)\b', title, re.I):
+            reasons.append(f'{label}.textual_configuration_unverified')
     if all(isinstance(x, dict) for x in identities):
         for field in ('model', 'condition', 'variant'):
             if not _same(identities[0].get(field), identities[1].get(field)):
@@ -138,13 +155,16 @@ def _brazil_price(offer):
     if not isinstance(price, dict) or price.get('currency') != 'BRL' or price.get('basis') != 'displayed':
         return None, ['brazil_price_requires_displayed_BRL_total']
     try:
-        amount = _amount(price.get('amount'), 'Brazil price', positive=True)
+        amount = decimal_value(price.get('amount'), 'Brazil price', positive=True)
+        if not re.fullmatch(r'(?:0|[1-9][0-9]*)(?:\.[0-9]+)?', str(price.get('amount'))):
+            raise ValueError('Brazil price must be a canonical decimal amount')
     except ValueError:
         return None, ['brazil_price_not_a_positive_single_amount']
+    bounded_decimal(amount, 'Brazil price')
     # An explicit transaction qualifier cannot be overridden by a numeric field.
     if _transaction_risk(offer):
         reasons.append('brazil_installment_or_deposit_price')
-    if offer.get('availability') in {'sold', 'delisted', 'unavailable', 'out_of_stock'}:
+    if _offer_unavailable(offer):
         reasons.append('brazil_offer_unavailable')
     return (None if reasons else amount), reasons
 
@@ -159,17 +179,13 @@ def _transaction_risk(offer):
         r'(?i)(?:\bentrada\b|\bsinal\b|\bparcela\w*\b)', qualifiers))
 
 
-def _costs(side, fields, snapshot, excluded=()):
+def _costs(side, fields, snapshot):
     raw = _object(side.get('costs', {}), 'costs')
     if set(raw) - set(fields):
         raise ValueError('Unknown cost components: ' + ', '.join(sorted(set(raw) - set(fields))))
     values, missing, details = {}, [], {}
     for name in fields:
         value = _money(raw.get(name), name, snapshot)
-        if name in excluded:
-            details[name] = {'status': 'excluded_by_shipping_policy', 'input': copy.deepcopy(raw.get(name)),
-                             'amount_brl': None}
-            continue
         values[name] = value
         if value is None:
             missing.append(name)
@@ -187,6 +203,7 @@ def _math(import_total, brazil_total):
             'outcome': 'import_cheaper' if savings > 0 else 'brazil_cheaper' if savings < 0 else 'equal'}
 
 
+@monetary_calculation
 def compare_brazil(payload, fx_snapshot=None, config=None, as_of=None, max_age_hours=24):
     """Compare explicit scenarios without fetching prices, rates, freight or taxes.
 
@@ -229,11 +246,16 @@ def compare_brazil(payload, fx_snapshot=None, config=None, as_of=None, max_age_h
         if shipping not in {'fansbuy', 'manual', 'excluded'} or (shipping == 'fansbuy' and offer['marketplace'] == 'blibli'):
             raise ValueError('Invalid shipping policy for marketplace')
         excluded = ['international_freight'] if shipping == 'excluded' else []
-        costs, missing, cost_details = _costs(imported, IMPORT_COSTS, snapshot, excluded)
+        costs, missing, cost_details = _costs(imported, IMPORT_COSTS, snapshot)
         br_costs, br_missing, br_details = _costs(brazil, BRAZIL_COSTS, snapshot)
         currency = offer['price']['currency']
         product = _convert(offer['price']['amount'], currency, snapshot)
         reasons = list(identity['reasons'])
+        if _offer_unavailable(foreign):
+            product = None
+            if offer['availability'] not in {'delisted', 'sold'}:
+                offer['availability'] = 'unavailable'
+            reasons.append('imported_offer_unavailable')
         from .guest import _product_url
         from .products import assess_product
         for label, row, side in (('imported', foreign, imported), ('brazil', local, brazil)):
@@ -258,7 +280,7 @@ def compare_brazil(payload, fx_snapshot=None, config=None, as_of=None, max_age_h
                 reasons.append('fx_' + fx_freshness['status'])
         for label, side in (('imported', imported), ('brazil', brazil)):
             for name, cost in side.get('costs', {}).items():
-                if not isinstance(cost, dict) or cost.get('basis') != 'observed' or label == 'imported' and name in excluded:
+                if not isinstance(cost, dict) or cost.get('basis') != 'observed':
                     continue
                 age = assess_price_freshness({'source_mode': 'guest_api', 'observed_at': cost.get('observed_at')}, max_age_hours, clock)
                 if not age['recent_observation']:
@@ -348,7 +370,7 @@ def compare_brazil(payload, fx_snapshot=None, config=None, as_of=None, max_age_h
             'reasons': list(dict.fromkeys(reasons)), 'identity': identity,
             'import_eligibility': copy.deepcopy(eligibility), 'decision_hold': bool(holds), 'decision_holds': holds,
             'imported': {'offer': offer, 'price_basis': offer['price']['basis'], 'freshness': fresh,
-                         'shipping_policy': shipping, 'excluded_costs': excluded, 'costs': cost_details,
+                         'shipping_policy': shipping, 'excluded_costs': [name for name in excluded if name in missing], 'costs': cost_details,
                          'product_price_brl': _fmt(product), 'known_subtotal_brl': _fmt(known),
                          'landed_total_brl': _fmt(total), 'missing_costs': missing},
             'brazil': {'offer': copy.deepcopy(local), 'freshness': br_fresh, 'costs': br_details,
@@ -363,7 +385,7 @@ def compare_brazil(payload, fx_snapshot=None, config=None, as_of=None, max_age_h
     return {'schema_version': 1, 'as_of': clock, 'max_age_hours': str(max_age_hours),
             'fx': copy.deepcopy(snapshot), 'fx_freshness': fx_freshness, 'cases': results,
             'scope': 'Caller-supplied scenario; not checkout, inventory verification, customs assessment or legal clearance.',
-            'warnings': ['All applicable costs must be explicit; excluded freight is a policy assumption, not free delivery.',
+            'warnings': ['All applicable costs must be explicit; an excluded carrier policy does not imply free freight.',
                          'Potential coupons and cashback are never applied. Payment labels are retained without verifying eligibility.',
                          'FX uses the supplied reference snapshot; spreads, IOF and taxes must be supplied as costs.',
                          'Conditional math and break-even budgets do not establish fresh comparable offers.']}

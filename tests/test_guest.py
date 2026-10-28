@@ -101,6 +101,26 @@ class IndexTests(unittest.TestCase):
         self.assertIsNone(guest._product_url("taobao", "https://www.taobao.com/item.htm?id=123"))
         self.assertIsNone(guest._product_url("blibli", "https://www.blibli.com/p/%2E%2E/ps--123"))
 
+    def test_ambiguous_identity_is_rejected_in_discovery_and_detail(self):
+        cases = (("jd", JD_URL + "?id=999"), ("jd", JD_URL + "?id="),
+                 ("jd", "https://item.jd.com/product/opaque.html?item_id=123"),
+                 ("taobao", "https://item.taobao.com/item.htm?id=123&itemId=999"),
+                 ("goofish", "https://www.goofish.com/item?id=123&id="),
+                 ("blibli", BLIBLI_URL + "?productId=999"),
+                 ("blibli", BLIBLI_URL + "?pickupPointCode=PP-A&pickuppointcode=PP-B"),
+                 ("blibli", BLIBLI_URL + "?pickupPointCode=PP-A&pickupPointCode=PP-A"))
+        for market, url in cases:
+            with self.subTest(market=market, url=url):
+                self.assertIsNone(guest._product_url(market, url))
+                self.assertIsNone(guest._discovery_url(market, url))
+                with patch.object(guest, "_fetch") as fetch:
+                    if market == "jd" or market in {"taobao", "goofish"}:
+                        with self.assertRaises(ValueError):
+                            guest.get_guest_item(market, url)
+                    else:
+                        self.assertEqual(guest.get_guest_item(market, url)["error"]["code"], "detail_url_required")
+                    fetch.assert_not_called()
+
     def test_empty_parse_and_challenge_are_distinct(self):
         for body, status, code in [('<div class="no-results">No results</div>', "empty_unverified", "index_no_results"),
                                    ("<html>Unknown changed page</html>", "unavailable", "index_parse_error"),

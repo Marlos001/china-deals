@@ -30,6 +30,31 @@ URLS = {
 
 
 class RegistryTests(unittest.TestCase):
+    def test_domestic_conflicting_currency_survives_export_and_rerank(self):
+        for market, url, native in (("jd", "https://item.jd.com/123.html", "CNY"),
+                                    ("blibli", "https://www.blibli.com/p/example/ps--EXAMPLE", "IDR")):
+            for outer, inner in (("USD", native), (native, "USD")):
+                with self.subTest(market=market, outer=outer):
+                    row = {"marketplace": market, "title": "Example", "url": url,
+                           "currency": outer, "price": {"priceDisplay": "100", "currency": inner}}
+                    item = normalize_offer(market, row)
+                    self.assertIsNone(item["price"]["amount"])
+                    self.assertEqual(item["currency_observations"], sorted([native, "USD"]))
+                    for _ in range(2):
+                        result = rank_offers(json.loads(json.dumps([item])))
+                        self.assertFalse(result["groups"])
+                        item = result["unranked"][0]
+                        self.assertEqual(item["currency_observations"], sorted([native, "USD"]))
+                        self.assertIsNone(item["price"]["amount"])
+
+    def test_structured_offer_currency_conflict_is_retained(self):
+        row = {"title": "Example", "url": "https://item.jd.com/123.html", "currency": "USD",
+               "offers": {"@type": "Offer", "price": "100", "priceCurrency": "CNY"}}
+        item = normalize_offer("jd", row)
+        self.assertEqual(item["currency_observations"], ["CNY", "USD"])
+        self.assertIsNone(item["price"]["amount"])
+        self.assertFalse(rank_offers([item])["groups"])
+
     def test_all_markets_and_shared_legacy_exports(self):
         self.assertEqual(set(MARKETPLACES), {"taobao", "tmall", "1688", "weidian", "jd", "goofish", "blibli", "alibaba", "aliexpress"})
         for name in ("MARKETPLACES", "ALIASES", "CURRENCIES", "HOSTS"):

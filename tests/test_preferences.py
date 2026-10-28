@@ -1,6 +1,7 @@
 import json
 import tempfile
 import unittest
+from decimal import localcontext
 from pathlib import Path
 from unittest.mock import patch
 
@@ -43,6 +44,20 @@ class PreferencesTests(unittest.TestCase):
         for raw in [XML.replace(b'CNY', b'ABC'), XML.replace(b'rate="8"', b'rate="NaN"'), b'<!DOCTYPE test>'+XML]:
             with self.assertRaises(ValueError):
                 parse_ecb(raw)
+
+    def test_fx_calculation_bounds_and_context(self):
+        rates = parse_ecb(XML)
+        with localcontext() as context:
+            context.prec = 4
+            self.assertEqual(convert_brl('999999999999999999', 'CNY', rates), '749999999999999999.25')
+            self.assertEqual(convert_brl('1.34', 'CNY', rates), '1.01')
+            self.assertEqual(convert_brl('1.0000000000000', 'CNY', rates), '0.75')
+        for amount in ('1e30', '1e18', '0.0000000000001'):
+            with self.subTest(amount=amount), self.assertRaisesRegex(ValueError, 'calculation bounds'):
+                convert_brl(amount, 'CNY', rates)
+        rates['brl_per_unit']['CNY'] = '1e30'
+        with self.assertRaisesRegex(ValueError, 'calculation bounds'):
+            convert_brl('1', 'CNY', rates)
 
     def test_filters_distinguish_native_plan_and_local_unknown(self):
         plan = native_plan('goofish', '幻16', {'min_price': '4000', 'city': '深圳', 'condition': 'new'})

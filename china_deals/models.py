@@ -4,7 +4,7 @@ import json
 import re
 from datetime import datetime, timezone
 from decimal import Decimal, InvalidOperation
-from urllib.parse import parse_qs, urlparse, urlunsplit
+from urllib.parse import parse_qs, urlparse, urlsplit, urlunsplit
 
 from .marketplaces import (
     ALIASES,
@@ -244,6 +244,42 @@ def _source_warnings(row):
     return result
 
 
+def _unavailable(value):
+    if not isinstance(value, str):
+        return False
+    value = value.strip()
+    try:
+        parsed = urlsplit(value)
+        hostname = parsed.hostname
+    except ValueError:
+        return False
+    if parsed.scheme or parsed.netloc:
+        if parsed.scheme.lower() not in {'http', 'https'} or (hostname or '').lower() != 'schema.org':
+            return False
+        value = parsed.path.rstrip('/').rsplit('/', 1)[-1]
+    return re.sub(r'[_\s-]+', '', value).casefold() in {
+        'sold', 'delisted', 'unavailable', 'outofstock', 'discontinued', 'soldout'}
+
+
+def _offer_unavailable(offer):
+    pending, seen = [offer], set()
+    while pending:
+        value = pending.pop()
+        if not isinstance(value, (dict, list)) or id(value) in seen:
+            continue
+        seen.add(id(value))
+        if isinstance(value, list):
+            pending.extend(value)
+        else:
+            if _unavailable(value.get('availability')):
+                return True
+            pending.append(value.get('offers'))
+            observations = value.get('availability_observations')
+            if isinstance(observations, list) and any(_unavailable(claim) for claim in observations):
+                return True
+    return False
+
+
 def normalize_offer(marketplace, row, observed_at=None):
     marketplace = marketplace_name(marketplace)
     if not isinstance(row, dict):
@@ -282,28 +318,30 @@ def normalize_offer(marketplace, row, observed_at=None):
     if isinstance(original_price, dict):
         declared_currency = original_price.get("currency") or declared_currency
     currency_mismatch = declared_currency is not None and str(declared_currency).upper() != currency
-    currency_observations = []
+    retained = row.get("currency_observations", [])
+    if not isinstance(retained, list) or len(retained) > 20 or any(not isinstance(v, str) for v in retained):
+        retained = ["invalid_or_overflow_currency_evidence"]
+    declarations = list(retained)
+    for obj, keys in ((row, ("currency", "priceCurrency")),
+                      (price_envelope, ("source_currency",)),
+                      (original_price, ("currency", "priceCurrency")),
+                      (structured_offer, ("priceCurrency", "currency"))):
+        if isinstance(obj, dict):
+            declarations.extend(str(obj[k]) for k in keys if obj.get(k) is not None)
+    currency_observations = sorted({v.strip().upper()[:100] for v in declarations})
+    if len(currency_observations) > 20:
+        currency_observations = ["INVALID_OR_OVERFLOW_CURRENCY_EVIDENCE"]
     currency_problem = None
     if marketplace in INTERNATIONAL_MARKETPLACES:
-        retained = row.get("currency_observations", [])
-        if not isinstance(retained, list) or len(retained) > 20 or any(not isinstance(v, str) for v in retained):
-            retained = ["invalid_or_overflow_currency_evidence"]
-        declarations = list(retained)
-        for obj, keys in ((row, ("currency", "priceCurrency")),
-                          (price_envelope, ("source_currency",)),
-                          (original_price, ("currency", "priceCurrency")),
-                          (structured_offer, ("priceCurrency",))):
-            if isinstance(obj, dict):
-                declarations.extend(str(obj[k]) for k in keys if obj.get(k) is not None)
-        currency_observations = sorted({v.strip().upper()[:100] for v in declarations})
-        if len(currency_observations) > 20:
-            currency_observations = ["INVALID_OR_OVERFLOW_CURRENCY_EVIDENCE"]
         if len(currency_observations) != 1 or currency_observations[0] not in MONEY_SCALES:
             currency_problem = "International price currency is missing, unsupported or conflicting; numeric price withheld."
         else:
             currency = declared_currency = currency_observations[0]
         currency_mismatch = currency_problem is not None
         amount = machine_amount or parse_price(selected_price, currency)
+    elif any(value != currency for value in currency_observations):
+        currency_mismatch = True
+        currency_problem = f"Explicit source currency evidence conflicts with expected {currency}; price is not ranked."
     if currency_mismatch:
         amount = None
     price_basis = row.get("price_basis", price_envelope.get("basis", "displayed"))
@@ -338,9 +376,13 @@ def normalize_offer(marketplace, row, observed_at=None):
         if quantity_hold:
             amount, price_basis = None, "quantity_price_unverified"
     availability = row.get("availability", "unknown")
-    if isinstance(availability, str) and availability.casefold() in {"out_of_stock", "outofstock", "https://schema.org/outofstock"}:
+    observations = row.get("availability_observations")
+    observations = [v for v in observations if isinstance(v, str)] if isinstance(observations, list) else []
+    if isinstance(availability, str) and availability not in observations:
+        observations.append(availability)
+    if availability not in ("delisted", "sold") and _offer_unavailable(row):
         availability = "unavailable"
-    if availability not in {"unknown", "source_claimed_available", "delisted", "sold", "unavailable"}:
+    if not isinstance(availability, str) or availability not in {"unknown", "source_claimed_available", "delisted", "sold", "unavailable"}:
         availability = "unknown"
     if availability in {"delisted", "sold", "unavailable"}:
         amount = None
@@ -424,7 +466,7 @@ def normalize_offer(marketplace, row, observed_at=None):
         "offers": row.get("offers"),
         "price": {"amount": amount, "currency": currency, "raw": original_price, "basis": price_basis,
                   "source_currency": str(declared_currency).upper() if declared_currency is not None else None,
-                  "currency_basis": "unverified_international_currency" if currency_problem else "explicit_source_field" if declared_currency else "marketplace_adapter_contract"},
+                  "currency_basis": ("unverified_international_currency" if marketplace in INTERNATIONAL_MARKETPLACES else "conflicting_source_currency") if currency_problem else "explicit_source_field" if declared_currency else "marketplace_adapter_contract"},
         "seller": _text(row, "shop", "seller", "merchantName"),
         "description": (_text(row, "description", "desc", "snippet") or "")[:8000],
         "source_mode": source_mode,
@@ -445,6 +487,7 @@ def normalize_offer(marketplace, row, observed_at=None):
         "variant": _text(row, "variant", "spec"),
         "condition": _text(row, "condition") or "unknown",
         "availability": availability,
+        "availability_observations": observations,
         "seller_trust": "unverified",
         "observed_at": observed_at,
         "signals": signals,

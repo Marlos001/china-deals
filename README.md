@@ -20,7 +20,19 @@ Or install in a virtual environment with pip:
 pip install git+https://github.com/Marlos001/china-deals.git
 ```
 
-## Get started
+## Try it offline
+
+From a repository checkout, these commands need no marketplace request or credentials:
+
+```sh
+python -m china_deals rank examples/synthetic-offers.json --currency native --format markdown
+python -m china_deals shipping --from-json tests/fixtures/fansbuy-estimates-2026-10-27.json \
+  --weight-g 1000 --dimensions-cm 20 20 15 --ordinary-goods
+```
+
+The offers are invented and the shipping response is a dated capture, not a current quote. The fixture must match the supplied parcel and categories. Installing from Git above needs network access; these commands use the source checkout and Python 3.11+. See the [onboarding walkthrough](docs/ONBOARDING.md) for a complete offline-to-live workflow and privacy boundaries.
+
+## Search live
 
 Search a few marketplaces for a product:
 
@@ -30,6 +42,7 @@ china-deals search 'ROG Zephyrus G16' --zh-query '华硕 ROG 幻16 笔记本' \
 ```
 
 Chinese marketplaces require a query containing Chinese characters. Use `--zh-query` as above, or pass a Chinese query directly. English queries work for Alibaba.com and AliExpress. Use `china-deals marketplaces` to see the available sources.
+Search and detail contact external services; the default BRL display can also fetch reference exchange rates. Use `--currency native` to avoid that FX lookup.
 
 Read a specific listing using its marketplace ID or URL:
 
@@ -47,6 +60,8 @@ For a China-origin parcel, provide its packed weight, dimensions and applicable 
 china-deals shipping --market jd --weight-g 1000 --dimensions-cm 20 20 15 \
   --ordinary-goods --format markdown
 ```
+
+Without `--from-json`, shipping contacts the Fansbuy public calculator.
 
 Use `--ordinary-goods` only when no special categories apply. For example, electronics and batteries have separate category flags. Shipping quotes are estimates; final packing, fees and Brazilian taxes can change the total. Alibaba.com and AliExpress shipping must be entered manually; Fansbuy support for those marketplaces is not assumed. Blibli is in Indonesia and is excluded from Fansbuy freight by default.
 

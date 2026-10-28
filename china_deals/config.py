@@ -3,6 +3,7 @@
 import copy
 import json
 import os
+import stat
 from pathlib import Path
 
 from .marketplaces import INTERNATIONAL_MARKETPLACES
@@ -28,11 +29,19 @@ def config_path():
 def load_config(path=None):
     result = copy.deepcopy(DEFAULT_CONFIG)
     target = Path(path).expanduser() if path else config_path()
-    if not target.exists():
-        if path:
+    try:
+        fd = os.open(target, os.O_RDONLY | getattr(os, "O_NONBLOCK", 0))
+    except FileNotFoundError:
+        if path or os.environ.get("CHINA_DEALS_CONFIG"):
             raise ValueError(f"Configuration file does not exist: {target}")
         return result
-    raw = target.read_bytes()
+    try:
+        if not stat.S_ISREG(os.fstat(fd).st_mode):
+            raise ValueError("Configuration must be a regular file")
+        with os.fdopen(fd, "rb", closefd=False) as stream:
+            raw = stream.read(65537)
+    finally:
+        os.close(fd)
     if len(raw) > 65536:
         raise ValueError("Configuration exceeds 64 KiB")
     supplied = json.loads(raw)

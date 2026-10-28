@@ -208,10 +208,38 @@ def _blibli_rows(payload):
     return _rows(data["products"])
 
 
+def _blibli_safe_url(url):
+    try:
+        p = urllib.parse.urlsplit(url)
+        return (p.scheme == "https" and p.netloc == "www.blibli.com"
+                and not re.search(r"[\\\s\x00-\x1f\x7f]", url))
+    except (TypeError, ValueError):
+        return False
+
+
+class _BlibliRedirects(urllib.request.HTTPRedirectHandler):
+    max_redirections = 5
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        if not _blibli_safe_url(newurl):
+            if fp is not None:
+                fp.close()
+            raise _Failure("blocked", "redirect_denied", "Blibli redirect left the allowed HTTPS host; stopped.")
+        if re.search(r"/(?:login|signin|captcha|challenge|verify)(?:[/?]|$)", newurl, re.I):
+            if fp is not None:
+                fp.close()
+            raise _Failure("blocked", "challenge", "Blibli redirected to login or verification; stopped.")
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+
 def _blibli_http(query, limit, timeout):
     request = urllib.request.Request(_blibli_search_url(query, limit), headers={"Accept": "application/json", "User-Agent": "china-deals/0.1"})
     try:
-        with urllib.request.urlopen(request, timeout=timeout) as response:
+        with urllib.request.build_opener(_BlibliRedirects()).open(request, timeout=timeout) as response:
+            if not _blibli_safe_url(response.geturl()):
+                raise _Failure("blocked", "redirect_denied", "Blibli response left the allowed HTTPS host.")
+            if re.search(r"/(?:login|signin|captcha|challenge|verify)(?:[/?]|$)", response.geturl(), re.I):
+                raise _Failure("blocked", "challenge", "Blibli response reached login or verification; stopped.")
             body = response.read(MAX_OUTPUT_BYTES + 1)
             if len(body) > MAX_OUTPUT_BYTES:
                 raise _Failure("error", "output_limit", "Blibli exceeded the bounded response limit.")
@@ -228,15 +256,18 @@ def _blibli_http(query, limit, timeout):
 
 
 def _blibli_product_url(value):
+    from .marketplaces import canonical_product_url
+    if not canonical_product_url("blibli", value):
+        raise _Failure("unavailable", "detail_url_required", "Blibli detail needs an unambiguous native product URL.")
     parsed = urllib.parse.urlsplit(value)
     slug = urllib.parse.unquote(parsed.path.split("/")[2]) if parsed.path.startswith("/p/") else ""
     if parsed.scheme == "https" and parsed.netloc == "www.blibli.com" and slug not in {"", ".", ".."} and not any(c in slug for c in "/\\") and re.fullmatch(r"/p/[A-Za-z0-9%._~-]+/(?:ps|is)--[A-Za-z0-9-]+/?", parsed.path):
-        query = urllib.parse.parse_qs(parsed.query, keep_blank_values=True)
-        pickup = query.get("pickupPointCode")
-        if pickup is not None:
-            if len(pickup) != 1 or not re.fullmatch(r"PP-[A-Z0-9-]+", pickup[0]):
+        pickup = [(key, val) for key, val in urllib.parse.parse_qsl(parsed.query, keep_blank_values=True)
+                  if key.casefold() == "pickuppointcode"]
+        if pickup:
+            if len(pickup) != 1 or pickup[0][0] != "pickupPointCode" or not re.fullmatch(r"PP-[A-Z0-9-]+", pickup[0][1]):
                 raise _Failure("unavailable", "detail_url_required", "Blibli pickupPointCode must identify one explicit pickup point.")
-            return _BLIBLI + parsed.path + "?" + urllib.parse.urlencode({"pickupPointCode": pickup[0]})
+            return _BLIBLI + parsed.path + "?" + urllib.parse.urlencode({"pickupPointCode": pickup[0][1]})
         return _BLIBLI + parsed.path
     raise _Failure("unavailable", "detail_url_required", "Blibli detail needs the full native https://www.blibli.com/p/.../ps--... (or is--) product URL from search; no SKU-to-URL route is guessed.")
 
@@ -299,13 +330,24 @@ try {
         # A related/recommended product JSON-LD node is not the requested item.
         rows = _rows(data.get("products"))
         requested_url = _blibli_product_url(query_or_url)
+        try:
+            final_url = _blibli_product_url(data.get("url"))
+        except (TypeError, _Failure):
+            raise _Failure("unavailable", "item_url_mismatch", "Blibli browser did not remain on the requested product.") from None
+        if final_url != requested_url:
+            raise _Failure("unavailable", "item_url_mismatch", "Blibli browser did not remain on the requested product.")
         matches = []
         for row in rows:
             offers = row.get("offers")
             offer = offers[0] if isinstance(offers, list) and len(offers) == 1 else offers
-            native_url = row.get("url") or (offer.get("url") if isinstance(offer, dict) else None)
-            if isinstance(native_url, str) and urllib.parse.urljoin(_BLIBLI, native_url).split("?")[0].rstrip("/") == requested_url.rstrip("/"):
-                matches.append(row)
+            urls = [value for value in (row.get("url"), offer.get("url") if isinstance(offer, dict) else None) if value is not None]
+            if urls and all(isinstance(value, str) for value in urls):
+                try:
+                    candidates = [_blibli_product_url(urllib.parse.urljoin(_BLIBLI, value)) for value in urls]
+                except _Failure:
+                    continue
+                if all(candidate == requested_url for candidate in candidates):
+                    matches.append(row)
         return matches
     finally:
         # Reserve a small bounded cleanup allowance even after the work timeout.
@@ -343,7 +385,8 @@ def search_marketplace(marketplace: str, query: str, limit: int = 10, timeout: f
             try:
                 rows = _blibli_http(query, actual_limit, _remaining(deadline))
             except _Failure as direct_error:
-                if not browser_fallback:
+                # HTTP error bodies may themselves be challenges, including 5xx.
+                if not browser_fallback or direct_error.code != "network_error":
                     raise
                 warnings += [f"Direct Blibli search failed ({direct_error.code}); optional browser reuse attempted.",
                              "Browser session close is best effort; OpenCLI owned sessions expire after idle timeout."]

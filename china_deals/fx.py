@@ -3,12 +3,35 @@
 from datetime import date, datetime, timezone
 from decimal import ROUND_HALF_UP, Decimal
 from urllib.parse import urlsplit
-from urllib.request import Request, urlopen
+from urllib.request import HTTPRedirectHandler, Request, build_opener
 from xml.etree import ElementTree
 
+from .decimal_math import bounded_decimal, monetary_calculation
 from .models import decimal_value
 
 ECB_URL = "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml"
+
+
+def _valid_ecb_url(url):
+    try:
+        parts = urlsplit(url)
+        return (parts.scheme == "https" and parts.hostname == "www.ecb.europa.eu"
+                and parts.port in (None, 443) and parts.username is None and parts.password is None)
+    except ValueError:
+        return False
+
+
+class _ECBRedirects(HTTPRedirectHandler):
+    def __init__(self):
+        self.count = 0
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        self.count += 1
+        if self.count > 5 or not _valid_ecb_url(newurl):
+            if fp is not None:
+                fp.close()
+            raise ValueError("ECB redirect denied")
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
 
 
 def parse_ecb(raw):
@@ -41,8 +64,11 @@ def parse_ecb(raw):
 
 
 def fetch_rates(timeout=15):
-    with urlopen(Request(ECB_URL, headers={"User-Agent": "china-deals/0.2"}), timeout=timeout) as response:
-        if urlsplit(response.url).hostname != "www.ecb.europa.eu":
+    if not _valid_ecb_url(ECB_URL):
+        raise ValueError("ECB source URL denied")
+    opener = build_opener(_ECBRedirects())
+    with opener.open(Request(ECB_URL, headers={"User-Agent": "china-deals/0.2"}), timeout=timeout) as response:
+        if not _valid_ecb_url(response.url):
             raise ValueError("ECB request redirected outside its source host")
         raw = response.read(262145)
     result = parse_ecb(raw)
@@ -62,10 +88,12 @@ def validate_snapshot(snapshot):
     return snapshot
 
 
+@monetary_calculation
 def convert_brl(amount, currency, snapshot):
+    """Convert within 18 integer and 12 meaningful fractional digits, rounding to cents."""
     validate_snapshot(snapshot)
     rate = Decimal(1) if currency == "BRL" else decimal_value(snapshot["brl_per_unit"].get(currency), "FX rate", positive=True)
-    converted = decimal_value(amount) * rate
+    converted = bounded_decimal(decimal_value(amount), 'amount') * bounded_decimal(rate, 'FX rate')
     return str(converted.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
 
 
