@@ -6,6 +6,8 @@ No browser, OpenCLI, login, retry, or challenge-solving path is used here.
 
 from __future__ import annotations
 
+import base64
+import binascii
 import hashlib
 import http.client
 import json
@@ -261,6 +263,55 @@ def _unwrap(href):
     return url
 
 
+class _BingResults(HTMLParser):
+    """Read only result-heading anchors inside Bing's organic result list."""
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.results = []
+        self.depth = 0
+        self.heading = False
+        self.anchor = None
+
+    def handle_starttag(self, tag, attrs):
+        attrs = dict(attrs)
+        if tag == "li" and "b_algo" in attrs.get("class", "").split() and not self.depth:
+            self.depth = 1
+        elif self.depth and tag == "li":
+            self.depth += 1
+        elif self.depth and tag == "h2":
+            self.heading = True
+        elif self.depth and self.heading and tag == "a" and self.anchor is None:
+            self.anchor = [attrs.get("href", ""), []]
+
+    def handle_data(self, data):
+        if self.anchor is not None:
+            self.anchor[1].append(data)
+
+    def handle_endtag(self, tag):
+        if tag == "a" and self.anchor is not None:
+            self.results.append({"href": self.anchor[0], "title": " ".join("".join(self.anchor[1]).split()), "snippet": ""})
+            self.anchor = None
+        if tag == "h2":
+            self.heading = False
+        if tag == "li" and self.depth:
+            self.depth -= 1
+
+
+def _unwrap_bing(href):
+    if _valid_url(href, {"www.bing.com"}):
+        parsed = urllib.parse.urlsplit(href)
+        if parsed.path != "/ck/a":
+            return ""
+        values = urllib.parse.parse_qs(parsed.query).get("u", [])
+        if len(values) != 1 or not values[0].startswith("a1") or len(values[0]) > 8192:
+            return ""
+        value = values[0][2:]
+        try:
+            return base64.b64decode(value + "=" * (-len(value) % 4), altchars=b"-_", validate=True).decode("utf-8")
+        except (ValueError, UnicodeDecodeError, binascii.Error):
+            return ""
+    return href
+
 def _filters(filters):
     if filters is not None and not isinstance(filters, dict):
         raise ValueError("filters must be an object or None")
@@ -304,8 +355,10 @@ def _read(result, url, hosts, deadline, mode):
         raise
 
 
-def search_guest(marketplace, query, limit=10, timeout=30, filters=None) -> dict:
+def search_guest(marketplace, query, limit=10, timeout=30, filters=None, index_provider="duckduckgo") -> dict:
     """Read one public page. Index leads deliberately carry no numeric prices."""
+    if index_provider not in {"duckduckgo", "bing"}:
+        raise ValueError("Unsupported index provider")
     marketplace = marketplace_name(marketplace)
     query = adapters._text(query, "query")
     if type(limit) is not int or not 1 <= limit <= 1000:
@@ -333,14 +386,21 @@ def search_guest(marketplace, query, limit=10, timeout=30, filters=None) -> dict
             result["warnings"].append(f"Public Blibli API unavailable ({code}); index discovery is separate evidence.")
     result.update(source_mode="search_index", coverage="discovery_only")
     result["warnings"].append("Discovery only: search-index text may be stale; it proves neither current prices nor full inventory. Native filters were not applied.")
-    search_url = "https://html.duckduckgo.com/html/?" + urllib.parse.urlencode({"q": f"site:{_DOMAINS[marketplace]} {query}"})
+    host = "www.bing.com" if index_provider == "bing" else "html.duckduckgo.com"
+    path = "/search?" if index_provider == "bing" else "/html/?"
+    search_url = "https://" + host + path + urllib.parse.urlencode({"q": f"site:{_DOMAINS[marketplace]} {query}"})
+    result["index_provider"] = index_provider
     try:
-        body, final_url = _read(result, search_url, {"html.duckduckgo.com"}, deadline, "search_index")
+        body, final_url = _read(result, search_url, {host}, deadline, "search_index")
         parser = _html(body)
+        if index_provider == "bing":
+            parser = _BingResults()
+            parser.feed(body)
+            parser.no_results = False
         seen = set()
         result["rejected_routes"] = {"count": 0, "reason": "not_a_supported_first_party_product_route"}
         for entry in parser.results:
-            url = _discovery_url(marketplace, _unwrap(entry["href"]))
+            url = _discovery_url(marketplace, _unwrap_bing(entry["href"]) if index_provider == "bing" else _unwrap(entry["href"]))
             if not url:
                 result["rejected_routes"]["count"] += 1
                 continue

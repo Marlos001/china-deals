@@ -173,6 +173,7 @@ def build_parser():
     search = command("search", "Search marketplaces and rank displayed prices separately by currency")
     search.add_argument("query", help="Search in marketplace language; your agent can translate first")
     search.add_argument("--markets", default=",".join(MARKETPLACES), help="Comma-separated markets, fansbuy for the five explicitly named platforms, or all")
+    search.add_argument("--index-provider", choices=("duckduckgo", "bing"), default="duckduckgo", help="Select a guest HTTP discovery index; no automatic challenge bypass")
     search.add_argument("--zh-query", help="Chinese translation for Chinese marketplaces; your subscription agent supplies it")
     search.add_argument("--query-for", action="append", default=[], metavar="MARKET=QUERY", help="Repeat to override the native-language query for one marketplace")
     search.add_argument("--limit", type=bounded_int, default=10, help="Per-marketplace fetch and per-currency result limit")
@@ -572,6 +573,10 @@ def _run(args):
         args.query = validated_query(args.query)
         from .capabilities import resolve_markets
         markets = resolve_markets(args.markets)
+        if args.index_provider != "duckduckgo" and (args.guest_engine != "http" or any(
+            (args.access or config["marketplaces"][market]["access"]) != "guest" for market in markets
+        )):
+            raise ValueError("--index-provider bing requires guest HTTP access for every selected marketplace")
         query_overrides = {}
         for value in args.query_for:
             key, sep, value = value.partition("=")
@@ -598,7 +603,12 @@ def _run(args):
                         from .browser_guest import search_browser_guest as search_guest
                     else:
                         from .guest import search_guest
-                    result = search_guest(market, query, args.limit, args.timeout, filters=filters, **options)
+                    if args.index_provider != "duckduckgo":
+                        if args.guest_engine != "http":
+                            raise ValueError("Alternative discovery index requires guest HTTP")
+                        result = search_guest(market, query, args.limit, args.timeout, filters=filters, index_provider=args.index_provider, **options)
+                    else:
+                        result = search_guest(market, query, args.limit, args.timeout, filters=filters, **options)
                     if args.hydrate:
                         hydrate_leads(result, getter, market, args.hydrate, args.timeout, options)
                 else:
