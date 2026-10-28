@@ -68,9 +68,10 @@ from datetime import date, datetime, time, timedelta, timezone
 from decimal import ROUND_HALF_UP, Decimal, InvalidOperation, localcontext
 from urllib.parse import urlsplit
 
+from .marketplaces import MONEY_SCALES
 from .models import HOSTS, MARKETPLACES
 
-_SCALES = {"CNY": 2, "IDR": 0}
+_SCALES = MONEY_SCALES
 _FIELDS = {"id", "currency", "discount", "kind", "min_spend", "cap", "marketplace",
            "product_ids", "seller", "starts_at", "ends_at", "requires", "confirmed",
            "eligibility", "source_url", "observed_at", "verified_at", "source_mode"}
@@ -242,7 +243,7 @@ def _campaigns(campaigns):
         row = deepcopy(campaign)
         row["id"] = _identity(row.get("id", f"campaign-{index + 1}"), "campaign id")
         if not isinstance(row.get("currency"), str) or row["currency"] not in _SCALES:
-            raise ValueError("Campaign currency must be CNY or IDR")
+            raise ValueError("Campaign currency must be a supported explicit source currency")
         row["kind"] = row.get("kind", "instant")
         if row["kind"] not in ("instant", "cashback"):
             raise ValueError("kind must be instant or cashback")
@@ -314,7 +315,7 @@ def _evaluate(offer, campaigns, context, now, freshness, require_fresh):
     price = offer["price"]
     currency = price.get("currency")
     if not isinstance(currency, str) or currency not in _SCALES:
-        raise ValueError("Offer currency must be CNY or IDR")
+        raise ValueError("Offer currency must be a supported explicit source currency")
     amount = _number(price["amount"], "price.amount") if price.get("amount") is not None else None
     market = offer.get("marketplace", offer.get("market"))
     if market not in MARKETPLACES:

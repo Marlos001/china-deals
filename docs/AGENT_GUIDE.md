@@ -42,7 +42,7 @@ A Goofish browser capture can be imported with `detail goofish ID --from-browser
 
 ## Use filters without overstating native support
 
-Filters are optional: `--min-price`, `--max-price`, `--sort relevance|price-asc|price-desc|sales|newest`, `--condition any|new|used|refurbished`, `--province`, `--city` and `--free-shipping`. Price bounds are **native CNY or IDR**, not BRL; avoid applying the same number across China and Indonesia. Free shipping means domestic seller postage, not international freight.
+Filters are optional: `--min-price`, `--max-price`, `--sort relevance|price-asc|price-desc|sales|newest`, `--condition any|new|used|refurbished`, `--province`, `--city` and `--free-shipping`. Price bounds are **native currency** (including explicit USD/BRL/EUR on international platforms); avoid applying the same number across China and Indonesia. Free shipping means domestic seller postage, not international freight.
 
 ```sh
 china-deals filters goofish '华硕 幻16' --max-price 12000 --city 深圳
@@ -138,10 +138,27 @@ Use offline `brazil-compare` with exact known identities, new/used/repaired cond
 
 ## Fansbuy platform expansion (0.8)
 
-Run `china-deals marketplaces` before choosing a transport. `--markets fansbuy` selects Taobao/Tmall/1688/Weidian/JD; `all` includes the existing Goofish and Blibli paths. The named list comes from dated indexed official copy and does not enumerate arbitrary manual fill-and-buy purchasing.
+Run `china-deals marketplaces` before choosing a transport. `--markets fansbuy` selects Taobao/Tmall/1688/Weidian/JD; `all` also includes Goofish, Blibli, Alibaba.com and AliExpress. The named list comes from dated indexed official copy and does not enumerate arbitrary manual fill-and-buy purchasing.
 
 New Tmall/1688/Weidian discovery and metadata readers preserve native identities and source evidence, with no selected-variant numeric price contract. Do not elevate those source claims into prices or infer stock from a positive quantity field. Native OpenCLI adapters and native facets remain explicitly unavailable/unverified for the new markets. All requested filters remain local unless submission is actually confirmed.
 
 For a retained public browser page, evaluate `china_deals.china_capture.CAPTURE_JS` in the browser and import its JSON using `detail MARKET URL --from-browser-json FILE`. The shape is `{url,capturedAt,html,htmlBytes,htmlTruncated}`; complete UTF-8 HTML must match its byte count and remain within 2 MiB. Requested/captured product identity must agree and observation time must be timezone aware. Raw HTML stays local and imports perform no network request. A supplied local FX snapshot can add conversion without fetching rates. Capture authenticity remains caller supplied, and captured challenges cannot become products. Goofish keeps its separate existing primary-DOM capture contract.
 
 Use [the expansion validation](validation/fansbuy-expansion.md) and [primary evidence report](research/fansbuy-marketplaces-2026-10-27.md) for the current bounds. Existing config files merge additively with new guest/CNY/Fansbuy defaults. Fansbuy freight remains a package-cost scenario, never proof of item procurement or import eligibility.
+
+## International marketplaces and releases (0.9)
+
+Alibaba.com (`alibaba`) and AliExpress (`aliexpress`) are separate from 1688 and
+from the evidence-backed Fansbuy group. English/localized searches do not need a
+Chinese override. Use exact native product URLs; Alibaba cannot be reconstructed
+from an ID alone. SKU/quantity URL bindings without a validated contract reject.
+Guest metadata and HTML captures preserve source claims but supply no ranked
+price. Numeric imports need explicit supported currency and single-unit scope;
+MOQ, tier pricing and currency conflicts withhold the quote across exports.
+Shipping defaults to manual. Enter all applicable destination-specific costs in
+`brazil-compare`; never reuse a Fansbuy route without actual applicability.
+See [international validation](validation/international-marketplaces.md).
+
+Release 0.9.0 is followed by patch releases only unless explicitly requested.
+`python scripts/bump_version.py` previews; `--from BASE --write` applies exactly
+one target to both version files. Reuse the same base after an interrupted write.

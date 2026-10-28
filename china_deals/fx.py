@@ -33,7 +33,8 @@ def parse_ecb(raw):
         raise ValueError("ECB response omitted an unambiguous dated BRL/CNY/IDR/USD rate set") from None
     return {
         "source": ECB_URL, "rate_date": rate_date.isoformat(), "base": "BRL",
-        "brl_per_unit": {c: format(values["BRL"] / values[c], ".12f") for c in ("CNY", "IDR", "USD")},
+        "brl_per_unit": {c: format(values["BRL"] / rate, ".12f") for c, rate in
+                         {"EUR": Decimal(1), **values}.items()},
         "warnings": ["ECB reference rates are estimates, not Fansbuy payment rates, card rates or customs PTAX.",
                      "Rates exclude conversion spread, payment fees and any IOF; compare provider charges separately."],
     }
@@ -73,13 +74,16 @@ def annotate_offers(offers, snapshot, config):
     for item in offers:
         price = item.get("price", {})
         amount = price.get("amount")
+        convertible = price.get("currency") == "BRL" or price.get("currency") in snapshot["brl_per_unit"]
         item["brl"] = {
-            "product_cost": convert_brl(amount, price["currency"], snapshot) if amount is not None else None,
+            "product_cost": convert_brl(amount, price["currency"], snapshot) if amount is not None and convertible else None,
             "rate_date": snapshot["rate_date"], "source": snapshot.get("source"),
             "shipping_policy": config["marketplaces"][item["marketplace"]]["shipping"],
             "landed_total": None,
-            "scope": "product_only; shipping and tax not added" if item["marketplace"] == "blibli" else "product_only; Fansbuy freight/tax require a parcel and eligible import procedure",
+            "scope": "product_only; shipping and tax not added" if config["marketplaces"][item["marketplace"]]["shipping"] != "fansbuy" else "product_only; Fansbuy freight/tax require a parcel and eligible import procedure",
         }
+        if amount is not None and not convertible:
+            item.setdefault("warnings", []).append("FX snapshot omits the source currency; BRL cost remains unknown.")
         detail = item.get("source_detail")
         observation = (detail.get("price_observation") or detail.get("catalog_observation")) if isinstance(detail, dict) else None
         if isinstance(observation, dict) and observation.get("currency") == price.get("currency"):

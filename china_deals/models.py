@@ -6,7 +6,18 @@ from datetime import datetime, timezone
 from decimal import Decimal, InvalidOperation
 from urllib.parse import parse_qs, urlparse, urlunsplit
 
-from .marketplaces import ALIASES, CURRENCIES, HOSTS, ID_FIELDS, MARKETPLACES, item_url, product_id
+from .marketplaces import (
+    ALIASES,
+    CURRENCIES,
+    HOSTS,
+    ID_FIELDS,
+    INTERNATIONAL_MARKETPLACES,
+    MARKETPLACES,
+    MONEY_SCALES,
+    PUBLIC_METADATA_MARKETPLACES,
+    item_url,
+    product_id,
+)
 
 
 def utc_now():
@@ -55,6 +66,22 @@ def parse_price(value, currency):
         if not re.fullmatch(r"(?:\d+|\d{1,3}(?:\.\d{3})+)(?:,\d{1,2})?", text):
             return None
         text = text.replace(".", "").replace(",", ".")
+    elif currency in MONEY_SCALES:
+        # International imports must provide an explicit currency. Do not guess
+        # locale from commas or a bare dollar sign. Machine decimal strings are
+        # portable; explicitly marked BRL supports its standard localized form.
+        if currency == "BRL" and text.startswith("R$"):
+            text = text[2:].strip()
+            if not re.fullmatch(r"(?:[0-9]+|[0-9]{1,3}(?:\.[0-9]{3})+)(?:,[0-9]{1,2})?", text):
+                return None
+            text = text.replace(".", "").replace(",", ".")
+        else:
+            text = re.sub(r"^" + re.escape(currency) + r"\s+", "", text)
+            if currency == "USD":
+                text = re.sub(r"^(?:US\s*)?\$\s*", "", text)
+            scale = MONEY_SCALES[currency]
+            if not re.fullmatch(r"[0-9]+" + (rf"(?:\.[0-9]{{1,{scale}}})?" if scale else ""), text):
+                return None
     else:
         return None
     try:
@@ -129,7 +156,7 @@ def _variant_observations(row):
 
 def _url_item_ids(value, marketplace):
     """Read only known product routes; opaque tokens are never numeric item IDs."""
-    if marketplace in {"tmall", "1688", "weidian"}:
+    if marketplace in PUBLIC_METADATA_MARKETPLACES:
         identity = product_id(marketplace, value)
         return [identity] if identity is not None else []
     url = safe_url(value, marketplace)
@@ -255,6 +282,28 @@ def normalize_offer(marketplace, row, observed_at=None):
     if isinstance(original_price, dict):
         declared_currency = original_price.get("currency") or declared_currency
     currency_mismatch = declared_currency is not None and str(declared_currency).upper() != currency
+    currency_observations = []
+    currency_problem = None
+    if marketplace in INTERNATIONAL_MARKETPLACES:
+        retained = row.get("currency_observations", [])
+        if not isinstance(retained, list) or len(retained) > 20 or any(not isinstance(v, str) for v in retained):
+            retained = ["invalid_or_overflow_currency_evidence"]
+        declarations = list(retained)
+        for obj, keys in ((row, ("currency", "priceCurrency")),
+                          (price_envelope, ("source_currency",)),
+                          (original_price, ("currency", "priceCurrency")),
+                          (structured_offer, ("priceCurrency",))):
+            if isinstance(obj, dict):
+                declarations.extend(str(obj[k]) for k in keys if obj.get(k) is not None)
+        currency_observations = sorted({v.strip().upper()[:100] for v in declarations})
+        if len(currency_observations) > 20:
+            currency_observations = ["INVALID_OR_OVERFLOW_CURRENCY_EVIDENCE"]
+        if len(currency_observations) != 1 or currency_observations[0] not in MONEY_SCALES:
+            currency_problem = "International price currency is missing, unsupported or conflicting; numeric price withheld."
+        else:
+            currency = declared_currency = currency_observations[0]
+        currency_mismatch = currency_problem is not None
+        amount = machine_amount or parse_price(selected_price, currency)
     if currency_mismatch:
         amount = None
     price_basis = row.get("price_basis", price_envelope.get("basis", "displayed"))
@@ -264,6 +313,30 @@ def normalize_offer(marketplace, row, observed_at=None):
         price_basis = "source_observation_unverified"
     if price_basis != "displayed":
         amount = None
+    purchase_constraints = None
+    quantity_hold = False
+    if marketplace in INTERNATIONAL_MARKETPLACES:
+        quantity_keys = {"moq", "minOrderQuantity", "minimum_order_quantity", "min_order_quantity", "quantity", "lot_size"}
+        tier_keys = {"price_tiers", "priceTiers", "tiers", "eligibleQuantity", "minQuantity", "maxQuantity", "numberOfItems"}
+        retained = row.get("purchase_constraints", {})
+        purchase_constraints = dict(retained) if isinstance(retained, dict) else {"invalid_evidence": True}
+        for obj in (row, original_price, structured_offer):
+            if isinstance(obj, dict):
+                purchase_constraints.update({k: obj[k] for k in quantity_keys | tier_keys if k in obj})
+        try:
+            serialized = json.dumps(purchase_constraints, ensure_ascii=False, allow_nan=False)
+            if len(serialized.encode("utf-8")) > 8000 or len(purchase_constraints) > 20:
+                raise ValueError
+        except (ValueError, TypeError, RecursionError):
+            purchase_constraints = {"invalid_or_overflow_evidence": True}
+        for key, value in purchase_constraints.items():
+            # Only an explicit single-unit constraint is compatible with unit
+            # ranking. Tier/order totals need a separately verified quantity.
+            if (key not in quantity_keys or isinstance(value, bool)
+                    or not re.fullmatch(r"1(?:\.0+)?(?:\s*(?:pieces?|units?))?", str(value).strip(), re.I)):
+                quantity_hold = True
+        if quantity_hold:
+            amount, price_basis = None, "quantity_price_unverified"
     availability = row.get("availability", "unknown")
     if isinstance(availability, str) and availability.casefold() in {"out_of_stock", "outofstock", "https://schema.org/outofstock"}:
         availability = "unavailable"
@@ -289,9 +362,11 @@ def normalize_offer(marketplace, row, observed_at=None):
             url_basis = "constructed_from_source_item_id"
     warnings = ["Displayed price; stock, exact variant, seller claims and checkout total are unverified."]
     if currency_mismatch:
-        warnings.append(f"Explicit source currency {declared_currency} conflicts with expected {currency}; price is not ranked.")
+        warnings.append(currency_problem or f"Explicit source currency {declared_currency} conflicts with expected {currency}; price is not ranked.")
     if price_basis != "displayed":
         warnings.append("Upstream price is a page minimum or other non-comparable amount; excluded from ranking.")
+    if quantity_hold:
+        warnings.append("MOQ, quantity or tier-price evidence does not establish a single-unit payable price.")
     if source_mode == "search_index":
         warnings.append("Search-index discovery only; current product price, stock and exact variant are not verified.")
     if availability in {"delisted", "sold", "unavailable"}:
@@ -344,10 +419,12 @@ def normalize_offer(marketplace, row, observed_at=None):
         "url": url,
         "url_basis": url_basis,
         "identity_evidence": identity_evidence,
+        "currency_observations": currency_observations,
+        "purchase_constraints": purchase_constraints,
         "offers": row.get("offers"),
         "price": {"amount": amount, "currency": currency, "raw": original_price, "basis": price_basis,
                   "source_currency": str(declared_currency).upper() if declared_currency is not None else None,
-                  "currency_basis": "explicit_source_field" if declared_currency else "marketplace_adapter_contract"},
+                  "currency_basis": "unverified_international_currency" if currency_problem else "explicit_source_field" if declared_currency else "marketplace_adapter_contract"},
         "seller": _text(row, "shop", "seller", "merchantName"),
         "description": (_text(row, "description", "desc", "snippet") or "")[:8000],
         "source_mode": source_mode,

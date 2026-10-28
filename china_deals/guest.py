@@ -19,7 +19,14 @@ from contextvars import ContextVar
 from html.parser import HTMLParser
 
 from . import adapters
-from .marketplaces import DISCOVERY_DOMAINS, PRODUCT_HOSTS, canonical_product_url, item_url, product_id
+from .marketplaces import (
+    DISCOVERY_DOMAINS,
+    PRODUCT_HOSTS,
+    PUBLIC_METADATA_MARKETPLACES,
+    canonical_product_url,
+    item_url,
+    product_id,
+)
 from .models import CURRENCIES, marketplace_name, utc_now
 
 MAX_RESPONSE_BYTES = 2 * 1024 * 1024
@@ -79,7 +86,7 @@ def _valid_url(value, hosts):
 
 def _product_url(marketplace, value):
     """Exact first-party product routes only; drop tracking and fragments."""
-    if marketplace in {"tmall", "1688", "weidian"}:
+    if marketplace in PUBLIC_METADATA_MARKETPLACES:
         return canonical_product_url(marketplace, value)
     hosts = {"jd": {"item.jd.com", "item.m.jd.com"},
              "taobao": {"item.taobao.com", "detail.tmall.com"},
@@ -118,7 +125,7 @@ def _discovery_url(marketplace, value):
 
 
 def _item_id(marketplace, url):
-    if marketplace in {"tmall", "1688", "weidian"}:
+    if marketplace in PUBLIC_METADATA_MARKETPLACES:
         return product_id(marketplace, url)
     p = urllib.parse.urlsplit(url)
     if marketplace in {"taobao", "goofish"}:
@@ -141,7 +148,7 @@ class _Redirects(urllib.request.HTTPRedirectHandler):
             adapters._remaining(self.deadline)
             if not _valid_url(newurl, self.hosts):
                 raise _Failure("blocked", "redirect_denied", "Guest redirect left the allowed HTTPS host; stopped.")
-            if re.search(r"/(?:login|signin|captcha|challenge|verify)(?:[/?]|$)", newurl, re.I):
+            if re.search(r"/(?:login|signin|captcha|challenge|verify|punish|_____tmd_____)(?:[/?]|$)", newurl, re.I):
                 raise _Failure("blocked", "challenge", "Guest request reached login or verification; stopped.")
         except _Failure as exc:
             if exc.code == "challenge":
@@ -247,11 +254,11 @@ def _html(body):
     parser.feed(body)
     text = " ".join(parser.visible).lower()
     if (re.search(r"anomaly\.js|anomaly-modal|challenge-form|cf-chl-|(?:id|class)\s*=\s*['\"][^'\"]*(?:captcha|recaptcha)", body, re.I)
-            or re.search(r"<title[^>]*>[^<]*(?:captcha|access denied|just a moment|登录|登陆|验证|\blogin\b|sign in)", body, re.I)
+            or re.search(r"<title[^>]*>[^<]*(?:captcha|access denied|just a moment|security check|登录|登陆|验证|\blogin\b|sign in)", body, re.I)
             or re.search(r"verify.{0,25}human|just a moment|access denied|verifikasi sedang|京东验证|"
                          r"unusual traffic|our systems have detected|非法访问|请使用正常浏览器|滑动验证|安全验证|完成验证|"
                          r"检测到异常流量|我们的系统检测到|请先登录|请登录后|登录后查看|登录后继续|"
-                         r"sign in to continue|log in to continue", text)):
+                         r"sign in to continue|log in to continue|slide.{0,20}verif", text)):
         raise _Failure("blocked", "challenge", "Guest page requested login or verification; no retry or bypass was attempted.")
     return parser
 
@@ -555,7 +562,7 @@ def get_guest_item(marketplace, item_id, timeout=30) -> dict:
     item_id = adapters._text(item_id, "item_id")
     deadline = time.monotonic() + adapters._timeout(timeout)
     result = _envelope(marketplace)
-    if marketplace in {"tmall", "1688", "weidian"}:
+    if marketplace in PUBLIC_METADATA_MARKETPLACES:
         url = _product_url(marketplace, item_id) or item_url(marketplace, item_id)
         if not url:
             raise ValueError("Supply an ASCII numeric item ID or exact native product URL")

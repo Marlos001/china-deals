@@ -15,12 +15,13 @@ from urllib.parse import urlsplit
 from .config import load_config
 from .freshness import CACHED_MODES, assess_fx_freshness, assess_price_freshness
 from .fx import convert_brl, validate_snapshot
+from .marketplaces import MONEY_SCALES
 from .models import decimal_value, normalize_offer
 
 IMPORT_COSTS = ('domestic_freight', 'international_freight', 'insurance', 'taxes',
                 'agent_fees', 'payment_fees', 'other_fees')
 BRAZIL_COSTS = ('delivery', 'fees')
-CURRENCIES = {'CNY', 'IDR', 'BRL', 'USD'}
+CURRENCIES = set(MONEY_SCALES)
 CONDITIONS = {'new', 'used', 'refurbished'}
 
 
@@ -43,7 +44,7 @@ def _money(value, label, snapshot):
     amount = _amount(value.get('amount'), label)
     currency = value.get('currency')
     if currency not in CURRENCIES or value.get('basis') not in {'scenario', 'observed'}:
-        raise ValueError(f'{label} needs currency CNY/IDR/BRL/USD and basis scenario/observed')
+        raise ValueError(f'{label} needs a supported currency and basis scenario/observed')
     return _convert(amount, currency, snapshot)
 
 
@@ -53,6 +54,8 @@ def _convert(amount, currency, snapshot):
     if currency == 'BRL':
         return Decimal(amount).quantize(Decimal('.01'), rounding=ROUND_HALF_UP)
     if snapshot is None:
+        return None
+    if currency not in snapshot['brl_per_unit']:
         return None
     return Decimal(convert_brl(amount, currency, snapshot))
 

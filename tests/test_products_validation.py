@@ -137,7 +137,7 @@ class ProductValidationTests(unittest.TestCase):
                 for market, suggestions in plan["marketplace_queries"].items():
                     self.assertEqual(len(suggestions), 1)
                     self.assertIn(query, suggestions[0])
-                    if market != "blibli":
+                    if market not in {"blibli", "alibaba", "aliexpress"}:
                         self.assertTrue(any("\u3400" <= c <= "\u9fff" for c in suggestions[0]))
                     if any(s in query for s in ("case", "Case", "charger", "充电器")):
                         self.assertNotIn("手机", suggestions[0])

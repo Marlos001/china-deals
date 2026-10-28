@@ -11,7 +11,14 @@ import re
 from datetime import datetime
 from html.parser import HTMLParser
 
-from .marketplaces import canonical_product_url, product_id
+from .marketplaces import (
+    CURRENCIES,
+    INTERNATIONAL_MARKETPLACES,
+    MONEY_SCALES,
+    PUBLIC_METADATA_MARKETPLACES,
+    canonical_product_url,
+    product_id,
+)
 
 _MAX_BODY = 2 * 1024 * 1024
 _MAX_SCRIPTS = 64
@@ -297,12 +304,23 @@ def parse_product_page(body, marketplace, requested_url, observed_at):
     Acquisition must separately verify final URL, access status and transport
     completeness. observed_at is a timezone-aware caller-supplied ISO timestamp.
     """
-    if not isinstance(marketplace, str) or marketplace not in {"tmall", "1688", "weidian"}:
+    if not isinstance(marketplace, str) or marketplace not in PUBLIC_METADATA_MARKETPLACES:
         raise ValueError("Unsupported public metadata marketplace")
     url = canonical_product_url(marketplace, requested_url)
     if not url:
         raise ValueError("An exact native product URL is required")
     identity = product_id(marketplace, url)
+
+    def bound_url(value):
+        if marketplace == "alibaba" and isinstance(value, str):
+            # The retained native page declares a protocol-relative localized
+            # OG/Offer URL, with a different slug but the same exact product ID.
+            value = "https:" + value if value.startswith("//") else value
+            return product_id(marketplace, value) == identity
+        return canonical_product_url(marketplace, value) == url
+
+    def numeric_identity(value):
+        return type(value) in {str, int} and str(value) == identity
     try:
         if not isinstance(observed_at, str) or datetime.fromisoformat(observed_at.replace("Z", "+00:00")).tzinfo is None:
             raise ValueError
@@ -341,7 +359,7 @@ def parse_product_page(body, marketplace, requested_url, observed_at):
             raise ValueError("Conflicting or invalid primary metadata")
         metadata[key] = values[0]
     page_urls = page.canonicals + ([metadata["og:url"]] if "og:url" in metadata else [])
-    if any(canonical_product_url(marketplace, value) != url for value in page_urls):
+    if any(not bound_url(value) for value in page_urls):
         raise ValueError("Page URL identity conflicts with request")
 
     products, matches = [], []
@@ -353,17 +371,20 @@ def parse_product_page(body, marketplace, requested_url, observed_at):
             raise ValueError("Malformed, ambiguous or oversized JSON-LD") from None
         nodes = list(_nodes(payload))
         for node in list(nodes):
-            if _has_type(node, "WebPage") and canonical_product_url(marketplace, node.get("url")) == url:
+            if _has_type(node, "WebPage") and bound_url(node.get("url")):
                 nodes.extend(_nodes(node.get("mainEntity")))
         for node in nodes:
             if not _has_type(node, "Product"):
                 continue
             products.append(node)
-            urls = [node[k] for k in ("url", "@id") if k in node]
-            if not any(canonical_product_url(marketplace, v) == url for v in urls):
+            urls = [(k, node[k]) for k in ("url", "@id") if k in node]
+            numeric_bound = marketplace == "alibaba" and bool(page_urls) and numeric_identity(node.get("@id"))
+            if not any(bound_url(v) for _, v in urls) and not numeric_bound:
                 continue
-            if any(canonical_product_url(marketplace, v) != url for v in urls):
+            if any(not bound_url(v) and not (marketplace == "alibaba" and k == "@id" and numeric_identity(v)) for k, v in urls):
                 raise ValueError("Product URL identity conflict")
+            if marketplace == "alibaba" and "sku" in node and not numeric_identity(node["sku"]):
+                raise ValueError("Alibaba primary SKU conflicts with product ID")
             if "productID" in node and (type(node["productID"]) not in {str, int} or str(node["productID"]) != identity):
                 raise ValueError("Product ID conflicts with exact URL")
             matches.append((script_index, node))
@@ -417,8 +438,13 @@ def parse_product_page(body, marketplace, requested_url, observed_at):
         detail["native_state_claims"] = native_claims
     if len(json.dumps(detail, ensure_ascii=True)) > 32768:
         raise ValueError("Source claims exceed retained evidence limit")
+    currencies = {str(v).upper() for v in [product_claims.get("priceCurrency"),
+                  *(o.get("priceCurrency") for o in offer_claims),
+                  metadata.get("product:price:currency"), metadata.get("og:price:currency")] if v is not None}
+    source_currency = next(iter(currencies)) if len(currencies) == 1 and currencies <= MONEY_SCALES.keys() and "offers" not in truncated else None
     return {"marketplace": marketplace, "item_id": identity, "url": url, "nativeURL": url,
-            "title": title, "description": description, "price": None, "currency": "CNY",
+            "title": title, "description": description, "price": None,
+            "currency": source_currency if marketplace in INTERNATIONAL_MARKETPLACES else CURRENCIES[marketplace],
             "price_basis": "source_observation_unverified", "source_mode": "guest_product_page",
             "observed_at": observed_at, "availability": availability, "condition": "unknown",
             "source_detail": detail,

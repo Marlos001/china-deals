@@ -1,10 +1,36 @@
 # china-deals
 
-A read-only **0.8 CLI** for researching products on **Taobao, Tmall, 1688, Weidian, JD.com, Goofish/Xianyu and Blibli**, comparing observed configurations and prices, and estimating **Fansbuy → Brazil** freight and landed costs.
+A read-only **0.9 CLI** for researching products on **Taobao, Tmall, 1688, Weidian, JD.com, Goofish/Xianyu, Blibli, Alibaba.com and AliExpress**, comparing observed configurations and prices, and estimating **Fansbuy → Brazil** freight and landed costs.
 
 **Guest access is the default. No marketplace account or AI API credentials are required.** Your subscription-backed Codex, Claude Code, Gemini/AGY or other terminal-capable agent supplies translation, analysis and presentation. The CLI makes no LLM calls. Existing OpenCLI sessions are an explicit, optional native mode.
 
 Guest mode does not guarantee accessible search or visible prices. In the [retained live research](docs/research/zephyrus-g16-test.md), JD detail showed a masked price, Blibli returned HTTP 403 / a verification page, and Goofish native guest search produced no verified target results; a readable Goofish item was delisted. These observations do not establish global restrictions or absence of inventory. Search-index leads are discovery evidence, never current purchasable offers.
+
+## Alibaba.com and AliExpress (0.9)
+
+```sh
+china-deals search 'Sony WH-1000XM6' --markets alibaba,aliexpress --currency native
+china-deals detail aliexpress 'https://www.aliexpress.com/item/SOURCE_ID.html'
+```
+
+Use an exact source URL, replacing `SOURCE_ID` above. Alibaba.com is separate from 1688.
+Both new markets support guest discovery, exact-link public metadata, browser/HTML
+captures, refresh/history and the existing comparison workflow. English/localized
+queries are accepted; `--zh-query` applies only to Chinese marketplaces. Public
+metadata stays **unpriced** until a selected single-unit full-payment quote is
+established. Imported numeric quotes require an explicit supported currency;
+conflicting currencies, bulk minimums and tier prices are withheld. Shipping is
+manual: enter destination-specific freight, taxes and payment fees for Brazil
+comparisons. Fansbuy support is not assumed for these two markets.
+
+[Live evidence and limits](docs/validation/international-marketplaces.md): Alibaba
+returned retained product HTML, verified by offline parser replay; AliExpress
+stopped at an access gate. No current selected-variant price or checkout was verified.
+
+Release **0.9.0** starts the patch-only sequence **0.9.1, 0.9.2, ...**. Preview
+with `python scripts/bump_version.py`; apply a release with
+`python scripts/bump_version.py --from 0.9.0 --write`, substituting the actual base.
+Repeating the same base safely finishes the same target after an interruption.
 
 ## Fansbuy marketplace coverage (0.8)
 
@@ -18,7 +44,7 @@ china-deals detail weidian 'https://weidian.com/item.html?itemID=SOURCE_ID'
 china-deals filters 1688 '索尼 耳机' --max-price 2000
 ```
 
-Replace `SOURCE_ID` with an exact source ID; it is not a live example. `--markets fansbuy` expands the five named platforms; `--markets all` selects all seven. Tmall, 1688 and Weidian implement bounded HTTP/browser index discovery, exact native URL/ID binding, primary metadata reads and offline browser captures, plus the existing rank, freshness, refresh/history, coupon-evidence and Brazil cost workflows. Primary metadata is **unpriced** until a selected-variant/full-payment contract is established. Index snippets never supply current prices. New native OpenCLI operations return explicit unavailable receipts; native filter mappings are not invented.
+Replace `SOURCE_ID` with an exact source ID; it is not a live example. `--markets fansbuy` expands the five named platforms; `--markets all` selects all nine. Tmall, 1688 and Weidian implement bounded HTTP/browser index discovery, exact native URL/ID binding, primary metadata reads and offline browser captures, plus the existing rank, freshness, refresh/history, coupon-evidence and Brazil cost workflows. Primary metadata is **unpriced** until a selected-variant/full-payment contract is established. Index snippets never supply current prices. New native OpenCLI operations return explicit unavailable receipts; native filter mappings are not invented.
 
 [Capability matrix and three-round validation](docs/validation/fansbuy-expansion.md) distinguish implemented paths, source evidence, blocked/unverified live access and remaining price contracts. Legacy Taobao records can still contain Tmall links; separate searches may overlap. Blibli retains its IDR/Indonesia and excluded-freight policy.
 

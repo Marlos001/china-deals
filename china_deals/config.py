@@ -5,13 +5,14 @@ import json
 import os
 from pathlib import Path
 
+from .marketplaces import INTERNATIONAL_MARKETPLACES
 from .models import CURRENCIES, MARKETPLACES
 
 DEFAULT_CONFIG = {
     "schema_version": 1,
     "display_currency": "BRL",
     "marketplaces": {
-        market: {"access": "guest", "shipping": "excluded" if market == "blibli" else "fansbuy",
+        market: {"access": "guest", "shipping": "manual" if market in INTERNATIONAL_MARKETPLACES else "excluded" if market == "blibli" else "fansbuy",
                  "currency": CURRENCIES[market]}
         for market in MARKETPLACES
     },

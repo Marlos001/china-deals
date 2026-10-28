@@ -1,6 +1,13 @@
 """Offline implementation capabilities, distinct from live access or procurement."""
 
-from .marketplaces import CHINESE_MARKETPLACES, CURRENCIES, FANSBUY_MARKETPLACES, MARKETPLACES
+from .marketplaces import (
+    CHINESE_MARKETPLACES,
+    CURRENCIES,
+    FANSBUY_MARKETPLACES,
+    INTERNATIONAL_MARKETPLACES,
+    MARKETPLACES,
+    PUBLIC_METADATA_MARKETPLACES,
+)
 from .models import marketplace_name
 
 
@@ -25,10 +32,12 @@ def marketplace_capabilities():
     }
     items = []
     for market in MARKETPLACES:
-        expanded = market in {'tmall', '1688', 'weidian'}
+        expanded = market in PUBLIC_METADATA_MARKETPLACES
         items.append({
             'marketplace': market, 'currency': CURRENCIES[market],
-            'query_language': 'Chinese required' if market in CHINESE_MARKETPLACES else 'Indonesian suggested',
+            'query_language': 'Chinese required' if market in CHINESE_MARKETPLACES else 'English or localized query' if market in INTERNATIONAL_MARKETPLACES else 'Indonesian suggested',
+            'currency_policy': 'explicit source currency required; USD is only a default' if market in INTERNATIONAL_MARKETPLACES else 'marketplace currency contract',
+            'shipping_policy': 'manual; origin, destination, MOQ, checkout freight/taxes unverified' if market in INTERNATIONAL_MARKETPLACES else 'inspect configured marketplace policy',
             'fansbuy_named_evidence': flows.get(market, []),
             'guest_search': 'public_api_then_index_discovery' if market == 'blibli' else 'index_discovery',
             'guest_detail': 'bounded_primary_evidence' if expanded else {
@@ -54,5 +63,6 @@ def marketplace_capabilities():
             'Index prices and unbound primary-page amounts cannot become ranked exact-variant prices.',
             'Legacy Taobao observations can retain Tmall URLs; separate marketplace searches may overlap.',
             'Fansbuy fill-and-buy and forwarding are manual workflows, not proof of arbitrary automated marketplace support.',
+            'Alibaba.com is distinct from 1688. Alibaba.com and AliExpress are not added to the Fansbuy named-evidence group.',
         ],
     }

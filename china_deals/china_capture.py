@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from .marketplaces import canonical_product_url
+from .marketplaces import PUBLIC_METADATA_MARKETPLACES, canonical_product_url
 
 MAX_HTML_BYTES = 2 * 1024 * 1024
 CAPTURE_JS = """() => {
@@ -15,8 +15,8 @@ CAPTURE_JS = """() => {
 
 
 def parse_capture(capture, marketplace, requested_url):
-    if marketplace not in {'tmall', '1688', 'weidian'}:
-        raise ValueError('This capture reader supports Tmall, 1688 and Weidian')
+    if marketplace not in PUBLIC_METADATA_MARKETPLACES:
+        raise ValueError('This capture reader supports Tmall, 1688, Weidian, Alibaba.com and AliExpress')
     if not isinstance(capture, dict):
         raise ValueError('Capture must be an object')
     expected = canonical_product_url(marketplace, requested_url)

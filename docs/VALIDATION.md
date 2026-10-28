@@ -2,6 +2,22 @@
 
 Checked 2026-10-27 in `/home/marlos/projects/china-deals`.
 
+## Version 0.9 international marketplace expansion
+
+- Added distinct Alibaba.com and AliExpress guest discovery, exact-identity
+  metadata/captures and downstream workflows. Explicit currencies and bulk/tier
+  constraints survive exports. Shipping is manual; Fansbuy support is not inferred.
+- **556 local tests pass with outbound sockets and DNS blocked.** Ruff, compilation,
+  schema, documentation links and whitespace checks pass. The 0.9.0 wheel/sdist
+  exclude private captures; an outside-checkout smoke verifies all package source
+  bytes, nine-market registration, 12 currency cycles and offline Alibaba capture.
+  Hosted CI and installed revision are verified separately after publication.
+  The patch-only
+  release helper covers dry runs, idempotent repeats and interrupted writes.
+- Alibaba retained HTML parses successfully offline after the original parser
+  failure; AliExpress stopped at an access gate. Neither establishes a fresh
+  selected-unit purchase price. See [evidence and limits](validation/international-marketplaces.md).
+
 ## Version 0.8 Fansbuy marketplace expansion
 
 - Added distinct **Tmall, 1688 and Weidian** paths alongside existing Taobao/JD, covering the five explicitly named marketplaces in retained official Fansbuy guide/procurement copy. Existing Goofish/Blibli remain available. This dated named union is non-exhaustive, and manual fill-and-buy is a separate workflow. See the [source inventory](research/fansbuy-marketplaces-2026-10-27.md) and [capability matrix](validation/fansbuy-expansion.md).

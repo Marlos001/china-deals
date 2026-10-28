@@ -231,7 +231,7 @@ class CouponTests(unittest.TestCase):
         bad_rules = [{"discount": {"percent": 101}}, {"discount": {"amount": 1, "percent": 10}},
                      {"discount": {}}, {"discount": {"ammount": 1}}, {"kind": "other"},
                      {"requires": {"member": []}}, {"requires": {"member": None}},
-                     {"confirmed": "true"}, {"min_spent": 100}, {"currency": "USD"}, {"currency": []},
+                     {"confirmed": "true"}, {"min_spent": 100}, {"currency": "ZZZ"}, {"currency": []},
                      {"eligibility": True}, {"source_url": "javascript:bad"},
                      {"product_ids": []}, {"product_ids": [True]},
                      {"starts_at": "2026-10-29", "ends_at": "2026-10-28"}]

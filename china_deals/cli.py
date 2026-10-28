@@ -13,6 +13,7 @@ from pathlib import Path
 from . import __version__
 from .config import load_config, write_default_config
 from .filters import CONDITIONS, SORTS, evaluate_offer, native_plan, validate_filters
+from .marketplaces import CHINESE_MARKETPLACES, PUBLIC_METADATA_MARKETPLACES
 from .models import MARKETPLACES, decimal_value, marketplace_name, normalize_offer, utc_now
 from .ranking import rank_offers
 
@@ -134,7 +135,7 @@ def build_parser():
 
     def market_filters(sub):
         sub.add_argument("--min-price", help="Minimum native-currency amount; no filter when omitted")
-        sub.add_argument("--max-price", help="Maximum native-currency amount; CNY/IDR differ between markets")
+        sub.add_argument("--max-price", help="Maximum native-currency amount; currencies differ between markets")
         sub.add_argument("--sort", choices=SORTS, default="relevance")
         sub.add_argument("--condition", choices=CONDITIONS, default="any")
         sub.add_argument("--province")
@@ -172,7 +173,7 @@ def build_parser():
     presentation(detail)
     detail.add_argument("--access", choices=("guest", "native"))
     detail.add_argument("--browser-fallback", action="store_true", help="Required for Blibli detail; reads product JSON-LD from a native URL")
-    detail.add_argument("--from-browser-json", help="Import retained Goofish primary DOM or Tmall/1688/Weidian HTML capture; no network request")
+    detail.add_argument("--from-browser-json", help="Import retained Goofish DOM or Tmall/1688/Weidian/Alibaba/AliExpress HTML; no network request")
     catalog = command("catalog", "Read a public third-party catalog quote; never a verified marketplace price")
     catalog.add_argument("marketplace", type=marketplace_name)
     catalog.add_argument("item_id", help="Taobao numeric ID or exact native product URL; Jadeship currently supports Taobao only")
@@ -289,7 +290,7 @@ def schema():
         ],
         "offer_fields": ["marketplace", "item_id", "title", "url", "price", "seller", "variant", "condition",
                          "variant_evidence", "selected_variant", "variant_observations", "availability", "seller_trust", "observed_at", "signals", "warnings", "source_warnings", "source_mode", "source_detail", "identity_evidence", "relevance", "ranking_exclusions", "brl"],
-        "price": {"amount": "positive decimal string or null", "currency": "CNY or IDR",
+        "price": {"amount": "positive decimal string or null", "currency": "Explicit supported native currency (e.g. CNY, IDR, USD, BRL, EUR)",
                   "raw": "original displayed value", "basis": "displayed"},
         "source_statuses": ["ok", "catalog_only", "discovery_only", "empty_unverified", "blocked", "auth_required", "unavailable", "error"],
         "exit_codes": {"0": "command completed; inspect warnings", "2": "invalid input or command error",
@@ -498,8 +499,8 @@ def _run(args):
                 requested_url = _product_url(args.marketplace, args.item_id) or item_url(args.marketplace, args.item_id)
                 if not requested_url:
                     raise ValueError("An exact product URL or supported numeric item ID is required")
-                if args.marketplace not in {"goofish", "tmall", "1688", "weidian"}:
-                    raise ValueError("--from-browser-json supports Goofish, Tmall, 1688 and Weidian captures")
+                if args.marketplace not in {"goofish", *PUBLIC_METADATA_MARKETPLACES}:
+                    raise ValueError("--from-browser-json supports Goofish and public metadata marketplace captures")
                 capture = read_json(args.from_browser_json)
                 if isinstance(capture, dict) and isinstance(capture.get("structuredContent"), dict):
                     capture = capture["structuredContent"].get("value")
@@ -561,10 +562,10 @@ def _run(args):
         # The browser bridge controls a session: serialize calls to avoid racing a user's login state.
         for market in markets:
             access = args.access or config["marketplaces"][market]["access"]
-            query = query_overrides.get(market, args.zh_query if market != "blibli" and args.zh_query else args.query)
+            query = query_overrides.get(market, args.zh_query if market in CHINESE_MARKETPLACES and args.zh_query else args.query)
             if not query.strip() or len(query) > 500 or query.lstrip().startswith("-") or any(ord(c) < 32 for c in query):
                 raise ValueError("Per-market query must be 1..500 characters without controls or a leading hyphen")
-            if market != "blibli" and not re.search(r"[\u3400-\u9fff]", query):
+            if market in CHINESE_MARKETPLACES and not re.search(r"[\u3400-\u9fff]", query):
                 sources.append({"marketplace": market, "status": "unavailable", "item_count": 0, "access": access,
                                 "query": None, "error": {"code": "chinese_query_required", "message": "Supply --zh-query or --query-for with a Chinese search query; no English request was sent."}, "warnings": []})
                 continue

@@ -30,25 +30,26 @@ URLS = {
 
 
 class RegistryTests(unittest.TestCase):
-    def test_seven_markets_and_shared_legacy_exports(self):
-        self.assertEqual(set(MARKETPLACES), {"taobao", "tmall", "1688", "weidian", "jd", "goofish", "blibli"})
+    def test_all_markets_and_shared_legacy_exports(self):
+        self.assertEqual(set(MARKETPLACES), {"taobao", "tmall", "1688", "weidian", "jd", "goofish", "blibli", "alibaba", "aliexpress"})
         for name in ("MARKETPLACES", "ALIASES", "CURRENCIES", "HOSTS"):
             self.assertIs(getattr(models, name), globals()[name])
         for mapping in (CURRENCIES, HOSTS, ID_FIELDS, PRODUCT_HOSTS, DISCOVERY_DOMAINS):
             self.assertEqual(set(mapping), set(MARKETPLACES))
         self.assertEqual(set(FANSBUY_MARKETPLACES), {"taobao", "tmall", "1688", "weidian", "jd"})
-        self.assertEqual(set(CHINESE_MARKETPLACES), set(MARKETPLACES) - {"blibli"})
+        self.assertEqual(set(CHINESE_MARKETPLACES), set(MARKETPLACES) - {"blibli", "alibaba", "aliexpress"})
         self.assertEqual(CURRENCIES["blibli"], "IDR")
         self.assertTrue(all(CURRENCIES[market] == "CNY" for market in CHINESE_MARKETPLACES))
 
     def test_explicit_aliases_do_not_conflate_alibaba_and_1688(self):
         for alias, market in (("alibaba1688", "1688"), ("1688.com", "1688"),
-                              ("TMALL.COM", "tmall"), ("weidian.com", "weidian"), ("xianyu", "goofish")):
+                              ("TMALL.COM", "tmall"), ("weidian.com", "weidian"), ("xianyu", "goofish"),
+                              ("alibaba.com", "alibaba"), ("alibaba", "alibaba"), ("www.alibaba.com", "alibaba")):
             self.assertEqual(marketplace_name(alias), market)
-        for value in ("alibaba.com", "alibaba", "www.alibaba.com", "tmall.com.evil.test"):
+        for value in ("alibaba.com.evil.test", "tmall.com.evil.test"):
             with self.assertRaises(ValueError):
                 marketplace_name(value)
-        self.assertNotIn("alibaba.com", ALIASES)
+        self.assertNotEqual(marketplace_name("alibaba.com"), marketplace_name("alibaba1688"))
 
     def test_id_field_contracts(self):
         self.assertEqual(ID_FIELDS["tmall"], ID_FIELDS["taobao"])

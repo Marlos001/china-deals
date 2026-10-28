@@ -12,7 +12,7 @@ from contextlib import contextmanager
 from urllib.parse import parse_qs, urlencode, urljoin, urlsplit
 
 from . import adapters, guest
-from .marketplaces import DISCOVERY_DOMAINS, item_url
+from .marketplaces import DISCOVERY_DOMAINS, PUBLIC_METADATA_MARKETPLACES, item_url
 from .models import CURRENCIES, marketplace_name, utc_now
 
 _GOOGLE_HOSTS = {"www.google.com", "google.com"}
@@ -50,7 +50,7 @@ def _milliseconds(deadline):
 
 
 def _gate_url(url):
-    return bool(re.search(r"/(?:sorry|login|signin|captcha|challenge|verify|passport)(?:[/?.]|$)", url, re.I))
+    return bool(re.search(r"/(?:sorry|login|signin|captcha|challenge|verify|passport|punish|_____tmd_____)(?:[/?.]|$)", url, re.I))
 
 
 def _check_page(page, response=None):
@@ -59,11 +59,11 @@ def _check_page(page, response=None):
         raise _Failure(status, f"http_{response.status}", "Browser page returned an error; stopped without retry.")
     state = page.evaluate(_STATE_JS)
     if (_gate_url(page.url) or state.get("verification")
-            or re.search(r"captcha|access denied|just a moment|京东验证|登录|\blogin\b|sign in", state.get("title", ""), re.I)
+            or re.search(r"captcha|access denied|just a moment|security check|京东验证|登录|\blogin\b|sign in", state.get("title", ""), re.I)
             or re.search(r"unusual traffic|our systems have detected|verify.{0,25}human|"
                          r"verifikasi sedang|非法访问|请使用正常浏览器|滑动验证|安全验证|完成验证|"
                          r"检测到异常流量|我们的系统检测到|请先登录|请登录后|登录后查看|登录后继续|"
-                         r"sign in to continue|log in to continue",
+                         r"sign in to continue|log in to continue|slide.{0,20}verif",
                          state.get("text", ""), re.I)):
         raise _Failure("blocked", "challenge", "Browser requested login or verification; stopped without retry or bypass.")
     return state
@@ -311,7 +311,7 @@ def get_browser_guest_item(marketplace, url_or_id, timeout=30, executable_path=N
                         rows = guest._jd_detail(parser, guest._item_id(marketplace, url), url)
                     elif marketplace == "blibli":
                         rows = guest._blibli_detail(parser, url)
-                    elif marketplace in {"tmall", "1688", "weidian"}:
+                    elif marketplace in PUBLIC_METADATA_MARKETPLACES:
                         from .china_public import parse_product_page
                         try:
                             rows = [parse_product_page(page.content(), marketplace, url, utc_now())]

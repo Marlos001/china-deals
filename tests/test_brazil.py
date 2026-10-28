@@ -217,7 +217,7 @@ class BrazilTests(unittest.TestCase):
         self.assertIsNone(self.compare()['brazil']['product_price_brl'])
 
     def test_bad_costs_raise_instead_of_silent_zeros(self):
-        for cost in [money('-1'), money('NaN'), money('1e2'), money('1', 'EUR'),
+        for cost in [money('-1'), money('NaN'), money('1e2'), money('1', 'ZZZ'),
                      money(True), dict(money(), basis='potential_coupon')]:
             with self.subTest(cost=cost), self.assertRaises(ValueError):
                 self.case['imported']['costs']['taxes'] = cost
